@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Banned — Krunker Resource Hub</title>
+<link rel="stylesheet" href="community.css">
+<style>
+  .banned-wrap{ max-width:520px; margin:60px auto; text-align:center; }
+  .banned-icon{ font-size:48px; margin-bottom:16px; }
+  .banned-reason{
+    margin-top:18px; text-align:left; font-size:13.5px; color:var(--text-1);
+    background:rgba(240,69,69,.08); border:1px solid rgba(240,69,69,.35); border-radius:10px;
+    padding:14px 16px; line-height:1.55; white-space:pre-wrap;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><a href="../index.html">◂ Krunker Resource Hub</a></div>
+  </div>
+
+  <div class="card banned-wrap">
+    <div class="banned-icon">\u26D4</div>
+    <h1>Your account has been banned</h1>
+    <p class="subtitle">You've been signed out and can no longer access the Krunker Resource Hub community features with this account.</p>
+    <div class="banned-reason" id="banReason" style="display:none;"></div>
+    <p class="subtitle" style="margin-top:22px;">If you believe this was a mistake, reach out to a Krunker Resource Hub developer.</p>
+    <a href="../index.html" class="btn ghost" style="display:inline-flex; width:auto; padding:10px 20px; margin-top:10px;">Back to Home</a>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const reason = params.get('reason');
+if (reason) {
+  const el = document.getElementById('banReason');
+  el.textContent = `Reason given: ${reason}`;
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>

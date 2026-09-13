@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Developer Panel — Krunker Resource Hub</title>
+<link rel="stylesheet" href="community.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><a href="../index.html">◂ Krunker Resource Hub</a></div>
+    <div class="topnav" id="topnav"></div>
+  </div>
+
+  <div class="card">
+    <h1>Developer Panel</h1>
+    <p class="subtitle">Promote or demote Admins. The Developer role itself can only be changed via SQL (see sql/schema.sql).</p>
+  </div>
+
+  <div class="card">
+    <h2>All Users</h2>
+    <input type="text" id="search" placeholder="Search username / name..." style="margin-bottom:16px;">
+    <div id="userList"><div class="empty">Loading...</div></div>
+  </div>
+
+  <div class="card">
+    <button class="btn logout-btn" id="btnLogout">Logout</button>
+  </div>
+</div>
+
+<script src="supabase-client.js"></script>
+<script>
+let allUsers = [];
+
+async function boot() {
+  const profile = await requireRole(["developer"], "dashboard.html");
+  if (!profile) return;
+
+  const nav = document.getElementById("topnav");
+  nav.innerHTML = `
+    <a href="dashboard.html">Dashboard</a>
+    <a href="admin.html">Admin Panel</a>
+    <span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>
+    <a href="settings.html" style="margin-left:6px;">Settings</a>
+  `;
+  document.getElementById("btnLogout").addEventListener("click", async (e) => {
+    e.preventDefault();
+    if (!confirm("Are you sure you want to log out?")) return;
+    await sb.auth.signOut(); window.location.href = "../index.html";
+  });
+
+  loadUsers();
+  document.getElementById("search").addEventListener("input", render);
+}
+
+async function loadUsers() {
+  const { data, error } = await sb.from("profiles").select("*").order("created_at", { ascending: false });
+  const el = document.getElementById("userList");
+  if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
+  allUsers = data;
+  render();
+}
+
+function render() {
+  const q = document.getElementById("search").value.toLowerCase();
+  const el = document.getElementById("userList");
+  let rows = allUsers;
+  if (q) rows = rows.filter(u => u.username.toLowerCase().includes(q) || u.display_name.toLowerCase().includes(q));
+  if (!rows.length) { el.innerHTML = `<div class="empty">No matching users.</div>`; return; }
+
+  el.innerHTML = rows.map(u => `
+    <div class="post-item">
+      <div class="title">${escapeHtml(u.display_name)} <span style="color:var(--text-2); font-weight:500;">@${escapeHtml(u.username)}</span></div>
+      <div class="meta">
+        ${roleBadge(u.role)}
+        ${u.banned ? `<span class="role-badge" style="background:rgba(240,69,69,.15); color:var(--red);">Banned</span>` : ''}
+        ${u.discord_username ? `<span>Discord: ${escapeHtml(u.discord_username)}</span>` : ""}
+        ${u.krunker_username ? `<span>Krunker: ${escapeHtml(u.krunker_username)}</span>` : ""}
+        <span>Joined ${formatDate(u.created_at)}</span>
+      </div>
+      ${u.banned && u.ban_reason ? `<div class="hint" style="margin-top:4px;">Ban reason: ${escapeHtml(u.ban_reason)}</div>` : ''}
+      <div class="post-actions">
+        ${u.role === 'developer' ? `<span class="hint">Developer role can only be changed via SQL.</span>` : ""}
+        ${u.role === 'user' ? `<button class="btn small green" onclick="setRole('${u.id}','admin')">Make Admin</button>` : ""}
+        ${u.role === 'admin' ? `<button class="btn small danger" onclick="setRole('${u.id}','user')">Revoke Admin</button>` : ""}
+        ${u.role !== 'developer' ? (u.banned
+          ? `<button class="btn small green" onclick="unbanUser('${u.id}')">Unban</button>`
+          : `<button class="btn small danger" onclick="banUser('${u.id}')">Ban</button>`) : ""}
+      </div>
+    </div>
+  `).join("");
+}
+
+async function setRole(id, role) {
+  const { error } = await sb.from("profiles").update({ role }).eq("id", id);
+  if (error) { alert("Failed: " + error.message); return; }
+  loadUsers();
+}
+
+async function banUser(id) {
+  const user = allUsers.find(u => u.id === id);
+  const reasonInput = prompt(`Ban ${user ? user.display_name : 'this user'}. Enter a reason (required):`, "");
+  if (reasonInput === null) return;
+  const reason = reasonInput.trim();
+  if (!reason) { alert("A reason is required to ban a user."); return; }
+  if (!confirm(`Ban ${user ? user.display_name : 'this user'}?\n\nReason: ${reason}\n\nThey will be immediately signed out and lose all access. Confirm?`)) return;
+
+  const me = await getSessionUser();
+  const { error } = await sb.from("profiles").update({
+    banned: true, ban_reason: reason, banned_at: new Date().toISOString(), banned_by: me ? me.id : null,
+  }).eq("id", id);
+  if (error) { alert("Failed: " + error.message); return; }
+
+  await sb.from("notifications").insert({
+    user_id: id, type: "banned", actor_id: me ? me.id : null, reason: reason,
+  });
+
+  loadUsers();
+}
+
+async function unbanUser(id) {
+  const user = allUsers.find(u => u.id === id);
+  if (!confirm(`Unban ${user ? user.display_name : 'this user'}? They'll regain full access immediately.`)) return;
+
+  const { error } = await sb.from("profiles").update({
+    banned: false, ban_reason: null, banned_at: null, banned_by: null,
+  }).eq("id", id);
+  if (error) { alert("Failed: " + error.message); return; }
+
+  const me = await getSessionUser();
+  await sb.from("notifications").insert({
+    user_id: id, type: "unbanned", actor_id: me ? me.id : null,
+  });
+
+  loadUsers();
+}
+
+boot();
+</script>
+</body>
+</html>

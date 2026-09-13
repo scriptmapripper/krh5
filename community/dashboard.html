@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Krunker Resource Hub</title>
+<link rel="stylesheet" href="community.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><a href="../index.html">◂ Krunker Resource Hub</a></div>
+    <div class="topnav" id="topnav"></div>
+  </div>
+
+  <div class="card">
+    <h2>Create New Post</h2>
+    <label>Title</label>
+    <input type="text" id="pTitle" placeholder="Your post title">
+    <label>Content</label>
+    <textarea id="pContent" placeholder="Write your content here..."></textarea>
+    <label>Category</label>
+    <select id="pCategory">
+      <option value="crosshair">Crosshair</option>
+      <option value="settings-ready">Settings — Ready Settings</option>
+      <option value="css-ready">CSS — Ready CSS</option>
+      <option value="maps-official-infected">Maps — Infected</option>
+      <option value="maps-official-tdm">Maps — TDM</option>
+      <option value="maps-custom-parkour">Maps — Parkour (Custom)</option>
+      <option value="mods-files">Mods — Mods Files</option>
+      <option value="scripts-userscript-legal">Scripts — Legal Script</option>
+      <option value="scripts-userscript-hack">Scripts — Hack Script</option>
+    </select>
+    <p class="hint">Posts also appear under their matching section on the site (e.g. Crosshair posts under Crosshair &gt; Crosshairs, Ready Settings posts under Settings &gt; Ready Settings, etc). Build your crosshair with <a href="../crosshair-maker.html" style="color:var(--blue-glow); text-decoration:underline;">Custom Crosshair Maker</a> first if needed.</p>
+    <div class="row2" style="margin-top:14px;">
+      <button class="btn ghost" id="btnDraft" style="margin-top:0;">Save as Draft</button>
+      <button class="btn green" id="btnPublish" style="margin-top:0;">Publish Now</button>
+    </div>
+    <div class="msg" id="createMsg"></div>
+  </div>
+
+  <div class="card">
+    <h2>My Posts</h2>
+    <div id="myPosts"><div class="empty">Loading...</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Public Feed</h2>
+    <div id="publicFeed"><div class="empty">Loading...</div></div>
+  </div>
+
+  <div class="card">
+    <button class="btn logout-btn" id="btnLogout">Logout</button>
+  </div>
+</div>
+
+<script src="supabase-client.js"></script>
+<script>
+let me = null;
+let myPostsCache = [];
+
+async function boot() {
+  const profile = await getMyProfile();
+  if (!profile) { window.location.href = "login.html"; return; }
+  me = await getSessionUser();
+
+  const [unreadCount, unreadMsgCount] = await Promise.all([
+    getUnreadNotificationCount(me.id),
+    getUnreadMessageCount(me.id),
+  ]);
+
+  const nav = document.getElementById("topnav");
+  let links = ``;
+  if (profile.role === "admin" || profile.role === "developer") {
+    links += `<a href="admin.html">Admin Panel</a>`;
+  }
+  if (profile.role === "developer") {
+    links += `<a href="developer.html">Developer Panel</a>`;
+  }
+  links += `<a href="profile.html?user=${encodeURIComponent(profile.username)}" style="color:var(--text-1); font-size:13.5px; margin-left:4px; text-decoration:none;">Hi, ${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</a>`;
+  links += `<a href="inbox.html" style="margin-left:6px;">Inbox${unreadBadgeHtml(unreadCount)}</a>`;
+  links += `<a href="messages.html" style="margin-left:6px;">Messages${unreadBadgeHtml(unreadMsgCount)}</a>`;
+  links += `<a href="saved.html" style="margin-left:6px;">Saved</a>`;
+  links += `<a href="settings.html" style="margin-left:6px;">Settings</a>`;
+  nav.innerHTML = links;
+  document.getElementById("btnLogout").addEventListener("click", async (e) => {
+    e.preventDefault();
+    if (!confirm("Are you sure you want to log out?")) return;
+    await sb.auth.signOut();
+    window.location.href = "../index.html";
+  });
+
+  loadMyPosts();
+  loadPublicFeed();
+}
+
+async function createPost(status) {
+  const msg = document.getElementById("createMsg");
+  const title = document.getElementById("pTitle").value.trim();
+  const content = document.getElementById("pContent").value.trim();
+  if (!title || !content) {
+    msg.className = "msg error show"; msg.textContent = "Title & content are required.";
+    return;
+  }
+  const category = document.getElementById("pCategory").value;
+  const { error } = await sb.from("posts").insert({ author_id: me.id, title, content, status, category });
+  if (error) {
+    msg.className = "msg error show"; msg.textContent = error.message;
+    return;
+  }
+  msg.className = "msg ok show"; msg.textContent = status === "published" ? "Post published!" : "Draft saved!";
+  document.getElementById("pTitle").value = "";
+  document.getElementById("pContent").value = "";
+  loadMyPosts();
+  if (status === "published") loadPublicFeed();
+}
+
+document.getElementById("btnDraft").addEventListener("click", () => createPost("draft"));
+document.getElementById("btnPublish").addEventListener("click", () => createPost("published"));
+
+async function loadMyPosts() {
+  const el = document.getElementById("myPosts");
+  const { data, error } = await sb.from("posts").select("*").eq("author_id", me.id).order("created_at", { ascending: false });
+  if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
+  if (!data.length) { el.innerHTML = `<div class="empty">No posts yet. Create your first one above!</div>`; return; }
+  el.innerHTML = data.map(p => `
+    <div class="post-item" data-id="${p.id}">
+      <div class="title">${escapeHtml(p.title)}</div>
+      <div class="meta">
+        <span class="status-pill ${p.status === 'published' ? 'status-published' : 'status-draft'}">${p.status}</span>
+        <span class="role-badge role-admin">${escapeHtml(p.category)}</span>
+        <span>${formatDate(p.created_at)}</span>
+      </div>
+      <div class="content">${escapeHtml(p.content)}</div>
+      <div class="post-actions">
+        ${p.status === 'draft'
+          ? `<button class="btn small green" onclick="togglePublish('${p.id}','published')">Publish</button>`
+          : `<button class="btn small ghost" onclick="togglePublish('${p.id}','draft')">Unpublish</button>`}
+        <button class="btn small ghost" onclick="startEdit('${p.id}')">Edit</button>
+        <button class="btn small danger" onclick="deletePost('${p.id}')">Delete</button>
+      </div>
+    </div>
+  `).join("");
+  myPostsCache = data;
+}
+
+function startEdit(id) {
+  const p = myPostsCache.find(x => x.id === id);
+  if (!p) return;
+  const el = document.querySelector(`.post-item[data-id="${id}"]`);
+  if (!el) return;
+  el.innerHTML = `
+    <label>Title</label>
+    <input type="text" id="editTitle-${id}" value="${escapeHtml(p.title)}">
+    <label>Content</label>
+    <textarea id="editContent-${id}">${escapeHtml(p.content)}</textarea>
+    ${p.category === 'crosshair' ? `<p class="hint">This post's content is the uploaded image link — only edit it if you're replacing the image URL directly. To change the image itself, delete this post and upload a new one.</p>` : ''}
+    <div class="post-actions">
+      <button class="btn small green" onclick="saveEdit('${id}')">Save</button>
+      <button class="btn small ghost" onclick="loadMyPosts()">Cancel</button>
+    </div>
+    <div class="msg" id="editMsg-${id}"></div>
+  `;
+}
+
+async function saveEdit(id) {
+  const title = document.getElementById(`editTitle-${id}`).value.trim();
+  const content = document.getElementById(`editContent-${id}`).value.trim();
+  const msg = document.getElementById(`editMsg-${id}`);
+  if (!title || !content) {
+    msg.className = "msg error show"; msg.textContent = "Title & content are required.";
+    return;
+  }
+  const { error } = await sb.from("posts").update({ title, content }).eq("id", id);
+  if (error) {
+    msg.className = "msg error show"; msg.textContent = error.message;
+    return;
+  }
+  loadMyPosts();
+  loadPublicFeed();
+  try {
+    if (window.parent && typeof window.parent.loadCrosshairGallery === "function") {
+      window.parent.loadCrosshairGallery("crosshair");
+    }
+  } catch(e) { /* not embedded — ignore */ }
+}
+
+async function togglePublish(id, status) {
+  await sb.from("posts").update({ status }).eq("id", id);
+  loadMyPosts(); loadPublicFeed();
+}
+
+async function deletePost(id) {
+  if (!confirm("Are you sure you want to delete this post?")) return;
+  await sb.from("posts").delete().eq("id", id);
+  loadMyPosts(); loadPublicFeed();
+}
+
+async function loadPublicFeed() {
+  const el = document.getElementById("publicFeed");
+  const { data, error } = await sb
+    .from("posts")
+    .select("*, profiles!posts_author_id_fkey(username,display_name,avatar_url)")
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
+  if (!data.length) { el.innerHTML = `<div class="empty">No public posts yet.</div>`; return; }
+  el.innerHTML = data.map(p => `
+    <div class="post-item">
+      <div class="title">${escapeHtml(p.title)}</div>
+      <div class="meta">
+        <span style="display:inline-flex; align-items:center; gap:5px;">${avatarHtml(p.profiles, 16)} by ${escapeHtml(p.profiles?.display_name || "?")}</span>
+        <span>${formatDate(p.created_at)}</span>
+      </div>
+      <div class="content">${escapeHtml(p.content)}</div>
+    </div>
+  `).join("");
+}
+
+boot();
+</script>
+</body>
+</html>
