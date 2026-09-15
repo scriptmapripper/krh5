@@ -233,7 +233,21 @@ const DATA = [
     ] },
 
   { id:'guides', label:'Guides', color:'cyan', glyph:'guide',
-    children:[ { id:'guides-tips', label:'Tips & Tricks' } ] },
+    children:[
+      { id:'guides-tips', label:'Tips & Tricks' },
+      { id:'guides-raids', label:'Raids', children:[
+          { id:'guides-raids-tortuga', label:'Tortuga' },
+          { id:'guides-raids-khepri', label:'Khepri', children:[
+              { id:'guides-raids-khepri-pharoah', label:'Pharoah' },
+              { id:'guides-raids-khepri-osiris', label:'Osiris' },
+            ] },
+          { id:'guides-raids-soul-sanctum', label:'Soul Sanctum' },
+          { id:'guides-raids-laboratory', label:'Laboratory' },
+          { id:'guides-raids-zombie', label:'Zombie' },
+          { id:'guides-raids-arg', label:'Arg' },
+          { id:'guides-raids-bastion', label:'Bastion' },
+        ] },
+    ] },
 
   { id:'news', label:'News', color:'cyan', glyph:'news',
     children:[
