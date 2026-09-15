@@ -214,6 +214,10 @@
       <div class="row2"><input id="playTop" value="Lock In" placeholder="top line"><input id="playBottom" value="FuckShit" placeholder="bottom line"></div>
       <label class="f">Reload message</label>
       <input id="reloadText" value="! Reloading !">
+      <label class="f">Corner watermark text <span class="q">(only used if the Corner watermark feature is on)</span></label>
+      <input id="watermarkText" value="Made with love 3000Auras">
+      <label class="f">Watermark font size (px)</label>
+      <input id="watermarkSize" value="14">
       <label class="f">Chat font size (px)</label>
       <input id="chatFontSize" value="22">
       <label class="f">Leaderboard font size (px)</label>
@@ -287,6 +291,7 @@ function readCfg(){
     playTop:val("playTop"), playBottom:val("playBottom"),
     badgePremium:chk("badgePremium"), badgePartner:chk("badgePartner"), badgeVerified:chk("badgeVerified"),
     reloadText:val("reloadText"),
+    watermarkText:val("watermarkText"), watermarkSize:val("watermarkSize"),
     chatFontSize:val("chatFontSize"), leaderFontSize:val("leaderFontSize"),
     uiScale:val("uiScale"),
     customCode:val("customCode"),
