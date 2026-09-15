@@ -21,7 +21,10 @@
     <input type="email" id="fEmail" placeholder="email@example.com">
 
     <label>Password</label>
-    <input type="password" id="fPassword" placeholder="Your password">
+    <div class="pw-wrap">
+      <input type="password" id="fPassword" placeholder="Your password">
+      <button class="pw-toggle" data-target="fPassword" tabindex="-1"></button>
+    </div>
     <p class="hint" style="text-align:right; margin-top:8px;"><a href="forgot-password.html">Forgot your password?</a></p>
 
     <button class="btn" id="btnLogin">Login</button>

@@ -52,6 +52,18 @@ textarea{min-height:160px; resize:vertical; line-height:1.5;}
 .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
 @media(max-width:560px){.row2{grid-template-columns:1fr;}}
 
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:44px;}
+.pw-toggle{
+  position:absolute; top:50%; right:4px; transform:translateY(-50%);
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  background:transparent; border:none; cursor:pointer; color:var(--text-2);
+  border-radius:6px; transition:.15s;
+}
+.pw-toggle:hover{color:var(--text-0); background:var(--surface-2);}
+.pw-toggle:focus-visible{outline:2px solid var(--blue-glow); outline-offset:1px;}
+.pw-toggle svg{width:18px; height:18px; display:block;}
+
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   padding:12px 20px; border-radius:9px; border:none; cursor:pointer;

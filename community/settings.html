@@ -84,7 +84,10 @@
       <input type="email" id="fNewEmail" placeholder="new-email@example.com">
 
       <label>Current Password</label>
-      <input type="password" id="fEmailPassword" placeholder="Confirm with your current password">
+      <div class="pw-wrap">
+        <input type="password" id="fEmailPassword" placeholder="Confirm with your current password">
+        <button class="pw-toggle" data-target="fEmailPassword" tabindex="-1"></button>
+      </div>
 
       <div class="row2" style="margin-top:14px;">
         <button class="btn ghost" id="btnCancelEmail" style="margin-top:0;">Cancel</button>
@@ -98,13 +101,22 @@
   <div class="card">
     <h2>Change Password</h2>
     <label>Current Password</label>
-    <input type="password" id="fCurrentPassword" placeholder="Your current password">
+    <div class="pw-wrap">
+      <input type="password" id="fCurrentPassword" placeholder="Your current password">
+      <button class="pw-toggle" data-target="fCurrentPassword" tabindex="-1"></button>
+    </div>
 
     <label>New Password</label>
-    <input type="password" id="fNewPassword" placeholder="Minimum 6 characters">
+    <div class="pw-wrap">
+      <input type="password" id="fNewPassword" placeholder="Minimum 6 characters">
+      <button class="pw-toggle" data-target="fNewPassword" tabindex="-1"></button>
+    </div>
 
     <label>Confirm New Password</label>
-    <input type="password" id="fConfirmPassword" placeholder="Repeat new password">
+    <div class="pw-wrap">
+      <input type="password" id="fConfirmPassword" placeholder="Repeat new password">
+      <button class="pw-toggle" data-target="fConfirmPassword" tabindex="-1"></button>
+    </div>
 
     <button class="btn" id="btnChangePassword">Update Password</button>
     <div class="msg" id="passwordMsg"></div>

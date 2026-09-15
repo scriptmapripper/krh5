@@ -134,3 +134,31 @@ function formatDate(iso) {
   const d = new Date(iso);
   return d.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
 }
+
+// ---------- Show/Hide password toggle ----------
+// Pasang otomatis di semua input dengan class "pw-toggle" yang punya
+// data-target = id input password terkait. Cukup bungkus input pakai
+// <div class="pw-wrap">...<button class="pw-toggle" data-target="...">
+// dan ini jalan sendiri di semua halaman yang load supabase-client.js.
+const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a13.16 13.16 0 0 1-3.19 3.94M6.61 6.61A13.31 13.31 0 0 0 1 11s4 7 11 7a9.28 9.28 0 0 0 5.39-1.61M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M1 1l22 22"/></svg>';
+
+function initPasswordToggles() {
+  document.querySelectorAll(".pw-toggle").forEach((btn) => {
+    if (btn.dataset.pwInit) return; // hindari double-bind kalau dipanggil ulang
+    btn.dataset.pwInit = "1";
+    btn.type = "button";
+    btn.setAttribute("aria-label", "Show password");
+    btn.innerHTML = EYE_ICON;
+    btn.addEventListener("click", () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      const willShow = input.type === "password";
+      input.type = willShow ? "text" : "password";
+      btn.setAttribute("aria-label", willShow ? "Hide password" : "Show password");
+      btn.innerHTML = willShow ? EYE_OFF_ICON : EYE_ICON;
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initPasswordToggles);
