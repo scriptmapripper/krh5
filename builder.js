@@ -169,6 +169,16 @@ const DATA = [
       { id:'crosshair-crosshairs', label:'Crosshairs' },
       { id:'crosshair-scope', label:'Scope' },
       { id:'crosshair-hitmarker', label:'Hitmarker' },
+      { id:'crosshair-overlay', label:'Overlay', children:[
+          { id:'crosshair-overlay-damage', label:'Damage Overlays' },
+          { id:'crosshair-overlay-game', label:'Game Overlays' },
+        ] },
+      { id:'crosshair-icons', label:'Icons', children:[
+          { id:'crosshair-icons-kill', label:'Kill' },
+          { id:'crosshair-icons-death', label:'Death' },
+          { id:'crosshair-icons-ammo', label:'Ammo' },
+          { id:'crosshair-icons-streak', label:'Streak Counter' },
+        ] },
     ] },
 
   { id:'settings', label:'Settings', color:'green', glyph:'gear',
@@ -1076,6 +1086,12 @@ const POST_LINKS = {
   'crosshair-crosshairs': 'community/crosshairs.html',
   'crosshair-scope': 'community/image-section.html?cat=crosshair-scope&title=Scope',
   'crosshair-hitmarker': 'community/image-section.html?cat=crosshair-hitmarker&title=Hitmarker',
+  'crosshair-overlay-damage': 'community/image-section.html?cat=crosshair-overlay-damage&title=Damage%20Overlay',
+  'crosshair-overlay-game': 'community/image-section.html?cat=crosshair-overlay-game&title=Game%20Overlay',
+  'crosshair-icons-kill': 'community/image-section.html?cat=crosshair-icons-kill&title=Kill%20Icon',
+  'crosshair-icons-death': 'community/image-section.html?cat=crosshair-icons-death&title=Death%20Icon',
+  'crosshair-icons-ammo': 'community/image-section.html?cat=crosshair-icons-ammo&title=Ammo%20Icon',
+  'crosshair-icons-streak': 'community/image-section.html?cat=crosshair-icons-streak&title=Streak%20Counter%20Icon',
   'settings-ready': 'community/section.html?cat=settings-ready&title=Ready%20Settings&filetype=txt&desc=1',
   'css-ready': 'community/css-post.html',
   'maps-official-infected': 'community/section.html?cat=maps-official-infected&title=Infected&filetype=txt,js&desc=1',
@@ -1092,6 +1108,12 @@ const GALLERY_SECTIONS = {
   'crosshair-crosshairs': { cat: 'crosshair', title: 'Community Crosshairs' },
   'crosshair-scope': { cat: 'crosshair-scope', title: 'Community Scopes' },
   'crosshair-hitmarker': { cat: 'crosshair-hitmarker', title: 'Community Hitmarkers' },
+  'crosshair-overlay-damage': { cat: 'crosshair-overlay-damage', title: 'Community Damage Overlays' },
+  'crosshair-overlay-game': { cat: 'crosshair-overlay-game', title: 'Community Game Overlays' },
+  'crosshair-icons-kill': { cat: 'crosshair-icons-kill', title: 'Community Kill Icons' },
+  'crosshair-icons-death': { cat: 'crosshair-icons-death', title: 'Community Death Icons' },
+  'crosshair-icons-ammo': { cat: 'crosshair-icons-ammo', title: 'Community Ammo Icons' },
+  'crosshair-icons-streak': { cat: 'crosshair-icons-streak', title: 'Community Streak Counter Icons' },
 };
 
 /* Leaf nodes that show a live-rendered community FILE gallery (uploaded
@@ -1276,15 +1298,18 @@ async function loadCrosshairGallery(cat){
     container.innerHTML = data.map((p, i) => {
       let parsed = null;
       try { parsed = JSON.parse(p.content); } catch(e) { /* legacy plain URL or crosshair code */ }
-      const imageUrl = parsed?.file_url || (/^https?:\/\//.test(p.content) ? p.content : null);
+      const previews = Array.isArray(parsed?.previews) ? parsed.previews : [];
+      const imageUrl = parsed?.file_url || previews[0] || (/^https?:\/\//.test(p.content) ? p.content : null);
       const description = parsed?.description || '';
       const isImage = !!imageUrl;
       const isOwner = currentUser && p.author_id === currentUser.id;
+      const extraImages = previews.length > 1 ? previews.length - 1 : 0;
       return `
       <div class="gallery-card" data-post-id="${p.id}">
         ${isImage
           ? `<img class="gallery-canvas" src="${imageUrl}" alt="${escapeHtml(p.title)}">`
           : `<canvas class="gallery-canvas" id="ghCanvas${i}" width="120" height="120"></canvas>`}
+        ${extraImages ? `<div class="gallery-meta">+${extraImages} more image${extraImages > 1 ? 's' : ''}</div>` : ''}
         <div class="gallery-title">${escapeHtml(p.title)}</div>
         <div class="gallery-meta">by ${escapeHtml(p.profiles?.display_name || '?')} · ${formatDate(p.created_at)}</div>
         ${parsed ? `<div class="gallery-desc" id="ch-desc-${p.id}" style="display:none;">${description ? escapeHtml(description) : 'No description provided.'}</div>` : ''}
@@ -1292,10 +1317,12 @@ async function loadCrosshairGallery(cat){
           ${reactionButtonsHtml(p.id, reactionCounts[p.id], myReactions[p.id], mySaves[p.id])}
           ${parsed ? `<button class="gallery-btn" data-action="toggle-desc" data-id="${p.id}">Description</button>` : ''}
           ${isImage
-            ? `<button class="gallery-btn" data-action="download-remote" data-url="${encodeURIComponent(imageUrl)}" data-filename="${encodeURIComponent((p.title || 'crosshair').replace(/[^a-z0-9-_]+/gi, '_').toLowerCase() + '.png')}">Download PNG</button>`
+            ? (previews.length > 1
+                ? `<button class="gallery-btn" data-action="download-all" data-urls="${encodeURIComponent(JSON.stringify(previews))}" data-name="${encodeURIComponent((p.title || 'overlay').replace(/[^a-z0-9-_]+/gi, '_').toLowerCase())}">Download ${previews.length} Images</button>`
+                : `<button class="gallery-btn" data-action="download-remote" data-url="${encodeURIComponent(imageUrl)}" data-filename="${encodeURIComponent((p.title || 'crosshair').replace(/[^a-z0-9-_]+/gi, '_').toLowerCase() + '.png')}">Download PNG</button>`)
             : `<button class="gallery-btn" data-action="download" data-code="${encodeURIComponent(p.content)}" data-name="${escapeHtml(p.title)}">Download PNG</button>`}
           ${isOwner ? `
-            <button class="gallery-btn" data-action="edit" data-id="${p.id}" data-title="${escapeHtml(p.title)}" data-desc="${encodeURIComponent(description)}" data-isjson="${parsed ? '1' : '0'}" data-fileurl="${encodeURIComponent(imageUrl || '')}">Edit</button>
+            <button class="gallery-btn" data-action="edit" data-id="${p.id}" data-title="${escapeHtml(p.title)}" data-desc="${encodeURIComponent(description)}" data-isjson="${parsed ? '1' : '0'}" data-fileurl="${encodeURIComponent(imageUrl || '')}" data-previews="${encodeURIComponent(JSON.stringify(previews))}">Edit</button>
             <button class="gallery-btn" data-action="delete" data-id="${p.id}">Delete</button>
           ` : ''}
         </div>
@@ -1308,7 +1335,7 @@ async function loadCrosshairGallery(cat){
     data.forEach((p, i) => {
       let parsed = null;
       try { parsed = JSON.parse(p.content); } catch(e) { /* not JSON */ }
-      const imageUrl = parsed?.file_url || (/^https?:\/\//.test(p.content) ? p.content : null);
+      const imageUrl = parsed?.file_url || parsed?.previews?.[0] || (/^https?:\/\//.test(p.content) ? p.content : null);
       if(imageUrl) return; /* real image, nothing to draw */
       const canvas = document.getElementById(`ghCanvas${i}`);
       if(!canvas) return;
@@ -1329,6 +1356,20 @@ async function loadCrosshairGallery(cat){
         const url = decodeURIComponent(btn.getAttribute('data-url'));
         const filename = decodeURIComponent(btn.getAttribute('data-filename'));
         downloadFileByUrl(url, filename, btn);
+      });
+    });
+    container.querySelectorAll('[data-action="download-all"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const urls = JSON.parse(decodeURIComponent(btn.getAttribute('data-urls') || '[]'));
+        const base = decodeURIComponent(btn.getAttribute('data-name') || 'image');
+        const original = btn.textContent;
+        btn.disabled = true;
+        for(let k = 0; k < urls.length; k++){
+          btn.textContent = `Downloading ${k + 1}/${urls.length}...`;
+          const ext = (urls[k].split('?')[0].split('.').pop() || 'png').toLowerCase();
+          await downloadFileByUrl(urls[k], `${base}-${k + 1}.${ext}`, null);
+        }
+        btn.disabled = false; btn.textContent = original;
       });
     });
     container.querySelectorAll('[data-action="download"]').forEach(btn => {
@@ -1374,7 +1415,10 @@ async function loadCrosshairGallery(cat){
           const newDesc = prompt('Edit description:', currentDesc);
           if (newDesc === null) return; /* cancelled */
           const fileUrl = decodeURIComponent(btn.getAttribute('data-fileurl') || '');
-          updatePayload.content = JSON.stringify({ file_url: fileUrl, description: newDesc.trim() });
+          const previews = JSON.parse(decodeURIComponent(btn.getAttribute('data-previews') || '[]'));
+          const payload = { file_url: fileUrl, description: newDesc.trim() };
+          if(previews.length) payload.previews = previews;
+          updatePayload.content = JSON.stringify(payload);
         }
 
         const { error } = await sb.from('posts').update(updatePayload).eq('id', id);

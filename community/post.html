@@ -126,6 +126,12 @@ const CATEGORY_LABELS = {
   'crosshair': 'Crosshair',
   'crosshair-scope': 'Crosshair Scope',
   'crosshair-hitmarker': 'Crosshair Hitmarker',
+  'crosshair-overlay-damage': 'Damage Overlay',
+  'crosshair-overlay-game': 'Game Overlay',
+  'crosshair-icons-kill': 'Kill Icon',
+  'crosshair-icons-death': 'Death Icon',
+  'crosshair-icons-ammo': 'Ammo Icon',
+  'crosshair-icons-streak': 'Streak Counter Icon',
   'settings-ready': 'Ready Settings',
   'css-ready': 'Ready CSS',
   'maps-official-infected': 'Infected (Custom Maps)',
@@ -136,7 +142,9 @@ const CATEGORY_LABELS = {
   'scripts-userscript-hack': 'Hack Script',
   'scripts-krunkscript-usable': 'Usable KrunkScripts',
 };
-const IMAGE_CATEGORIES = ['crosshair', 'crosshair-scope', 'crosshair-hitmarker'];
+const IMAGE_CATEGORIES = ['crosshair', 'crosshair-scope', 'crosshair-hitmarker',
+  'crosshair-overlay-damage', 'crosshair-overlay-game',
+  'crosshair-icons-kill', 'crosshair-icons-death', 'crosshair-icons-ammo', 'crosshair-icons-streak'];
 
 const params = new URLSearchParams(window.location.search);
 const POST_ID = params.get('id');
@@ -321,7 +329,7 @@ function renderPost(post, isOwner, isStaff) {
 
   const c = parseContent(post);
   const isImageCat = IMAGE_CATEGORIES.includes(post.category);
-  const mainImage = isImageCat ? (c.files[0]?.file_url || null) : (c.previews[0] || null);
+  const mainImage = isImageCat ? (c.files[0]?.file_url || c.previews[0] || null) : (c.previews[0] || null);
 
   document.title = `${post.title} — Krunker Resource Hub`;
   document.getElementById('postCatBadge').textContent = CATEGORY_LABELS[post.category] || post.category;
@@ -381,11 +389,29 @@ function renderPost(post, isOwner, isStaff) {
         downloadFileByUrl(decodeURIComponent(btn.getAttribute('data-dl-url')), decodeURIComponent(btn.getAttribute('data-dl-name')), btn);
       });
     });
-  } else if (isImageCat && c.files[0]) {
+  } else if (isImageCat && c.previews.length > 1) {
+    /* Multi-image posts (e.g. Overlay) get one download row per image. */
+    const base = safeFilename(post.title, c.previews[0]);
+    filesWrap.innerHTML = c.previews.map((url, i) => {
+      const ext = (url.split('?')[0].split('.').pop() || 'png').toLowerCase();
+      const name = `${base}-${i + 1}.${ext}`;
+      return `
+      <div class="post-file-row">
+        <span class="post-file-name">${i === 0 ? 'Main image' : 'Image ' + (i + 1)}</span>
+        <button class="btn-ghost" data-dl-url="${encodeURIComponent(url)}" data-dl-name="${encodeURIComponent(name)}">Download</button>
+      </div>`;
+    }).join('');
+    filesWrap.querySelectorAll('[data-dl-url]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        downloadFileByUrl(decodeURIComponent(btn.getAttribute('data-dl-url')), decodeURIComponent(btn.getAttribute('data-dl-name')), btn);
+      });
+    });
+  } else if (isImageCat && (c.files[0] || c.previews[0])) {
+    const only = c.files[0]?.file_url || c.previews[0];
     filesWrap.innerHTML = `
       <div class="post-file-row">
         <span class="post-file-name">Image (PNG)</span>
-        <button class="btn-ghost" data-dl-url="${encodeURIComponent(c.files[0].file_url)}" data-dl-name="${encodeURIComponent(safeFilename(post.title, c.files[0].file_url) + '.png')}">Download PNG</button>
+        <button class="btn-ghost" data-dl-url="${encodeURIComponent(only)}" data-dl-name="${encodeURIComponent(safeFilename(post.title, only) + '.png')}">Download PNG</button>
       </div>
     `;
     filesWrap.querySelector('[data-dl-url]').addEventListener('click', (e) => {

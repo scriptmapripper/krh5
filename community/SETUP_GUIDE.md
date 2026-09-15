@@ -97,6 +97,17 @@ juga taruh di luar folder yang di-publish.
   Kalau baru mau setup dari nol, cukup jalankan `sql/schema.sql` versi
   terbaru — kolom ini udah termasuk di situ.
 
+## Section Overlay & Icons (Crosshair)
+- **Overlay** sekarang cuma jadi folder — isinya dua subtab:
+  `Damage Overlays` dan `Game Overlays`.
+- **Icons** punya empat subtab: `Kill`, `Death`, `Ammo`, `Streak Counter`.
+- Keenam subtab itu pakai `community/image-section.html` — form post-nya
+  **Name**, **upload 1 gambar (PNG)**, dan **Description**. Gambarnya masuk
+  bucket `crosshairs`, datanya disimpan di kolom `content` sebagai JSON
+  `{ file_url, description }`.
+- Sebelum dipakai, jalankan `sql/add_overlay_category.sql` di Supabase SQL
+  Editor supaya kategori barunya lolos constraint.
+
 ## File yang perlu kamu isi
 - `community/supabase-client.js` → URL & anon key Supabase (wajib).
 

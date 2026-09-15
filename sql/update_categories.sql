@@ -28,7 +28,10 @@ alter table public.posts drop constraint if exists posts_category_check;
 --    'scripts-krunkscript-usable' added).
 alter table public.posts
   add constraint posts_category_check check (category in (
-    'crosshair','crosshair-scope','crosshair-hitmarker','settings-ready','css-ready',
+    'crosshair','crosshair-scope','crosshair-hitmarker',
+    'crosshair-overlay-damage','crosshair-overlay-game',
+    'crosshair-icons-kill','crosshair-icons-death','crosshair-icons-ammo','crosshair-icons-streak',
+    'settings-ready','css-ready',
     'maps-official-infected','maps-official-tdm','maps-custom-parkour',
     'mods-files','scripts-userscript-legal','scripts-userscript-hack','scripts-krunkscript-usable'
   ));
