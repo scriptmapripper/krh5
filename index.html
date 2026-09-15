@@ -23,7 +23,7 @@
       <a href="community/login.html" id="navLogin" style="padding:9px 16px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-1); font-size:13.5px; font-weight:600;">Login</a>
       <a href="community/signup.html" id="navSignup" style="padding:9px 16px; border-radius:8px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; font-size:13.5px; font-weight:700;">Sign Up</a>
       <span id="navDivider" style="display:none; width:1px; height:22px; background:var(--border); margin:0 2px;"></span>
-      <a href="community/dashboard.html" id="navDashboard" style="display:none; padding:9px 16px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-1); font-size:13.5px; font-weight:600;">Dashboard</a>
+      <div id="navLinks" style="display:none; gap:10px; align-items:center;"></div>
       <a href="community/settings.html" id="navAvatar" title="Account Settings" style="display:none; align-items:center;"></a>
     </div>
   </header>
@@ -72,9 +72,34 @@
 
     const profile = await getMyProfile();
     if (profile) {
-      document.getElementById("navDashboard").style.display = "inline-block";
+      const [unreadCount, unreadMsgCount] = await Promise.all([
+        getUnreadNotificationCount(user.id),
+        getUnreadMessageCount(user.id),
+      ]);
+
+      /* Same look as the old Dashboard button so the header stays consistent. */
+      const btn = "padding:9px 16px; border-radius:8px; border:1px solid var(--border);" +
+                  " background:var(--surface); color:var(--text-1); font-size:13.5px;" +
+                  " font-weight:600; text-decoration:none; display:inline-flex; align-items:center;";
+
+      let links = "";
+      if (profile.role === "developer") {
+        links += `<a href="community/developer.html" style="${btn}">Developer Panel</a>`;
+      }
+      if (profile.role === "admin" || profile.role === "developer") {
+        links += `<a href="community/admin.html" style="${btn}">Admin Panel</a>`;
+      }
+      links += `<a href="community/messages.html" style="${btn}">Messages${unreadBadgeHtml(unreadMsgCount)}</a>`;
+      links += `<a href="community/inbox.html" style="${btn}">Inbox${unreadBadgeHtml(unreadCount)}</a>`;
+      links += `<a href="community/saved.html" style="${btn}">Saved</a>`;
+
+      const navLinks = document.getElementById("navLinks");
+      navLinks.innerHTML = links;
+      navLinks.style.display = "flex";
+
       const avatarLink = document.getElementById("navAvatar");
       avatarLink.innerHTML = avatarHtml(profile, 28);
+      avatarLink.title = profile.display_name || profile.username || "Account Settings";
       avatarLink.style.display = "inline-flex";
       document.getElementById("navDivider").style.display = "inline-block";
     }
