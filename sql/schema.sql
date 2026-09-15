@@ -81,9 +81,9 @@ create table if not exists public.posts (
 -- jalankan ini aja (aman dijalankan berkali-kali):
 -- alter table public.posts add column if not exists category text not null default 'crosshair' check (category in (
 --   'crosshair','crosshair-scope','crosshair-hitmarker',
-    'crosshair-overlay-damage','crosshair-overlay-game',
-    'crosshair-icons-kill','crosshair-icons-death','crosshair-icons-ammo','crosshair-icons-streak',
-    'settings-ready','css-ready',
+--   'crosshair-overlay-damage','crosshair-overlay-game',
+--   'crosshair-icons-kill','crosshair-icons-death','crosshair-icons-ammo','crosshair-icons-streak',
+--   'settings-ready','css-ready',
 --   'maps-official-infected','maps-official-tdm','maps-custom-parkour',
 --   'mods-files','scripts-userscript-legal','scripts-userscript-hack','scripts-krunkscript-usable'
 -- ));
