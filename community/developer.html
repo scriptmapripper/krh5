@@ -20,6 +20,21 @@
   </div>
 
   <div class="card">
+    <h2>Ban Appeals <span id="appealCount"></span></h2>
+    <p class="subtitle">Tickets opened by banned accounts asking to be unbanned.</p>
+    <div id="appealFilters" class="row2" style="margin-bottom:16px;">
+      <select id="filterAppealStatus">
+        <option value="pending">Pending only</option>
+        <option value="all">All statuses</option>
+        <option value="rejected">Rejected only</option>
+        <option value="approved">Approved only</option>
+      </select>
+      <span></span>
+    </div>
+    <div id="appealList"><div class="empty">Loading...</div></div>
+  </div>
+
+  <div class="card">
     <h2>All Users</h2>
     <input type="text" id="search" placeholder="Search username / name..." style="margin-bottom:16px;">
     <div id="userList"><div class="empty">Loading...</div></div>
@@ -53,6 +68,107 @@ async function boot() {
 
   loadUsers();
   document.getElementById("search").addEventListener("input", render);
+
+  loadAppeals();
+  document.getElementById("filterAppealStatus").addEventListener("change", renderAppeals);
+}
+
+let allAppeals = [];
+
+async function loadAppeals() {
+  const { data, error } = await sb
+    .from("ban_appeals")
+    .select("*, profiles!ban_appeals_user_id_fkey(username,display_name,avatar_url,banned)")
+    .order("created_at", { ascending: false });
+  const el = document.getElementById("appealList");
+  if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
+  allAppeals = data;
+  renderAppeals();
+}
+
+function renderAppeals() {
+  const status = document.getElementById("filterAppealStatus").value;
+  const el = document.getElementById("appealList");
+  const countEl = document.getElementById("appealCount");
+  const pendingCount = allAppeals.filter(a => a.status === "pending").length;
+  countEl.innerHTML = pendingCount ? unreadBadgeHtml(pendingCount) : "";
+
+  let rows = allAppeals;
+  if (status !== "all") rows = rows.filter(a => a.status === status);
+  if (!rows.length) { el.innerHTML = `<div class="empty">No matching appeals.</div>`; return; }
+
+  const statusColor = { pending: "var(--orange)", approved: "var(--green)", rejected: "var(--red)" };
+
+  el.innerHTML = rows.map(a => `
+    <div class="post-item">
+      <div class="title">
+        ${escapeHtml(a.username)}
+        <span class="role-badge" style="background:rgba(0,0,0,0); border:1px solid ${statusColor[a.status]}; color:${statusColor[a.status]};">${a.status}</span>
+      </div>
+      <div class="meta">
+        <span>Opened ${formatDate(a.created_at)}</span>
+        ${a.krunker_username ? `<span>Krunker: ${escapeHtml(a.krunker_username)}</span>` : ""}
+        ${a.discord_username ? `<span>Discord: ${escapeHtml(a.discord_username)}</span>` : ""}
+        ${a.discord_id ? `<span>Discord ID: ${escapeHtml(a.discord_id)}</span>` : ""}
+      </div>
+      <div class="content"><strong>Ban reason (as stated by user):</strong> ${escapeHtml(a.ban_reason)}</div>
+      <div class="content"><strong>Why they think it should be revoked:</strong> ${escapeHtml(a.message)}</div>
+      ${a.proof_files && a.proof_files.length ? `
+        <div class="hint" style="margin-top:8px;">Proof:</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+          ${a.proof_files.map(f => `<a href="${escapeHtml(f.url)}" target="_blank" rel="noopener" class="btn small ghost" style="margin-top:0;">${escapeHtml(f.name || "file")}</a>`).join("")}
+        </div>` : ""}
+      ${a.status !== "pending" && a.reviewer_note ? `<div class="hint" style="margin-top:6px;">Reviewer note: ${escapeHtml(a.reviewer_note)}</div>` : ""}
+      ${a.status === "pending" ? `
+        <div class="post-actions">
+          <button class="btn small green" onclick="approveAppeal('${a.id}','${a.user_id}')">Approve &amp; Unban</button>
+          <button class="btn small danger" onclick="rejectAppeal('${a.id}','${a.user_id}')">Reject</button>
+        </div>` : ""}
+    </div>
+  `).join("");
+}
+
+async function approveAppeal(appealId, userId) {
+  const appeal = allAppeals.find(a => a.id === appealId);
+  if (!confirm(`Approve this appeal and unban ${appeal ? appeal.username : "this user"}?`)) return;
+
+  const me2 = await getSessionUser();
+
+  const { error: unbanErr } = await sb.from("profiles").update({
+    banned: false, ban_reason: null, banned_at: null, banned_by: null,
+  }).eq("id", userId);
+  if (unbanErr) { alert("Failed: " + unbanErr.message); return; }
+
+  await sb.from("notifications").insert({
+    user_id: userId, type: "unbanned", actor_id: me2 ? me2.id : null,
+  });
+
+  const { error } = await sb.from("ban_appeals").update({
+    status: "approved", reviewed_by: me2 ? me2.id : null, reviewed_at: new Date().toISOString(),
+  }).eq("id", appealId);
+  if (error) { alert("Unbanned, but failed to update the ticket: " + error.message); }
+
+  loadAppeals();
+  loadUsers();
+}
+
+async function rejectAppeal(appealId, userId) {
+  const noteInput = prompt("Reject this appeal. Optional note to the user (they'll see this):", "");
+  if (noteInput === null) return;
+  const note = noteInput.trim();
+
+  const me2 = await getSessionUser();
+  const { error } = await sb.from("ban_appeals").update({
+    status: "rejected", reviewed_by: me2 ? me2.id : null, reviewed_at: new Date().toISOString(),
+    reviewer_note: note || null,
+  }).eq("id", appealId);
+  if (error) { alert("Failed: " + error.message); return; }
+
+  await sb.from("notifications").insert({
+    user_id: userId, type: "appeal_rejected", actor_id: me2 ? me2.id : null, reason: note || null,
+  });
+
+  loadAppeals();
 }
 
 async function loadUsers() {

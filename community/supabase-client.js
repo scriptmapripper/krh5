@@ -36,8 +36,12 @@ async function getMyProfile() {
     if (!alreadyOnBannedPage) {
       const target = (inCommunityFolder ? "banned.html" : "community/banned.html") + (reason ? `?reason=${encodeURIComponent(reason)}` : "");
       window.location.href = target;
+      return null;
     }
-    return null;
+    // Already on banned.html — hand back the profile (username, ban_reason,
+    // krunker_username, discord_id, discord_username, etc.) so the page can
+    // prefill the Appeal Ban form instead of getting nothing back.
+    return data;
   }
 
   return data;
