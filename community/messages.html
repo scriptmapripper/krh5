@@ -7,6 +7,18 @@
 <link rel="stylesheet" href="community.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  .dm-tabs{ display:flex; width:fit-content; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:16px; }
+  .dm-tab{
+    padding:9px 24px; background:var(--surface); color:var(--text-1); border:none; cursor:pointer;
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; letter-spacing:.3px; transition:.15s;
+  }
+  .dm-tab + .dm-tab{ border-left:1px solid var(--border); }
+  .dm-tab:hover:not(.active){ color:var(--text-0); }
+  .dm-tab.active{ background:var(--blue-glow); color:#05070f; }
+
+  .dm-panel{ display:none; }
+  .dm-panel.active{ display:block; }
+
   .dm-layout{ display:flex; gap:0; border:1px solid var(--border); border-radius:14px; overflow:hidden; min-height:520px; }
   .dm-list{ width:290px; flex:none; border-right:1px solid var(--border); overflow-y:auto; max-height:640px; }
   .dm-list-row{
@@ -38,6 +50,26 @@
   .dm-thread-input textarea{ flex:1; min-height:44px; max-height:120px; resize:none; margin:0; }
   .dm-thread-input button{ align-self:flex-end; }
   .dm-empty-state{ flex:1; display:flex; align-items:center; justify-content:center; color:var(--text-2); font-size:13.5px; padding:40px; text-align:center; }
+
+  /* ---- Public (global) chat — same bubble language as DMs, plus a
+     sender name/avatar since it's a room full of people, not a 1:1 thread. ---- */
+  .pub-panel-inner{ border:1px solid var(--border); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; min-height:520px; }
+  .pub-messages{ flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:14px; max-height:560px; }
+  .pub-row{ display:flex; gap:10px; align-items:flex-start; }
+  .pub-row.mine{ flex-direction:row-reverse; }
+  .pub-wrap{ max-width:min(70%, 420px); min-width:0; }
+  .pub-row.mine .pub-wrap{ display:flex; flex-direction:column; align-items:flex-end; }
+  .pub-name{ font-size:11.5px; font-weight:700; color:var(--text-2); margin-bottom:3px; }
+  .pub-name a{ color:inherit; }
+  .pub-name a:hover{ color:var(--text-0); }
+  .pub-bubble{
+    padding:9px 13px; border-radius:14px; font-size:13.5px; line-height:1.5;
+    white-space:pre-wrap; word-break:break-word; display:inline-block; max-width:100%;
+  }
+  .pub-row.mine .pub-bubble{ background:var(--blue-glow); color:#05070f; border-bottom-right-radius:4px; }
+  .pub-row:not(.mine) .pub-bubble{ background:var(--surface-2); color:var(--text-1); border:1px solid var(--border); border-bottom-left-radius:4px; }
+  .pub-time{ font-size:10px; color:var(--text-2); margin-top:3px; }
+
   @media (max-width: 720px){
     .dm-layout{ flex-direction:column; }
     .dm-list{ width:100%; border-right:none; border-bottom:1px solid var(--border); max-height:220px; }
@@ -53,12 +85,31 @@
 
   <div class="card">
     <h2 style="margin-bottom:16px;">Messages</h2>
-    <div class="dm-layout">
-      <div class="dm-list" id="dmList"><div class="empty">Loading...</div></div>
-      <div class="dm-thread" id="dmThread">
-        <div class="dm-empty-state">Select a conversation, or visit someone's profile and tap Message.</div>
+
+    <div class="dm-tabs">
+      <button type="button" class="dm-tab" data-tab="public">Public</button>
+      <button type="button" class="dm-tab" data-tab="dm">Direct Messages</button>
+    </div>
+
+    <div class="dm-panel" id="panelPublic">
+      <div class="pub-panel-inner">
+        <div class="pub-messages" id="pubMessages"><div class="empty">Loading...</div></div>
+        <div class="dm-thread-input">
+          <textarea id="pubInput" placeholder="Say something to everyone..."></textarea>
+          <button class="btn" id="btnSendPub" style="width:auto; padding:10px 20px; margin-top:0;">Send</button>
+        </div>
       </div>
     </div>
+
+    <div class="dm-panel" id="panelDm">
+      <div class="dm-layout">
+        <div class="dm-list" id="dmList"><div class="empty">Loading...</div></div>
+        <div class="dm-thread" id="dmThread">
+          <div class="dm-empty-state">Select a conversation, or visit someone's profile and tap Message.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -69,8 +120,40 @@ const WITH_USERNAME = params.get('with');
 
 let me = null;
 let activeConversationId = null;
-let pollHandle = null;
+let dmPollHandle = null;
+let pubPollHandle = null;
 
+// ---------------------------------------------------------------
+// Tabs
+// ---------------------------------------------------------------
+function switchTab(tab) {
+  document.querySelectorAll('.dm-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tab));
+  document.getElementById('panelPublic').classList.toggle('active', tab === 'public');
+  document.getElementById('panelDm').classList.toggle('active', tab === 'dm');
+
+  // Only poll the panel that's actually visible.
+  if (tab === 'public') {
+    if (dmPollHandle) { clearInterval(dmPollHandle); dmPollHandle = null; }
+    refreshPublicMessages();
+    if (pubPollHandle) clearInterval(pubPollHandle);
+    pubPollHandle = setInterval(refreshPublicMessages, 4000);
+  } else {
+    if (pubPollHandle) { clearInterval(pubPollHandle); pubPollHandle = null; }
+    if (activeConversationId) {
+      refreshMessages();
+      if (dmPollHandle) clearInterval(dmPollHandle);
+      dmPollHandle = setInterval(refreshMessages, 4000);
+    }
+  }
+}
+
+document.querySelectorAll('.dm-tab').forEach(t => {
+  t.addEventListener('click', () => switchTab(t.getAttribute('data-tab')));
+});
+
+// ---------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------
 async function boot() {
   const profile = await getMyProfile();
   if (!profile) { window.location.href = "login.html"; return; }
@@ -85,17 +168,82 @@ async function boot() {
   links += `<a href="dashboard.html" style="margin-left:6px;">Dashboard</a>`;
   nav.innerHTML = links;
 
+  document.getElementById('btnSendPub').addEventListener('click', sendPublicMessage);
+  document.getElementById('pubInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPublicMessage(); }
+  });
+
   await loadConversationList();
 
   if (WITH_USERNAME) {
     const { data: target } = await sb.from('profiles').select('*').eq('username', WITH_USERNAME).maybeSingle();
     if (target) {
       const convId = await findOrCreateConversation(target.id);
-      openThread(convId, target);
+      await openThread(convId, target);
+      switchTab('dm');
+      return;
     }
   }
+
+  switchTab('public');
 }
 
+// ---------------------------------------------------------------
+// Public (global) chat — one shared room, visible to every logged-in user.
+// ---------------------------------------------------------------
+async function refreshPublicMessages() {
+  const msgsEl = document.getElementById('pubMessages');
+  if (!msgsEl) return;
+
+  const { data, error } = await sb
+    .from('public_messages')
+    .select('*, sender:profiles!public_messages_sender_id_fkey(id,username,display_name,avatar_url)')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error) { msgsEl.innerHTML = '<div class="empty">Failed to load public chat.</div>'; return; }
+
+  const ordered = data.slice().reverse(); // oldest first
+  const wasAtBottom = msgsEl.scrollTop + msgsEl.clientHeight >= msgsEl.scrollHeight - 30;
+
+  msgsEl.innerHTML = ordered.length ? ordered.map(m => {
+    const mine = m.sender_id === me.id;
+    const sender = m.sender || { username: 'unknown', display_name: 'Unknown' };
+    return '<div class="pub-row' + (mine ? ' mine' : '') + '">' +
+      '<a href="profile.html?user=' + encodeURIComponent(sender.username) + '">' + avatarHtml(sender, 32) + '</a>' +
+      '<div class="pub-wrap">' +
+        (mine ? '' : '<div class="pub-name"><a href="profile.html?user=' + encodeURIComponent(sender.username) + '">' + escapeHtml(sender.display_name) + '</a></div>') +
+        '<div class="pub-bubble">' + escapeHtml(m.content) + '</div>' +
+        '<div class="pub-time">' + formatDate(m.created_at) + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('') : '<div class="empty">No messages yet — be the first to say hi!</div>';
+
+  if (wasAtBottom) msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+async function sendPublicMessage() {
+  const input = document.getElementById('pubInput');
+  const content = input.value.trim();
+  if (!content) return;
+
+  const btn = document.getElementById('btnSendPub');
+  btn.disabled = true;
+
+  const { error } = await sb.from('public_messages').insert({ sender_id: me.id, content: content });
+
+  if (!error) {
+    input.value = '';
+    await refreshPublicMessages();
+  } else {
+    alert('Failed to send: ' + error.message);
+  }
+  btn.disabled = false;
+}
+
+// ---------------------------------------------------------------
+// Direct Messages (existing 1:1 DM system)
+// ---------------------------------------------------------------
 function orderedPair(a, b) {
   return a < b ? [a, b] : [b, a];
 }
@@ -197,8 +345,10 @@ async function openThread(conversationId, otherUser) {
 
   await refreshMessages();
 
-  if (pollHandle) clearInterval(pollHandle);
-  pollHandle = setInterval(refreshMessages, 4000);
+  if (document.getElementById('panelDm').classList.contains('active')) {
+    if (dmPollHandle) clearInterval(dmPollHandle);
+    dmPollHandle = setInterval(refreshMessages, 4000);
+  }
 }
 
 async function refreshMessages() {
@@ -253,7 +403,10 @@ async function sendMessage() {
   btn.disabled = false;
 }
 
-window.addEventListener('beforeunload', () => { if (pollHandle) clearInterval(pollHandle); });
+window.addEventListener('beforeunload', () => {
+  if (dmPollHandle) clearInterval(dmPollHandle);
+  if (pubPollHandle) clearInterval(pubPollHandle);
+});
 
 boot();
 </script>
