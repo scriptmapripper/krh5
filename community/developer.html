@@ -57,6 +57,7 @@ async function boot() {
   nav.innerHTML = `
     <a href="dashboard.html">Dashboard</a>
     <a href="admin.html">Admin Panel</a>
+    <a href="logs.html">History Logs</a>
     <span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>
     <a href="settings.html" style="margin-left:6px;">Settings</a>
   `;
@@ -148,6 +149,12 @@ async function approveAppeal(appealId, userId) {
   }).eq("id", appealId);
   if (error) { alert("Unbanned, but failed to update the ticket: " + error.message); }
 
+  await logAction("appeal_approve", {
+    targetType: "appeal", targetId: appealId,
+    targetLabel: appeal ? appeal.username : null, targetUserId: userId,
+    meta: { unbanned: true },
+  });
+
   loadAppeals();
   loadUsers();
 }
@@ -166,6 +173,13 @@ async function rejectAppeal(appealId, userId) {
 
   await sb.from("notifications").insert({
     user_id: userId, type: "appeal_rejected", actor_id: me2 ? me2.id : null, reason: note || null,
+  });
+
+  const rejected = allAppeals.find(a => a.id === appealId);
+  await logAction("appeal_reject", {
+    targetType: "appeal", targetId: appealId,
+    targetLabel: rejected ? rejected.username : null, targetUserId: userId,
+    reason: note || null,
   });
 
   loadAppeals();
@@ -210,8 +224,16 @@ function render() {
 }
 
 async function setRole(id, role) {
+  const target = allUsers.find(u => u.id === id);
   const { error } = await sb.from("profiles").update({ role }).eq("id", id);
   if (error) { alert("Failed: " + error.message); return; }
+
+  await logAction(role === "admin" ? "role_grant_admin" : "role_revoke_admin", {
+    targetType: "user", targetId: id,
+    targetLabel: target ? target.username : null, targetUserId: id,
+    meta: { from: target ? target.role : null, to: role },
+  });
+
   loadUsers();
 }
 
@@ -233,6 +255,12 @@ async function banUser(id) {
     user_id: id, type: "banned", actor_id: me ? me.id : null, reason: reason,
   });
 
+  await logAction("user_ban", {
+    targetType: "user", targetId: id,
+    targetLabel: user ? user.username : null, targetUserId: id,
+    reason,
+  });
+
   loadUsers();
 }
 
@@ -248,6 +276,11 @@ async function unbanUser(id) {
   const me = await getSessionUser();
   await sb.from("notifications").insert({
     user_id: id, type: "unbanned", actor_id: me ? me.id : null,
+  });
+
+  await logAction("user_unban", {
+    targetType: "user", targetId: id,
+    targetLabel: user ? user.username : null, targetUserId: id,
   });
 
   loadUsers();

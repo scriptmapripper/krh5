@@ -74,6 +74,7 @@ async function boot() {
   let links = ``;
   if (profile.role === "admin" || profile.role === "developer") {
     links += `<a href="admin.html">Admin Panel</a>`;
+    links += `<a href="logs.html">History Logs</a>`;
   }
   if (profile.role === "developer") {
     links += `<a href="developer.html">Developer Panel</a>`;

@@ -135,6 +135,100 @@ function formatDate(iso) {
   return d.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
 }
 
+// ---------- History Logs (audit trail) ----------
+// Dipakai di admin.html, developer.html, dan post.html.
+// Tabel: public.activity_logs (lihat sql/add_history_logs.sql)
+
+// Label + warna per jenis aksi, dipakai logs.html buat nampilin badge.
+const LOG_ACTIONS = {
+  post_publish:      { label: "Published post",   icon: "▲", color: "var(--green)"  },
+  post_unpublish:    { label: "Unpublished post", icon: "▼", color: "var(--orange)" },
+  post_edit:         { label: "Edited post",      icon: "✎", color: "var(--blue-glow)" },
+  post_delete:       { label: "Deleted post",     icon: "✕", color: "var(--red)"    },
+  user_ban:          { label: "Banned user",      icon: "⊘", color: "var(--red)"    },
+  user_unban:        { label: "Unbanned user",    icon: "⊙", color: "var(--green)"  },
+  user_warn:         { label: "Warned user",      icon: "!",  color: "var(--orange)" },
+  role_grant_admin:  { label: "Granted Admin",    icon: "↑", color: "var(--purple)" },
+  role_revoke_admin: { label: "Revoked Admin",    icon: "↓", color: "var(--purple)" },
+  appeal_approve:    { label: "Approved appeal",  icon: "✓", color: "var(--green)"  },
+  appeal_reject:     { label: "Rejected appeal",  icon: "✕", color: "var(--red)"    },
+  comment_delete:    { label: "Deleted comment",  icon: "✕", color: "var(--red)"    },
+};
+
+// Cache profil actor biar gak query profiles tiap kali nulis log
+let _logActorCache = null;
+
+/* Tulis satu baris ke activity_logs.
+   SENGAJA tidak pernah throw: kalau nulis log gagal (offline, RLS, dll),
+   aksi utamanya (ban, delete, publish) tetap dianggap sukses — log cuma
+   dicatat error-nya di console. Jangan pernah bikin moderasi gagal
+   cuma gara-gara logging.
+
+   Contoh:
+     await logAction("user_ban", {
+       targetType: "user", targetId: u.id, targetLabel: u.username,
+       targetUserId: u.id, reason,
+     }); */
+async function logAction(action, opts = {}) {
+  try {
+    const user = await getSessionUser();
+    if (!user) return;
+
+    if (!_logActorCache || _logActorCache.id !== user.id) {
+      const { data } = await sb
+        .from("profiles")
+        .select("id,username,display_name,role")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!data) return;
+      _logActorCache = data;
+    }
+    const actor = _logActorCache;
+
+    // User biasa gak punya izin insert (ditolak RLS), jadi stop di sini aja
+    if (!["admin", "developer"].includes(actor.role)) return;
+
+    const { error } = await sb.from("activity_logs").insert({
+      actor_id:           actor.id,
+      actor_username:     actor.username,
+      actor_display_name: actor.display_name,
+      actor_role:         actor.role,
+      action,
+      target_type:    opts.targetType   ?? null,
+      target_id:      opts.targetId     ? String(opts.targetId) : null,
+      target_label:   opts.targetLabel  ?? null,
+      target_user_id: opts.targetUserId ?? null,
+      reason:         opts.reason       || null,
+      meta:           opts.meta         || {},
+    });
+    if (error) console.error("logAction failed:", error.message);
+  } catch (e) {
+    console.error("logAction failed:", e);
+  }
+}
+
+// "15 Sep 2026, 14:03" — dipakai di logs.html (formatDate cuma tanggal)
+function formatDateTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", {
+    day: "numeric", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  });
+}
+
+// "3 menit lalu" style, buat kolom waktu yang ringkas
+function timeAgo(iso) {
+  const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (secs < 60) return "just now";
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return formatDate(iso);
+}
+
 // ---------- Show/Hide password toggle ----------
 // Pasang otomatis di semua input dengan class "pw-toggle" yang punya
 // data-target = id input password terkait. Cukup bungkus input pakai

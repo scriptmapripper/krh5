@@ -51,7 +51,7 @@ async function boot() {
   if (!profile) return;
 
   const nav = document.getElementById("topnav");
-  let links = `<a href="dashboard.html">Dashboard</a>`;
+  let links = `<a href="dashboard.html">Dashboard</a><a href="logs.html">History Logs</a>`;
   if (profile.role === "developer") links += `<a href="developer.html">Developer Panel</a>`;
   links += `<span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>`;
   links += `<a href="settings.html" style="margin-left:6px;">Settings</a>`;
@@ -112,13 +112,44 @@ function render() {
 }
 
 async function setStatus(id, status) {
-  await sb.from("posts").update({ status }).eq("id", id);
+  const post = allData.find(p => p.id === id);
+  const { error } = await sb.from("posts").update({ status }).eq("id", id);
+  if (error) { alert("Failed: " + error.message); return; }
+
+  await logAction(status === "published" ? "post_publish" : "post_unpublish", {
+    targetType: "post",
+    targetId: id,
+    targetLabel: post ? post.title : null,
+    targetUserId: post ? post.author_id : null,
+    meta: { author: post?.profiles?.username || null, category: post?.category || null },
+  });
+
   loadAll();
 }
 
 async function removePost(id) {
-  if (!confirm("Permanently delete this post?")) return;
-  await sb.from("posts").delete().eq("id", id);
+  const post = allData.find(p => p.id === id);
+  const reasonInput = prompt(`Permanently delete "${post ? post.title : "this post"}". Enter a reason (required):`, "");
+  if (reasonInput === null) return;
+  const reason = reasonInput.trim();
+  if (!reason) { alert("A reason is required to delete a post."); return; }
+  if (!confirm(`Permanently delete this post?\n\nReason: ${reason}\n\nThis cannot be undone.`)) return;
+
+  const { error } = await sb.from("posts").delete().eq("id", id);
+  if (error) { alert("Failed: " + error.message); return; }
+
+  /* Log ditulis SETELAH delete berhasil, tapi judul & author sudah
+     di-snapshot dari allData di atas — jadi log tetap informatif
+     walaupun post-nya sudah hilang dari database. */
+  await logAction("post_delete", {
+    targetType: "post",
+    targetId: id,
+    targetLabel: post ? post.title : null,
+    targetUserId: post ? post.author_id : null,
+    reason,
+    meta: { author: post?.profiles?.username || null, category: post?.category || null },
+  });
+
   loadAll();
 }
 

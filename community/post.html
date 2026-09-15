@@ -475,6 +475,10 @@ async function editPost(post, parsedContent, staffActingOnOthers) {
       userId: post.author_id, type: 'post_edited', postId: post.id,
       postTitle: trimmedTitle, reason,
     });
+    await logAction('post_edit', {
+      targetType: 'post', targetId: post.id, targetLabel: trimmedTitle,
+      targetUserId: post.author_id, reason,
+    });
   }
   window.location.reload();
 }
@@ -503,6 +507,14 @@ async function deletePost(post, staffActingOnOthers) {
 
   const { error } = await sb.from('posts').delete().eq('id', post.id);
   if (error) { alert('Failed to delete: ' + error.message); return; }
+
+  if (staffActingOnOthers) {
+    await logAction('post_delete', {
+      targetType: 'post', targetId: post.id, targetLabel: post.title,
+      targetUserId: post.author_id, reason,
+      meta: { author: post.profiles?.username || null },
+    });
+  }
   window.location.href = '../index.html';
 }
 
@@ -517,6 +529,12 @@ async function warnUser(post) {
   await sendNotification({
     userId: post.author_id, type: 'warned', postId: post.id,
     postTitle: post.title, reason: message,
+  });
+  await logAction('user_warn', {
+    targetType: 'user', targetId: post.author_id,
+    targetLabel: post.profiles?.username || null, targetUserId: post.author_id,
+    reason: message,
+    meta: { post_id: post.id, post_title: post.title },
   });
   alert('Warning sent.');
 }
@@ -652,9 +670,30 @@ async function loadComments() {
 
   listEl.querySelectorAll('.comment-del').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Delete this comment?')) return;
-      const { error } = await sb.from('comments').delete().eq('id', btn.getAttribute('data-id'));
+      const commentId = btn.getAttribute('data-id');
+      const target = data.find(c => c.id === commentId);
+      const iAmStaff = myProfile && (myProfile.role === 'admin' || myProfile.role === 'developer');
+      const staffActingOnOthers = iAmStaff && target && me && target.author_id !== me.id;
+
+      let reason = '';
+      if (staffActingOnOthers) {
+        const reasonInput = prompt('This is not your comment. Enter a reason for deleting it (required):', '');
+        if (reasonInput === null) return;
+        reason = reasonInput.trim();
+        if (!reason) { alert('A reason is required to delete someone else\u2019s comment.'); return; }
+      } else if (!confirm('Delete this comment?')) return;
+
+      const { error } = await sb.from('comments').delete().eq('id', commentId);
       if (error) { alert('Failed to delete: ' + error.message); return; }
+
+      if (staffActingOnOthers) {
+        await logAction('comment_delete', {
+          targetType: 'comment', targetId: commentId,
+          targetLabel: target.profiles?.username || null, targetUserId: target.author_id,
+          reason,
+          meta: { post_id: POST_ID, post_title: currentPost?.title || null },
+        });
+      }
       loadComments();
     });
   });

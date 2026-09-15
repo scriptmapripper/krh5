@@ -123,3 +123,26 @@ juga taruh di luar folder yang di-publish.
 - `community/supabase-client.js` → URL & anon key Supabase (wajib).
 
 Semua kode lain udah siap pakai, gak perlu diubah lagi.
+
+## History Logs (audit trail aksi staff)
+- **Wajib jalankan `sql/add_history_logs.sql`** di Supabase SQL Editor dulu.
+  Kalau belum, halaman History Logs bakal nampilin pesan error.
+- Halamannya: `community/logs.html`, link-nya otomatis muncul di topnav
+  Dashboard / Admin Panel / Developer Panel **khusus admin & developer**.
+- Yang dicatat otomatis:
+  - Post: publish, unpublish, edit (staff ke post orang lain), delete
+  - User: ban, unban, warn
+  - Role: kasih / cabut Admin
+  - Ban appeal: approve, reject
+  - Komentar: hapus komentar orang lain
+  Aksi ke milik sendiri (edit/hapus post sendiri) **tidak** dicatat —
+  ini log moderasi, bukan log aktivitas pribadi.
+- Tabelnya **append-only**: gak ada policy UPDATE/DELETE sama sekali,
+  jadi log gak bisa diedit atau dihapus lewat website — termasuk oleh
+  developer. Kalau mau bersih-bersih log lama, ada query manualnya di
+  bagian bawah `sql/add_history_logs.sql`.
+- Log nyimpen **snapshot** username & judul post, jadi entry-nya tetap
+  kebaca walaupun post-nya udah dihapus atau akunnya udah hilang.
+- Mau nambah jenis aksi baru? Tambahin nama aksinya di `check (action in (...))`
+  pada SQL, terus di `LOG_ACTIONS` (supabase-client.js) dan `describe()`
+  (logs.html) buat label + kalimatnya.
