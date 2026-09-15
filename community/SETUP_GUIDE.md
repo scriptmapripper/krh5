@@ -50,7 +50,18 @@ langsung bisa pakai akun:
 
 Kalau mau tetep aktif (lebih aman dari akun spam), biarin default nyala aja.
 
-## 6. Set Developer pertama
+## 6. Aktifin Reset Password (Lupa Password)
+Halaman `login.html` sekarang ada link "Forgot your password?" yang ngirim
+email reset via Supabase. Biar linknya balik lagi ke situs kamu (bukan
+localhost bawaan Supabase):
+1. Supabase → **Authentication** → **URL Configuration**.
+2. Di **Redirect URLs**, pastiin domain situs kamu udah ada (harusnya udah
+   ditambahin di langkah 4.5 di atas) — kalau situs kamu di GitHub Pages,
+   ini juga otomatis nge-cover `community/reset-password.html`.
+3. Selesai — user tinggal klik "Forgot your password?" di halaman login,
+   masukin email, dan ikutin link yang dikirim ke inbox mereka.
+
+## 7. Set Developer pertama
 Developer (role paling atas) **gak bisa** diangkat dari panel web — sengaja,
 biar gak ada yang bisa naikin diri sendiri jadi developer lewat exploit.
 
@@ -61,7 +72,7 @@ biar gak ada yang bisa naikin diri sendiri jadi developer lewat exploit.
    ```
 3. Sekarang akun kamu bisa akses `community/developer.html` buat angkat/turunin Admin.
 
-## 7. Deploy
+## 8. Deploy
 Push semua file (termasuk folder `community/` dan `sql/`) ke GitHub Pages
 seperti biasa. `sql/schema.sql` boleh tetep ada di repo (isinya cuma
 struktur database, bukan data rahasia) — tapi kalau mau lebih rapi, boleh

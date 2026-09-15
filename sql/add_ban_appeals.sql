@@ -85,7 +85,7 @@ alter table public.notifications drop constraint if exists notifications_type_ch
 alter table public.notifications add constraint notifications_type_check check (type in (
   'post_like','post_dislike','post_comment',
   'comment_reply','comment_like','comment_dislike',
-  'post_edited','post_deleted','warned','banned','unbanned',
+  'post_edited','post_deleted','warned','banned','unbanned','new_follower',
   'appeal_rejected'
   -- (no 'appeal_submitted' — developers see new tickets directly in the
   -- Developer Panel's Ban Appeals list, and 'approved' just triggers the
