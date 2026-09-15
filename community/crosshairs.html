@@ -72,7 +72,7 @@ function setPreview(file) {
 
 async function boot() {
   me = await getSessionUser();
-  if (me) await getMyProfile(); // triggers ban-check + forced sign-out if this account is banned
+  if (me) await getMyProfile(); // triggers ban-check + redirect to banned.html if this account is banned
   const nav = document.getElementById("topnav");
   nav.innerHTML = "";
 

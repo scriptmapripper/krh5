@@ -26,8 +26,11 @@ async function getMyProfile() {
   if (error) { console.error(error); return null; }
 
   if (data && data.banned) {
+    /* Banned accounts stay logged in — they're just locked to banned.html.
+       No sign-out here on purpose: this way there's no Logout button
+       anywhere they can still reach (it only lives on pages like
+       Settings/Dashboard, which this redirect never lets them open). */
     const reason = data.ban_reason || "";
-    await sb.auth.signOut();
     const inCommunityFolder = window.location.pathname.includes("/community/");
     const alreadyOnBannedPage = window.location.pathname.endsWith("/banned.html");
     if (!alreadyOnBannedPage) {

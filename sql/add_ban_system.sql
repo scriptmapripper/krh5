@@ -25,10 +25,12 @@ alter table public.notifications add constraint notifications_type_check check (
 ));
 
 -- ---------- 2. Block a banned account from doing ANYTHING that writes data ----------
--- (Reading/browsing is blocked client-side by supabase-client.js signing the
---  user out the moment their profile loads with banned = true. These policy
---  updates are the server-side backstop, so it holds even if that client
---  check is ever bypassed.)
+-- (The account stays signed in on purpose — client-side, supabase-client.js
+--  redirects it to community/banned.html the moment its profile loads with
+--  banned = true, and every other page does the same check, so it never
+--  reaches a page it could browse, post, or log out from. These policy
+--  updates are the server-side backstop, so writes stay blocked even if
+--  that client-side redirect is ever bypassed.)
 
 -- Banned users can no longer edit their own profile/settings.
 drop policy if exists "profiles_update_self" on public.profiles;
