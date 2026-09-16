@@ -259,7 +259,10 @@ const DATA = [
     children:[ { id:'clients-official', label:'Krunker Official & Custom Clients' } ] },
 
   { id:'servers', label:'Servers', color:'cyan', glyph:'server',
-    children:[ { id:'servers-discord', label:'Krunker Discord Community Servers' } ] },
+    children:[
+      { id:'servers-game', label:'Krunker Game Servers' },
+      { id:'servers-discord', label:'Krunker Discord Community Servers' },
+    ] },
 
   { id:'about', label:'About Us', color:'cyan', glyph:'info',
     children:[
@@ -355,6 +358,7 @@ const EMBEDS = {
   'css-generator': 'css-generator.html',
   'css-official': 'official-css.html',
   'crosshair-maker': 'crosshair-maker.html',
+  'servers-game': 'game-servers.html',
   'scripts-krunkscript-generator': 'ks-generator.html',
   'scripts-krunkscript-docs-kr': 'kr-docs/index.html',
   'scripts-krunkscript-docs-swatdoge': 'https://krdocs.swatdoge.eu/',
