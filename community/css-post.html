@@ -8,6 +8,18 @@
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="../assets/favicon.ico">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#0a0f28">
+<meta name="description" content="Community-made Krunker CSS files — browse and download.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Krunker Resource Hub">
+<meta property="og:title" content="Ready CSS — Krunker Resource Hub">
+<meta property="og:description" content="Community-made Krunker CSS files — browse and download.">
+<meta property="og:image" content="../assets/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ready CSS — Krunker Resource Hub">
+<meta name="twitter:description" content="Community-made Krunker CSS files — browse and download.">
+<meta name="twitter:image" content="../assets/logo.png">
 <link rel="stylesheet" href="community.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -64,6 +76,7 @@
     </div>
     <input type="file" id="pPreviewInput" accept="image/*" multiple style="display:none;">
     <div id="previewGrid"></div>
+    <p class="hint" id="previewSizeHint"></p>
 
     <label style="margin-top:16px;">File (.txt or .css)</label>
     <input type="file" id="pFileInput" accept=".txt,.css">
@@ -71,6 +84,7 @@
       <span id="fileChipName"></span>
       <button type="button" id="btnRemoveFile">✕</button>
     </div>
+    <p class="hint" id="fileSizeHint"></p>
 
     <label style="margin-top:16px;">Description</label>
     <textarea id="pDescription" placeholder="Describe this CSS, how to install it, etc. (optional)"></textarea>
@@ -103,6 +117,9 @@ async function boot() {
   if (me) await getMyProfile(); // triggers ban-check + redirect to banned.html if this account is banned
   const nav = document.getElementById("topnav");
   nav.innerHTML = "";
+  const sizeLabel = `Max ${formatMaxSize(UPLOAD_MAX_BYTES_DEFAULT)} per file.`;
+  document.getElementById("previewSizeHint").textContent = sizeLabel;
+  document.getElementById("fileSizeHint").textContent = sizeLabel;
 
   if (me) {
     document.getElementById("logoutCard").style.display = "block";
@@ -144,7 +161,11 @@ document.addEventListener("paste", (e) => {
 });
 
 function addPreviewFiles(files) {
+  const msg = document.getElementById("createMsg");
+  const errors = [];
   files.forEach(file => {
+    const sizeError = checkUploadSize(file);
+    if (sizeError) { errors.push(sizeError); return; }
     previewFiles.push(file);
     const url = URL.createObjectURL(file);
     const thumb = document.createElement("div");
@@ -157,6 +178,9 @@ function addPreviewFiles(files) {
     });
     previewGrid.appendChild(thumb);
   });
+  if (errors.length) {
+    msg.className = "msg error show"; msg.textContent = errors.join(" ");
+  }
 }
 
 /* ---------- main file: .txt / .css ---------- */
@@ -165,8 +189,18 @@ const fileChip = document.getElementById("fileChip");
 const fileChipName = document.getElementById("fileChipName");
 
 fileInput.addEventListener("change", () => {
+  const msg = document.getElementById("createMsg");
   const file = fileInput.files[0];
   if (!file) return;
+  const sizeError = checkUploadSize(file);
+  if (sizeError) {
+    msg.className = "msg error show"; msg.textContent = sizeError;
+    fileInput.value = "";
+    mainFile = null;
+    fileChip.style.display = "none";
+    return;
+  }
+  msg.className = ""; msg.textContent = "";
   mainFile = file;
   fileChipName.textContent = file.name;
   fileChip.style.display = "flex";
@@ -186,6 +220,12 @@ document.getElementById("btnPublish").addEventListener("click", async () => {
   if (!title || !mainFile) {
     msg.className = "msg error show";
     msg.textContent = "Name and a .txt/.css file are required.";
+    return;
+  }
+  const sizeError = checkUploadSize(mainFile)
+    || previewFiles.map(f => checkUploadSize(f)).find(Boolean);
+  if (sizeError) {
+    msg.className = "msg error show"; msg.textContent = sizeError;
     return;
   }
 

@@ -8,6 +8,18 @@
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="../assets/favicon.ico">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#0a0f28">
+<meta name="description" content="Community submissions on Krunker Resource Hub.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Krunker Resource Hub">
+<meta property="og:title" content="Krunker Resource Hub">
+<meta property="og:description" content="Community submissions on Krunker Resource Hub.">
+<meta property="og:image" content="../assets/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Krunker Resource Hub">
+<meta name="twitter:description" content="Community submissions on Krunker Resource Hub.">
+<meta name="twitter:image" content="../assets/logo.png">
 <link rel="stylesheet" href="community.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -33,6 +45,7 @@
     <div id="pPreviewWrap" style="display:none; margin:12px 0;">
       <p class="hint" id="pFileName"></p>
     </div>
+    <p class="hint" id="uploadSizeHint" style="display:none;"></p>
     <div id="pDescWrap" style="display:none;">
       <label>Description</label>
       <textarea id="pDescription" placeholder="Describe what this is, how to install it, etc. (optional)"></textarea>
@@ -49,7 +62,9 @@
 
   <div class="card" id="feedCard">
     <h2 id="feedHeading">All Posts</h2>
+    <input type="text" id="feedSearch" placeholder="Search by title..." style="margin-bottom:14px;">
     <div id="feed"><div class="empty">Loading...</div></div>
+    <button class="btn ghost" id="btnLoadMoreFeed" style="display:none; margin-top:14px;">Load More</button>
   </div>
 
   <div class="card" id="logoutCard" style="display:none;">
@@ -61,6 +76,9 @@
 <script>
 let me = null;
 let pendingFiles = []; /* array of File objects — single-file mode just keeps this at length 1 */
+const FEED_PAGE_SIZE = 50;
+let feedOffset = 0;
+let feedSearchQuery = "";
 
 const params = new URLSearchParams(window.location.search);
 const CAT = params.get("cat") || "crosshair";
@@ -86,6 +104,9 @@ if (FILETYPES.length) {
   fileInput.style.display = "block";
   fileInput.accept = FILETYPES.map(ext => "." + ext).join(",");
   if (MULTIPLE) fileInput.multiple = true;
+  document.getElementById("uploadSizeHint").style.display = "block";
+  const uploadMaxBytes = FILETYPES.includes("zip") ? UPLOAD_MAX_BYTES_ZIP : UPLOAD_MAX_BYTES_DEFAULT;
+  document.getElementById("uploadSizeHint").textContent = `Max ${formatMaxSize(uploadMaxBytes)} per file.`;
   /* The gallery for this category now lives on the main placeholder page,
      so hide the inline feed card entirely to avoid duplicating it here. */
   document.getElementById("feedCard").style.display = "none";
@@ -107,6 +128,14 @@ document.getElementById("pFile")?.addEventListener("change", (e) => {
   if (badFile) {
     msg.className = "msg error show";
     msg.textContent = `"${badFile.name}" isn't allowed \u2014 only ${extLabel} files are allowed.`;
+    e.target.value = "";
+    pendingFiles = [];
+    document.getElementById("pPreviewWrap").style.display = "none";
+    return;
+  }
+  const oversized = files.map(f => checkUploadSize(f)).find(Boolean);
+  if (oversized) {
+    msg.className = "msg error show"; msg.textContent = oversized;
     e.target.value = "";
     pendingFiles = [];
     document.getElementById("pPreviewWrap").style.display = "none";
@@ -158,6 +187,11 @@ document.getElementById("btnPublish")?.addEventListener("click", async () => {
     });
     if (badFile) {
       msg.className = "msg error show"; msg.textContent = `Only ${extLabel} files are allowed.`;
+      return;
+    }
+    const oversized = pendingFiles.map(f => checkUploadSize(f)).find(Boolean);
+    if (oversized) {
+      msg.className = "msg error show"; msg.textContent = oversized;
       return;
     }
     const btn = document.getElementById("btnPublish");
@@ -236,19 +270,30 @@ document.getElementById("btnPublish")?.addEventListener("click", async () => {
   loadFeed();
 });
 
-async function loadFeed() {
+async function loadFeed(reset = true) {
   const el = document.getElementById("feed");
-  const { data, error } = await sb
+  const loadMoreBtn = document.getElementById("btnLoadMoreFeed");
+  if (reset) { feedOffset = 0; el.innerHTML = `<div class="empty">Loading...</div>`; }
+
+  let query = sb
     .from("posts")
     .select("*, profiles!posts_author_id_fkey(username,display_name,avatar_url)")
     .eq("status", "published")
     .eq("category", CAT)
     .order("created_at", { ascending: false })
-    .limit(50);
-  if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
-  if (!data.length) { el.innerHTML = `<div class="empty">Nothing posted here yet. Be the first!</div>`; return; }
+    .range(feedOffset, feedOffset + FEED_PAGE_SIZE - 1);
+  if (feedSearchQuery) query = query.ilike("title", `%${feedSearchQuery}%`);
 
-  el.innerHTML = data.map(p => `
+  const { data, error } = await query;
+  if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
+
+  if (reset && !data.length) {
+    el.innerHTML = `<div class="empty">${feedSearchQuery ? "No posts match your search." : "Nothing posted here yet. Be the first!"}</div>`;
+    loadMoreBtn.style.display = "none";
+    return;
+  }
+
+  const html = data.map(p => `
     <div class="post-item">
       <div class="title">${escapeHtml(p.title)}</div>
       <div class="meta">
@@ -258,7 +303,22 @@ async function loadFeed() {
       <div class="content">${escapeHtml(p.content)}</div>
     </div>
   `).join("");
+
+  if (reset) el.innerHTML = html; else el.insertAdjacentHTML("beforeend", html);
+  feedOffset += data.length;
+  loadMoreBtn.style.display = data.length === FEED_PAGE_SIZE ? "block" : "none";
 }
+
+let feedSearchDebounce = null;
+document.getElementById("feedSearch")?.addEventListener("input", (e) => {
+  clearTimeout(feedSearchDebounce);
+  feedSearchDebounce = setTimeout(() => {
+    feedSearchQuery = e.target.value.trim();
+    loadFeed(true);
+  }, 300);
+});
+
+document.getElementById("btnLoadMoreFeed")?.addEventListener("click", () => loadFeed(false));
 
 boot();
 </script>

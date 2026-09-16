@@ -10,6 +10,7 @@
 <link rel="shortcut icon" href="../assets/favicon.ico">
 <link rel="stylesheet" href="community.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 <div class="wrap narrow">
@@ -66,6 +67,10 @@
       <label>Username Krunker</label>
       <input type="text" id="fKrunker" placeholder="Your Krunker username (optional)">
 
+      <div id="turnstileWrap" style="margin:16px 0; display:none;">
+        <div class="cf-turnstile" data-sitekey="0x0000000000000000000000" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired" id="turnstileWidget"></div>
+      </div>
+
       <button class="btn" id="btnSubmit">Create Account</button>
       <div class="msg" id="formMsg"></div>
     </div>
@@ -77,7 +82,31 @@
 
 <script src="supabase-client.js"></script>
 <script>
+// =========================================================
+//  ANTI-BOT (Cloudflare Turnstile, free) — OPTIONAL
+//  1. Go to https://dash.cloudflare.com/?to=/:account/turnstile
+//     and create a widget (any domain works for testing).
+//  2. Paste the SITE key below.
+//  3. Paste the SECRET key into Supabase Dashboard > Authentication
+//     > Settings > Bot and Abuse Protection > enable "Turnstile"
+//     and paste it there. Supabase verifies the token server-side —
+//     nothing else to build.
+//  Left blank (default), signup just works without a captcha, same
+//  as before — this is purely additive.
+// =========================================================
+const TURNSTILE_SITE_KEY = "";
+// =========================================================
+
 let discordMeta = null; // { discord_id, discord_username }
+let turnstileToken = null;
+
+if (TURNSTILE_SITE_KEY) {
+  document.getElementById("turnstileWrap").style.display = "block";
+  document.getElementById("turnstileWidget").setAttribute("data-sitekey", TURNSTILE_SITE_KEY);
+}
+
+function onTurnstileSuccess(token) { turnstileToken = token; }
+function onTurnstileExpired() { turnstileToken = null; }
 
 async function init() {
   // Kalau balik dari OAuth redirect, sesi sementara Discord aktif di sini
@@ -128,14 +157,23 @@ document.getElementById("btnSubmit").addEventListener("click", async () => {
     msg.className = "msg error show"; msg.textContent = "Password must be at least 6 characters.";
     return;
   }
+  if (TURNSTILE_SITE_KEY && !turnstileToken) {
+    msg.className = "msg error show"; msg.textContent = "Please complete the verification challenge.";
+    return;
+  }
 
   const btn = document.getElementById("btnSubmit");
   btn.disabled = true; btn.textContent = "Processing...";
 
-  const { data: signUpData, error: signUpError } = await sb.auth.signUp({ email, password });
+  const { data: signUpData, error: signUpError } = await sb.auth.signUp({
+    email, password,
+    options: turnstileToken ? { captchaToken: turnstileToken } : undefined,
+  });
   if (signUpError) {
     msg.className = "msg error show"; msg.textContent = signUpError.message;
     btn.disabled = false; btn.textContent = "Create Account";
+    if (window.turnstile && TURNSTILE_SITE_KEY) window.turnstile.reset();
+    turnstileToken = null;
     return;
   }
 

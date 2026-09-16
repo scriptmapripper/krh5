@@ -150,3 +150,42 @@ Semua kode lain udah siap pakai, gak perlu diubah lagi.
 - Mau nambah jenis aksi baru? Tambahin nama aksinya di `check (action in (...))`
   pada SQL, terus di `LOG_ACTIONS` (supabase-client.js) dan `describe()`
   (logs.html) buat label + kalimatnya.
+
+## Rate Limiting (anti-spam post & komentar)
+- **Wajib jalankan `sql/add_rate_limiting.sql`** di Supabase SQL Editor.
+- Nahan post <20 detik dan komentar <5 detik dari yang terakhir, per user.
+  Ini dicek di **database** (trigger), bukan cuma di JS — jadi tetap
+  ngeblok walaupun orang manggil Supabase API langsung lewat script,
+  gak lewat website sama sekali.
+- Admin & developer dikecualikan dari limit ini.
+- Kalau kena limit, pesan errornya otomatis muncul di kotak pesan form
+  (post/komentar) — gak perlu ubah kode apa-apa lagi.
+
+## Upload Size Limit (crosshair image, CSS file & preview, other file posts)
+- Sudah aktif otomatis, gak perlu setup tambahan.
+- Batasnya per **jenis file**, bukan per role: file biasa (gambar, .txt,
+  .css, .js, dll) maks **5MB**. Khusus file **.zip** (dipakai di kategori
+  Mods — Mods Files) maks **30MB**.
+- Ini validasi di sisi client (JS) — cukup buat nahan upload gak sengaja
+  kegedean dan mencegah storage boros dari pemakaian normal. Ini BUKAN
+  proteksi keamanan (orang yang niat bisa saja upload langsung lewat API),
+  jadi kalau storage abuse jadi masalah serius, tambahin juga batas ukuran
+  di **Supabase Dashboard > Storage > (bucket) > Settings** per bucket
+  (`crosshairs`, `post-files`, `post-previews`) biar dijaga di server juga.
+- Mau ubah angkanya? Edit `UPLOAD_MAX_BYTES_DEFAULT` dan
+  `UPLOAD_MAX_BYTES_ZIP` di `community/supabase-client.js`.
+
+## CAPTCHA / Anti-Bot di Signup (opsional, tapi disarankan)
+Signup udah wajib connect Discord dulu sebagai langkah 1, jadi itu udah
+jadi penghalang cukup besar buat bot biasa. Kalau mau nambah lapisan lagi
+(misal situs makin dikenal dan mulai kena bot-registration beneran):
+1. Buka https://dash.cloudflare.com/?to=/:account/turnstile → bikin widget
+   baru (Cloudflare Turnstile, gratis). Domain apa aja boleh buat testing.
+2. Copy **Site Key**, paste ke `TURNSTILE_SITE_KEY` di bagian atas script
+   `community/signup.html`.
+3. Copy **Secret Key**, paste di Supabase Dashboard → **Authentication** →
+   **Settings** → **Bot and Abuse Protection** → aktifin **Turnstile** →
+   paste secret key-nya di situ → Save.
+4. Selesai — Supabase yang verifikasi token-nya di server, situsmu gak
+   perlu backend tambahan. Kalau `TURNSTILE_SITE_KEY` dibiarkan kosong,
+   signup jalan seperti biasa tanpa captcha (default sekarang).

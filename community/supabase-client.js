@@ -132,6 +132,34 @@ function avatarHtml(profile, size = 32) {
   return `<span style="display:inline-flex; align-items:center; justify-content:center; width:${s}; height:${s}; border-radius:50%; background:var(--surface-2); border:1px solid var(--border); color:var(--text-1); font-weight:700; font-size:${Math.round(size*0.45)}px; vertical-align:middle;">${letter}</span>`;
 }
 
+// ---------- Upload size limits ----------
+// Regular files (images, .txt, .css, .js, etc): 5MB per file.
+// .zip files (Mods Files uploads): 30MB per file.
+const UPLOAD_MAX_BYTES_DEFAULT = 5 * 1024 * 1024;
+const UPLOAD_MAX_BYTES_ZIP = 30 * 1024 * 1024;
+
+// Pass the File (or {name}) being uploaded — returns the byte cap that
+// applies to it, based on its extension.
+function getUploadMaxBytes(file) {
+  const ext = (file?.name || "").split(".").pop()?.toLowerCase();
+  return ext === "zip" ? UPLOAD_MAX_BYTES_ZIP : UPLOAD_MAX_BYTES_DEFAULT;
+}
+
+// "5MB" / "30MB" — for error messages and hint text
+function formatMaxSize(bytes) {
+  return Math.round(bytes / (1024 * 1024)) + "MB";
+}
+
+// Checks a single File against its cap. Returns "" if OK, or an error
+// message to show the user if it's too large.
+function checkUploadSize(file) {
+  const max = getUploadMaxBytes(file);
+  if (file.size > max) {
+    return `"${file.name}" is too large (max ${formatMaxSize(max)}).`;
+  }
+  return "";
+}
+
 function escapeHtml(str) {
   const d = document.createElement("div");
   d.textContent = str ?? "";

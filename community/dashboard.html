@@ -8,6 +8,18 @@
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="../assets/favicon.ico">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#0a0f28">
+<meta name="description" content="Manage your posts on Krunker Resource Hub.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Krunker Resource Hub">
+<meta property="og:title" content="Dashboard — Krunker Resource Hub">
+<meta property="og:description" content="Manage your posts on Krunker Resource Hub.">
+<meta property="og:image" content="../assets/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dashboard — Krunker Resource Hub">
+<meta name="twitter:description" content="Manage your posts on Krunker Resource Hub.">
+<meta name="twitter:image" content="../assets/logo.png">
 <link rel="stylesheet" href="community.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -51,7 +63,9 @@
 
   <div class="card">
     <h2>Public Feed</h2>
+    <input type="text" id="feedSearch" placeholder="Search public feed by title..." style="margin-bottom:14px;">
     <div id="publicFeed"><div class="empty">Loading...</div></div>
+    <button class="btn ghost" id="btnLoadMoreFeed" style="display:none; margin-top:14px;">Load More</button>
   </div>
 
   <div class="card">
@@ -63,6 +77,9 @@
 <script>
 let me = null;
 let myPostsCache = [];
+const FEED_PAGE_SIZE = 20;
+let feedOffset = 0;
+let feedSearchQuery = "";
 
 async function boot() {
   const profile = await getMyProfile();
@@ -202,17 +219,29 @@ async function deletePost(id) {
   loadMyPosts(); loadPublicFeed();
 }
 
-async function loadPublicFeed() {
+async function loadPublicFeed(reset = true) {
   const el = document.getElementById("publicFeed");
-  const { data, error } = await sb
+  const loadMoreBtn = document.getElementById("btnLoadMoreFeed");
+  if (reset) { feedOffset = 0; el.innerHTML = `<div class="empty">Loading...</div>`; }
+
+  let query = sb
     .from("posts")
     .select("*, profiles!posts_author_id_fkey(username,display_name,avatar_url)")
     .eq("status", "published")
     .order("created_at", { ascending: false })
-    .limit(20);
+    .range(feedOffset, feedOffset + FEED_PAGE_SIZE - 1);
+  if (feedSearchQuery) query = query.ilike("title", `%${feedSearchQuery}%`);
+
+  const { data, error } = await query;
   if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
-  if (!data.length) { el.innerHTML = `<div class="empty">No public posts yet.</div>`; return; }
-  el.innerHTML = data.map(p => `
+
+  if (reset && !data.length) {
+    el.innerHTML = `<div class="empty">${feedSearchQuery ? "No posts match your search." : "No public posts yet."}</div>`;
+    loadMoreBtn.style.display = "none";
+    return;
+  }
+
+  const html = data.map(p => `
     <div class="post-item">
       <div class="title">${escapeHtml(p.title)}</div>
       <div class="meta">
@@ -222,7 +251,22 @@ async function loadPublicFeed() {
       <div class="content">${escapeHtml(p.content)}</div>
     </div>
   `).join("");
+
+  if (reset) el.innerHTML = html; else el.insertAdjacentHTML("beforeend", html);
+  feedOffset += data.length;
+  loadMoreBtn.style.display = data.length === FEED_PAGE_SIZE ? "block" : "none";
 }
+
+let feedSearchDebounce = null;
+document.getElementById("feedSearch").addEventListener("input", (e) => {
+  clearTimeout(feedSearchDebounce);
+  feedSearchDebounce = setTimeout(() => {
+    feedSearchQuery = e.target.value.trim();
+    loadPublicFeed(true);
+  }, 300);
+});
+
+document.getElementById("btnLoadMoreFeed").addEventListener("click", () => loadPublicFeed(false));
 
 boot();
 </script>
