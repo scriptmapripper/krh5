@@ -4,13 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel — Krunker Resource Hub</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+<link rel="shortcut icon" href="../assets/favicon.ico">
 <link rel="stylesheet" href="community.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div class="brand"><a href="../index.html">◂ Krunker Resource Hub</a></div>
+    <div class="brand"><a href="../index.html"><img src="../assets/logo.png" alt="Krunker Resource Hub" class="brand-logo">Krunker Resource Hub</a></div>
     <div class="topnav" id="topnav"></div>
   </div>
 
@@ -116,7 +120,11 @@ async function setStatus(id, status) {
   const { error } = await sb.from("posts").update({ status }).eq("id", id);
   if (error) { alert("Failed: " + error.message); return; }
 
-  await logAction(status === "published" ? "post_publish" : "post_unpublish", {
+  /* logAction sengaja TIDAK di-await: aksinya sendiri sudah sukses,
+     jadi UI boleh langsung refresh sambil lognya ditulis di belakang.
+     (Di post.html tetap di-await karena halamannya langsung pindah —
+     kalau gak ditunggu, request-nya kebatalin browser.) */
+  logAction(status === "published" ? "post_publish" : "post_unpublish", {
     targetType: "post",
     targetId: id,
     targetLabel: post ? post.title : null,
@@ -141,7 +149,11 @@ async function removePost(id) {
   /* Log ditulis SETELAH delete berhasil, tapi judul & author sudah
      di-snapshot dari allData di atas — jadi log tetap informatif
      walaupun post-nya sudah hilang dari database. */
-  await logAction("post_delete", {
+  /* logAction sengaja TIDAK di-await: aksinya sendiri sudah sukses,
+     jadi UI boleh langsung refresh sambil lognya ditulis di belakang.
+     (Di post.html tetap di-await karena halamannya langsung pindah —
+     kalau gak ditunggu, request-nya kebatalin browser.) */
+  logAction("post_delete", {
     targetType: "post",
     targetId: id,
     targetLabel: post ? post.title : null,

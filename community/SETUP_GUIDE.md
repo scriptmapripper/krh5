@@ -143,6 +143,10 @@ Semua kode lain udah siap pakai, gak perlu diubah lagi.
   bagian bawah `sql/add_history_logs.sql`.
 - Log nyimpen **snapshot** username & judul post, jadi entry-nya tetap
   kebaca walaupun post-nya udah dihapus atau akunnya udah hilang.
+- **Catatan performa**: halaman logs cuma narik 25 baris per halaman dan
+  semua filter/sort/paging dikerjakan di database. Kalau kamu sudah pernah
+  jalanin versi lama file SQL-nya, **jalanin ulang** `sql/add_history_logs.sql`
+  — index & policy-nya diperbarui, datanya aman.
 - Mau nambah jenis aksi baru? Tambahin nama aksinya di `check (action in (...))`
   pada SQL, terus di `LOG_ACTIONS` (supabase-client.js) dan `describe()`
   (logs.html) buat label + kalimatnya.

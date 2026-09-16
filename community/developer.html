@@ -4,13 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Developer Panel — Krunker Resource Hub</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+<link rel="shortcut icon" href="../assets/favicon.ico">
 <link rel="stylesheet" href="community.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div class="brand"><a href="../index.html">◂ Krunker Resource Hub</a></div>
+    <div class="brand"><a href="../index.html"><img src="../assets/logo.png" alt="Krunker Resource Hub" class="brand-logo">Krunker Resource Hub</a></div>
     <div class="topnav" id="topnav"></div>
   </div>
 
@@ -149,7 +153,11 @@ async function approveAppeal(appealId, userId) {
   }).eq("id", appealId);
   if (error) { alert("Unbanned, but failed to update the ticket: " + error.message); }
 
-  await logAction("appeal_approve", {
+  /* logAction sengaja TIDAK di-await: aksinya sendiri sudah sukses,
+     jadi UI boleh langsung refresh sambil lognya ditulis di belakang.
+     (Di post.html tetap di-await karena halamannya langsung pindah —
+     kalau gak ditunggu, request-nya kebatalin browser.) */
+  logAction("appeal_approve", {
     targetType: "appeal", targetId: appealId,
     targetLabel: appeal ? appeal.username : null, targetUserId: userId,
     meta: { unbanned: true },
@@ -176,7 +184,7 @@ async function rejectAppeal(appealId, userId) {
   });
 
   const rejected = allAppeals.find(a => a.id === appealId);
-  await logAction("appeal_reject", {
+  logAction("appeal_reject", {
     targetType: "appeal", targetId: appealId,
     targetLabel: rejected ? rejected.username : null, targetUserId: userId,
     reason: note || null,
@@ -228,7 +236,7 @@ async function setRole(id, role) {
   const { error } = await sb.from("profiles").update({ role }).eq("id", id);
   if (error) { alert("Failed: " + error.message); return; }
 
-  await logAction(role === "admin" ? "role_grant_admin" : "role_revoke_admin", {
+  logAction(role === "admin" ? "role_grant_admin" : "role_revoke_admin", {
     targetType: "user", targetId: id,
     targetLabel: target ? target.username : null, targetUserId: id,
     meta: { from: target ? target.role : null, to: role },
@@ -255,7 +263,7 @@ async function banUser(id) {
     user_id: id, type: "banned", actor_id: me ? me.id : null, reason: reason,
   });
 
-  await logAction("user_ban", {
+  logAction("user_ban", {
     targetType: "user", targetId: id,
     targetLabel: user ? user.username : null, targetUserId: id,
     reason,
@@ -278,7 +286,7 @@ async function unbanUser(id) {
     user_id: id, type: "unbanned", actor_id: me ? me.id : null,
   });
 
-  await logAction("user_unban", {
+  logAction("user_unban", {
     targetType: "user", targetId: id,
     targetLabel: user ? user.username : null, targetUserId: id,
   });

@@ -10,6 +10,9 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ---------- helpers dipakai di semua halaman community/* ----------
 
+// Profil user yang lagi login, dicache buat logAction() (lihat bawah)
+let _logActorCache = null;
+
 async function getSessionUser() {
   const { data: { session } } = await sb.auth.getSession();
   return session ? session.user : null;
@@ -24,6 +27,11 @@ async function getMyProfile() {
     .eq("id", user.id)
     .maybeSingle();
   if (error) { console.error(error); return null; }
+
+  // Isi cache buat logAction() sekalian — tiap halaman staff sudah
+  // manggil getMyProfile() pas boot, jadi logAction() gak perlu
+  // query profiles lagi cuma buat tahu siapa yang lagi login.
+  if (data) _logActorCache = data;
 
   if (data && data.banned) {
     /* Banned accounts stay logged in — they're just locked to banned.html.
@@ -155,9 +163,6 @@ const LOG_ACTIONS = {
   comment_delete:    { label: "Deleted comment",  icon: "✕", color: "var(--red)"    },
 };
 
-// Cache profil actor biar gak query profiles tiap kali nulis log
-let _logActorCache = null;
-
 /* Tulis satu baris ke activity_logs.
    SENGAJA tidak pernah throw: kalau nulis log gagal (offline, RLS, dll),
    aksi utamanya (ban, delete, publish) tetap dianggap sukses — log cuma
@@ -174,6 +179,10 @@ async function logAction(action, opts = {}) {
     const user = await getSessionUser();
     if (!user) return;
 
+    /* Biasanya cache-nya sudah keisi sama getMyProfile() waktu halaman
+       boot, jadi baris ini gak bikin query tambahan. Query ke profiles
+       cuma jalan kalau cache-nya kosong (mis. halaman yang gak pernah
+       manggil getMyProfile). */
     if (!_logActorCache || _logActorCache.id !== user.id) {
       const { data } = await sb
         .from("profiles")
