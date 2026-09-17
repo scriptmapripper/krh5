@@ -17,36 +17,69 @@
   --purple:#b895ff;
   --cyan:#3fe0d8;
   --red:#ff6b9d;
+
+  /* ---- Custom theme (community/settings.html) ----
+     These are the defaults. A logged-in user's saved theme overrides
+     them at runtime as inline styles on <html> (applyUserTheme() in
+     community/supabase-client.js), so this page reflects it the same
+     way community/*.html pages already do. */
+  --accent:#ff6b9d; --accent-2:#b895ff; --accent-3:#3fe0d8;
+  --accent-gradient:linear-gradient(135deg, var(--accent), var(--accent-2) 60%, var(--accent-3));
+  --bg-glow-1:rgba(255,107,157,.30); --bg-glow-2:rgba(63,224,216,.24); --bg-glow-3:rgba(184,149,255,.26);
+  --page-bg-image:none; --page-bg-size:cover; --page-bg-dim:0;
+  --ui-scale:1; --ui-saturation:1; --ui-hue:0deg;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{height:100%;}
 @media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important;} }
 
-body{
-  background:var(--bg-0);
-  color:var(--text-0);
-  font-family:'Inter',sans-serif;
-  min-height:100%;
-  -webkit-font-smoothing:antialiased;
-  position:relative;
-  overflow-x:hidden;
-}
-/* soft aurora blobs */
-body::before{
+/* These background layers live on <html> (not <body>) on purpose: <body>
+   carries a `filter` for the UI saturation/hue controls below, and CSS
+   spec says any element with a filter becomes the containing block for
+   its position:fixed descendants. If these pseudo-elements were on body,
+   that would silently turn "fixed to the viewport" into "fixed to body's
+   own (possibly page-tall) box", making the aurora background scroll
+   away instead of staying pinned. Keeping them on html — an ancestor of
+   the filtered body, not a descendant — sidesteps that entirely. */
+html::before{
   content:"";
   position:fixed; inset:-10%;
   background:
-    radial-gradient(620px 520px at 8% 6%, rgba(255,107,157,.30), transparent 62%),
-    radial-gradient(680px 560px at 96% 0%, rgba(63,224,216,.24), transparent 60%),
-    radial-gradient(720px 620px at 50% 105%, rgba(184,149,255,.26), transparent 62%),
+    radial-gradient(620px 520px at 8% 6%, var(--bg-glow-1), transparent 62%),
+    radial-gradient(680px 560px at 96% 0%, var(--bg-glow-2), transparent 60%),
+    radial-gradient(720px 620px at 50% 105%, var(--bg-glow-3), transparent 62%),
     radial-gradient(500px 420px at 30% 90%, rgba(255,180,84,.16), transparent 60%);
   filter:blur(10px);
   pointer-events:none; z-index:0;
   animation:driftGlow 16s ease-in-out infinite alternate;
 }
+/* Dims a custom background image so text stays readable; 0 = invisible. */
+html::after{
+  content:"";
+  position:fixed; inset:0;
+  background:rgba(5,3,15,var(--page-bg-dim));
+  pointer-events:none; z-index:0;
+}
 @keyframes driftGlow{
   0%{ transform:translate(0,0) scale(1); }
   100%{ transform:translate(1.5%,-1.5%) scale(1.04); }
+}
+
+body{
+  position:relative; z-index:1; /* stacks above html::before/::after */
+  background-color:var(--bg-0);
+  background-image:var(--page-bg-image);
+  background-size:var(--page-bg-size);
+  background-position:center;
+  background-attachment:fixed;
+  background-repeat:no-repeat;
+  color:var(--text-0);
+  font-family:'Inter',sans-serif;
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  zoom:var(--ui-scale);
+  filter:saturate(var(--ui-saturation)) hue-rotate(var(--ui-hue));
 }
 
 a{color:inherit;}
@@ -94,7 +127,7 @@ header{display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom
 }
 .btn-ghost:hover, .navlink-btn:hover{ color:var(--text-0); background:rgba(255,255,255,.1); transform:translateY(-2px); }
 .btn-primary{
-  background:linear-gradient(135deg, #ff6b9d, #b895ff 60%, #3fe0d8); color:#12081f; font-weight:800;
+  background:var(--accent-gradient); color:#12081f; font-weight:800;
   box-shadow:0 10px 24px -10px rgba(255,107,157,.55);
 }
 .btn-primary:hover{ filter:brightness(1.08); transform:translateY(-2px) scale(1.02); }
@@ -265,6 +298,24 @@ ul.tree ul.tree{margin-left:16px; border-left:2px dotted var(--border-strong); p
   font-family:'Baloo 2',sans-serif; font-weight:700; font-size:25px; letter-spacing:.2px;
 }
 .content-desc{color:var(--text-1); line-height:1.7; font-size:16.5px; max-width:68ch; margin-bottom:24px;}
+
+.discord-submit-note{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  max-width:68ch;
+  margin:-8px 0 20px;
+  padding:12px 16px;
+  border:1px solid var(--border-strong);
+  border-left:3px solid var(--cyan);
+  border-radius:10px;
+  background:var(--surface);
+  color:var(--text-1);
+  font-size:14.5px;
+  line-height:1.6;
+}
+.discord-submit-note svg{flex:0 0 auto; margin-top:2px; color:var(--cyan);}
+.discord-submit-note strong{color:var(--text-0);}
 
 .embed-frame{
   width:100%;

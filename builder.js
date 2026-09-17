@@ -684,6 +684,7 @@ const DISCORD_SERVER_LISTS = {
   'servers-discord': {
     title: 'Krunker Discord Community Servers',
     intro: 'Community, clan, trading and competitive Discord servers around Krunker.io.',
+    submitNote: 'Please join the Krunker Resource Hub server and make a ticket in there if you want to put your server in here.',
     servers: [
       { name: "Krunker Bunker", url: "https://discord.gg/krunker" },
       { name: "Map Makers Of Krunker", url: "https://discord.com/servers/map-makers-of-krunker-484192043833491487" },
@@ -730,6 +731,9 @@ const DISCORD_SERVER_LISTS = {
       { name: "-TW- Clan", url: "https://discord.gg/ctxjz53dj6" },
       { name: "kbot", url: "https://discord.gg/3BnFPUK8dA" },
       { name: "PSVM Clan", url: "https://discord.gg/mGnNxbuyeh" },
+      { name: "Snap Clan", url: "https://discord.gg/ZUJ6fVaVGh" },
+      { name: "MKS Dev", url: "https://discord.gg/bWYBKkzVfz" },
+      { name: "Slytherin Clan", url: "https://discord.gg/bhyJ6EgvJ2" },
     ],
   },
 };
@@ -757,6 +761,11 @@ function renderDiscordServers(node, main, crumbs){
       <h2>${node.label}</h2>
     </div>
     <p class="content-desc">${escapeHtml(section.intro)}</p>
+    ${section.submitNote ? `
+    <div class="discord-submit-note">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>${section.submitNote}</span>
+    </div>` : ''}
     <div class="meta-strip">
       <span class="chip">${escapeHtml(main.label)}</span>
       <span class="chip" id="discordCountChip">${section.servers.length} server${section.servers.length > 1 ? 's' : ''}</span>
