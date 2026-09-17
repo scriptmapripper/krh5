@@ -430,7 +430,7 @@ ul.tree ul.tree{margin-left:16px; border-left:2px dotted var(--border-strong); p
 .reaction-btn.active-dislike{ color:var(--red); border-color:var(--red); background:rgba(255,107,157,.14); }
 .reaction-btn.active-save{ color:var(--orange); border-color:var(--orange); background:rgba(255,180,84,.14); }
 
-.file-gallery{ display:flex; flex-direction:column; gap:12px; }
+.file-gallery{ display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
 .file-card{
   display:flex; align-items:center; gap:14px;
   border:1px solid var(--border); border-radius:20px; padding:15px 18px;
