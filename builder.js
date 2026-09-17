@@ -1065,6 +1065,219 @@ const STATIC_MAP_LISTS = {
       { title: 'Tortuga', path: 'resources/maps/raids/Tortuga.json' },
     ],
   },
+  'maps-official-infected': {
+    title: 'Custom Infected Maps',
+    intro: 'A curated batch of community-made Infected / Zombie maps, ready to drop into your Resource Swapper or map editor.',
+    files: [
+      { title: "5torm5iege_save", path: "resources/maps/custom/infected/5torm5iege_save.txt" },
+      { title: "ALG_VINITS MAP", path: "resources/maps/custom/infected/ALG_VINITS MAP.txt" },
+      { title: "Alien_Attack", path: "resources/maps/custom/infected/Alien_Attack.json" },
+      { title: "Builder_Boys", path: "resources/maps/custom/infected/Builder_Boys.json" },
+      { title: "Bulwark2.0", path: "resources/maps/custom/infected/Bulwark2.0.json" },
+      { title: "Cod1_Zombies", path: "resources/maps/custom/infected/Cod1_Zombies.json" },
+      { title: "craftzombies(dead)", path: "resources/maps/custom/infected/craftzombies(dead).json" },
+      { title: "craftzombies", path: "resources/maps/custom/infected/craftzombies.json" },
+      { title: "Crown_Castle", path: "resources/maps/custom/infected/Crown_Castle.json" },
+      { title: "DJ_BlueCove", path: "resources/maps/custom/infected/DJ_BlueCove.json" },
+      { title: "DodgeZombieTEST", path: "resources/maps/custom/infected/DodgeZombieTEST.json" },
+      { title: "Downhill_Zombies", path: "resources/maps/custom/infected/Downhill_Zombies.json" },
+      { title: "Escape_Zombies_", path: "resources/maps/custom/infected/Escape_Zombies_.json" },
+      { title: "European_zombies_save", path: "resources/maps/custom/infected/European_zombies_save.txt" },
+      { title: "Extinction", path: "resources/maps/custom/infected/Extinction.json" },
+      { title: "Extinction0", path: "resources/maps/custom/infected/Extinction0.json" },
+      { title: "Extinction1", path: "resources/maps/custom/infected/Extinction1.json" },
+      { title: "Extinction2", path: "resources/maps/custom/infected/Extinction2.json" },
+      { title: "Extinction_2", path: "resources/maps/custom/infected/Extinction_2.json" },
+      { title: "Extraction_H1", path: "resources/maps/custom/infected/Extraction_H1.json" },
+      { title: "fort_krunk", path: "resources/maps/custom/infected/fort_krunk.json" },
+      { title: "fortress_zombies", path: "resources/maps/custom/infected/fortress_zombies.json" },
+      { title: "Future_Zombs", path: "resources/maps/custom/infected/Future_Zombs.json" },
+      { title: "Hardline_Begins", path: "resources/maps/custom/infected/Hardline_Begins.json" },
+      { title: "Hardline_Fall", path: "resources/maps/custom/infected/Hardline_Fall.json" },
+      { title: "Hell_ofZombies", path: "resources/maps/custom/infected/Hell_ofZombies.json" },
+      { title: "Hell_ofZombies_save", path: "resources/maps/custom/infected/Hell_ofZombies_save.txt" },
+      { title: "Human_Downfall", path: "resources/maps/custom/infected/Human_Downfall.json" },
+      { title: "Human_Run", path: "resources/maps/custom/infected/Human_Run.json" },
+      { title: "Hyperspace", path: "resources/maps/custom/infected/Hyperspace.json" },
+      { title: "inf_knightfall", path: "resources/maps/custom/infected/inf_knightfall.json" },
+      { title: "Infect_Everest", path: "resources/maps/custom/infected/Infect_Everest.json" },
+      { title: "Infect_The_King", path: "resources/maps/custom/infected/Infect_The_King.json" },
+      { title: "Infected_Redking", path: "resources/maps/custom/infected/Infected_Redking.json" },
+      { title: "Justmoobing", path: "resources/maps/custom/infected/Justmoobing.json" },
+      { title: "Minecraft_Zombie", path: "resources/maps/custom/infected/Minecraft_Zombie.json" },
+      { title: "Mud_Run", path: "resources/maps/custom/infected/Mud_Run.json" },
+      { title: "OceanDefense", path: "resources/maps/custom/infected/OceanDefense.json" },
+      { title: "OOFSQUARED", path: "resources/maps/custom/infected/OOFSQUARED.json" },
+      { title: "parkour_nuclear", path: "resources/maps/custom/infected/parkour_nuclear.json" },
+      { title: "Pirates_Zombies", path: "resources/maps/custom/infected/Pirates_Zombies.json" },
+      { title: "Plants_VS_Zombie", path: "resources/maps/custom/infected/Plants_VS_Zombie.json" },
+      { title: "PurpleCastle", path: "resources/maps/custom/infected/PurpleCastle.json" },
+      { title: "ROBOT_ZOMBIES", path: "resources/maps/custom/infected/ROBOT_ZOMBIES.json" },
+      { title: "SimpleZombies", path: "resources/maps/custom/infected/SimpleZombies.json" },
+      { title: "Snow_Zombies", path: "resources/maps/custom/infected/Snow_Zombies.json" },
+      { title: "SpaceZombies", path: "resources/maps/custom/infected/SpaceZombies.json" },
+      { title: "StormSiege", path: "resources/maps/custom/infected/StormSiege.json" },
+      { title: "SuperZombieLand", path: "resources/maps/custom/infected/SuperZombieLand.json" },
+      { title: "TheKrunkRooms", path: "resources/maps/custom/infected/TheKrunkRooms.json" },
+      { title: "TropicalDefense", path: "resources/maps/custom/infected/TropicalDefense.json" },
+      { title: "Uphill_Zombies", path: "resources/maps/custom/infected/Uphill_Zombies.json" },
+      { title: "Wasteland_Escape", path: "resources/maps/custom/infected/Wasteland_Escape.json" },
+      { title: "Zombie Mountain", path: "resources/maps/custom/infected/Zombie Mountain.json" },
+      { title: "Zombie-StarWars", path: "resources/maps/custom/infected/Zombie-StarWars.json" },
+      { title: "Zombie_ArcticOps", path: "resources/maps/custom/infected/Zombie_ArcticOps.json" },
+      { title: "Zombie_Assault_save", path: "resources/maps/custom/infected/Zombie_Assault_save.txt" },
+      { title: "Zombie_Barnyard", path: "resources/maps/custom/infected/Zombie_Barnyard.json" },
+      { title: "Zombie_Bastion", path: "resources/maps/custom/infected/Zombie_Bastion.json" },
+      { title: "Zombie_berserk", path: "resources/maps/custom/infected/Zombie_berserk.json" },
+      { title: "Zombie_Bulwark", path: "resources/maps/custom/infected/Zombie_Bulwark.json" },
+      { title: "Zombie_Bunker", path: "resources/maps/custom/infected/Zombie_Bunker.json" },
+      { title: "Zombie_Catapult", path: "resources/maps/custom/infected/Zombie_Catapult.json" },
+      { title: "Zombie_Cave!", path: "resources/maps/custom/infected/Zombie_Cave!.json" },
+      { title: "Zombie_chill", path: "resources/maps/custom/infected/Zombie_chill.json" },
+      { title: "Zombie_Def_Ultra", path: "resources/maps/custom/infected/Zombie_Def_Ultra.json" },
+      { title: "ZOMBIE_DEFENCE_4", path: "resources/maps/custom/infected/ZOMBIE_DEFENCE_4.json" },
+      { title: "Zombie_Diggers", path: "resources/maps/custom/infected/Zombie_Diggers.json" },
+      { title: "Zombie_Discovery", path: "resources/maps/custom/infected/Zombie_Discovery.json" },
+      { title: "Zombie_Downgrade", path: "resources/maps/custom/infected/Zombie_Downgrade.json" },
+      { title: "Zombie_echo", path: "resources/maps/custom/infected/Zombie_echo.json" },
+      { title: "Zombie_Epic_H1", path: "resources/maps/custom/infected/Zombie_Epic_H1.json" },
+      { title: "Zombie_Exploring", path: "resources/maps/custom/infected/Zombie_Exploring.json" },
+      { title: "Zombie_Flavor", path: "resources/maps/custom/infected/Zombie_Flavor.json" },
+      { title: "Zombie_Flight", path: "resources/maps/custom/infected/Zombie_Flight.json" },
+      { title: "Zombie_Flop", path: "resources/maps/custom/infected/Zombie_Flop.json" },
+      { title: "Zombie_Fun_Run", path: "resources/maps/custom/infected/Zombie_Fun_Run.json" },
+      { title: "Zombie_go_around", path: "resources/maps/custom/infected/Zombie_go_around.json" },
+      { title: "Zombie_High", path: "resources/maps/custom/infected/Zombie_High.json" },
+      { title: "Zombie_Hospital", path: "resources/maps/custom/infected/Zombie_Hospital.json" },
+      { title: "Zombie_Hour", path: "resources/maps/custom/infected/Zombie_Hour.json" },
+      { title: "Zombie_Intrusion", path: "resources/maps/custom/infected/Zombie_Intrusion.json" },
+      { title: "Zombie_KINGDOM", path: "resources/maps/custom/infected/Zombie_KINGDOM.json" },
+      { title: "Zombie_LostWorld", path: "resources/maps/custom/infected/Zombie_LostWorld.json" },
+      { title: "Zombie_Manor_H1", path: "resources/maps/custom/infected/Zombie_Manor_H1.json" },
+      { title: "Zombie_MiniGames", path: "resources/maps/custom/infected/Zombie_MiniGames.json" },
+      { title: "Zombie_Mutants", path: "resources/maps/custom/infected/Zombie_Mutants.json" },
+      { title: "Zombie_Odyssey(owner ded)", path: "resources/maps/custom/infected/Zombie_Odyssey(owner ded).json" },
+      { title: "Zombie_Onward!", path: "resources/maps/custom/infected/Zombie_Onward!.json" },
+      { title: "Zombie_Overrun", path: "resources/maps/custom/infected/Zombie_Overrun.json" },
+      { title: "zombie_parkore2", path: "resources/maps/custom/infected/zombie_parkore2.json" },
+      { title: "zombie_parkore3", path: "resources/maps/custom/infected/zombie_parkore3.json" },
+      { title: "Zombie_Party", path: "resources/maps/custom/infected/Zombie_Party.json" },
+      { title: "Zombie_Payday", path: "resources/maps/custom/infected/Zombie_Payday.json" },
+      { title: "Zombie_Peninsula", path: "resources/maps/custom/infected/Zombie_Peninsula.json" },
+      { title: "Zombie_Planet", path: "resources/maps/custom/infected/Zombie_Planet.json" },
+      { title: "Zombie_Quarry", path: "resources/maps/custom/infected/Zombie_Quarry.json" },
+      { title: "Zombie_Scifi", path: "resources/maps/custom/infected/Zombie_Scifi.json" },
+      { title: "Zombie_Siege_", path: "resources/maps/custom/infected/Zombie_Siege_.json" },
+      { title: "Zombie_Slinger", path: "resources/maps/custom/infected/Zombie_Slinger.json" },
+      { title: "Zombie_Soccer1", path: "resources/maps/custom/infected/Zombie_Soccer1.json" },
+      { title: "Zombie_Soul", path: "resources/maps/custom/infected/Zombie_Soul.json" },
+      { title: "Zombie_Space_Run", path: "resources/maps/custom/infected/Zombie_Space_Run.json" },
+      { title: "Zombie_Storm", path: "resources/maps/custom/infected/Zombie_Storm.json" },
+      { title: "Zombie_Surrender", path: "resources/maps/custom/infected/Zombie_Surrender.json" },
+      { title: "Zombie_Swim", path: "resources/maps/custom/infected/Zombie_Swim.json" },
+      { title: "Zombie_Syncrasy", path: "resources/maps/custom/infected/Zombie_Syncrasy.json" },
+      { title: "Zombie_TowerUP(ded)", path: "resources/maps/custom/infected/Zombie_TowerUP(ded).json" },
+      { title: "Zombie_Universe", path: "resources/maps/custom/infected/Zombie_Universe.json" },
+      { title: "Zombie_Upgrade", path: "resources/maps/custom/infected/Zombie_Upgrade.json" },
+      { title: "Zombie_VS_Human", path: "resources/maps/custom/infected/Zombie_VS_Human.json" },
+      { title: "Zombie_VS_Human_save", path: "resources/maps/custom/infected/Zombie_VS_Human_save.txt" },
+      { title: "Zombie_Walls_2", path: "resources/maps/custom/infected/Zombie_Walls_2.json" },
+      { title: "Zombie_WAR#U2622", path: "resources/maps/custom/infected/Zombie_WAR#U2622.json" },
+      { title: "Zombie_Workshop", path: "resources/maps/custom/infected/Zombie_Workshop.json" },
+      { title: "Zombie_Z-DAY", path: "resources/maps/custom/infected/Zombie_Z-DAY.json" },
+      { title: "zombieadventure3", path: "resources/maps/custom/infected/zombieadventure3.json" },
+      { title: "ZombieAlert", path: "resources/maps/custom/infected/ZombieAlert.json" },
+      { title: "ZombieColors", path: "resources/maps/custom/infected/ZombieColors.json" },
+      { title: "ZombieDefence__5", path: "resources/maps/custom/infected/ZombieDefence__5.json" },
+      { title: "ZombieDisaster", path: "resources/maps/custom/infected/ZombieDisaster.json" },
+      { title: "zombiejungle", path: "resources/maps/custom/infected/zombiejungle.json" },
+      { title: "ZombieParadise", path: "resources/maps/custom/infected/ZombieParadise.json" },
+      { title: "ZombiePartyLand", path: "resources/maps/custom/infected/ZombiePartyLand.json" },
+      { title: "ZombieRush_2022", path: "resources/maps/custom/infected/ZombieRush_2022.json" },
+      { title: "ZombieRush_2O22", path: "resources/maps/custom/infected/ZombieRush_2O22.json" },
+      { title: "Zombies_Building", path: "resources/maps/custom/infected/Zombies_Building.json" },
+      { title: "Zombies_Europe", path: "resources/maps/custom/infected/Zombies_Europe.json" },
+      { title: "Zombies_Invader", path: "resources/maps/custom/infected/Zombies_Invader.json" },
+      { title: "Zombies_iscoming", path: "resources/maps/custom/infected/Zombies_iscoming.json" },
+      { title: "Zombies_Island", path: "resources/maps/custom/infected/Zombies_Island.json" },
+      { title: "Zombies_River", path: "resources/maps/custom/infected/Zombies_River.json" },
+      { title: "Zombies_Royales", path: "resources/maps/custom/infected/Zombies_Royales.json" },
+      { title: "Zombies_school", path: "resources/maps/custom/infected/Zombies_school.json" },
+      { title: "Zombies_UFO", path: "resources/maps/custom/infected/Zombies_UFO.json" },
+      { title: "ZombieSkate", path: "resources/maps/custom/infected/ZombieSkate.json" },
+      { title: "ZombieVsMartian", path: "resources/maps/custom/infected/ZombieVsMartian.json" },
+      { title: "Zombs_Undertale", path: "resources/maps/custom/infected/Zombs_Undertale.json" },
+      { title: "ZWRevenge", path: "resources/maps/custom/infected/ZWRevenge.json" },
+    ],
+  },
+  'maps-custom-parkour': {
+    title: 'Custom Parkour Maps',
+    intro: 'A curated batch of community-made Parkour, Slide & Bhop maps.',
+    files: [
+      { title: "--BhopDreams--", path: "resources/maps/custom/parkour/--BhopDreams--.json" },
+      { title: "-Lake_Parkour-", path: "resources/maps/custom/parkour/-Lake_Parkour-.json" },
+      { title: "A_Basic_parkour", path: "resources/maps/custom/parkour/A_Basic_parkour.json" },
+      { title: "Bhop_dojo", path: "resources/maps/custom/parkour/Bhop_dojo.json" },
+      { title: "Bhop_Giant_Steps", path: "resources/maps/custom/parkour/Bhop_Giant_Steps.json" },
+      { title: "bhop_Levels_6.4", path: "resources/maps/custom/parkour/bhop_Levels_6.4.json" },
+      { title: "bhop_Spiral", path: "resources/maps/custom/parkour/bhop_Spiral.json" },
+      { title: "Bhop_VIP", path: "resources/maps/custom/parkour/Bhop_VIP.json" },
+      { title: "Fun_Parkour!", path: "resources/maps/custom/parkour/Fun_Parkour!.json" },
+      { title: "FUN_PARKOUR_4", path: "resources/maps/custom/parkour/FUN_PARKOUR_4.json" },
+      { title: "Futuristic_Bhop", path: "resources/maps/custom/parkour/Futuristic_Bhop.json" },
+      { title: "Parkour Tower", path: "resources/maps/custom/parkour/Parkour Tower.json" },
+      { title: "Parkour_Battle", path: "resources/maps/custom/parkour/Parkour_Battle.json" },
+      { title: "Parkour_OldBrick", path: "resources/maps/custom/parkour/Parkour_OldBrick.json" },
+      { title: "Puzzleparkour", path: "resources/maps/custom/parkour/Puzzleparkour.json" },
+      { title: "Santas_Parkour!", path: "resources/maps/custom/parkour/Santas_Parkour!.json" },
+      { title: "Slide_Australia", path: "resources/maps/custom/parkour/Slide_Australia.json" },
+      { title: "slide_ColourSea", path: "resources/maps/custom/parkour/slide_ColourSea.json" },
+      { title: "slide_Dynamo", path: "resources/maps/custom/parkour/slide_Dynamo.json" },
+      { title: "slide_Iucy", path: "resources/maps/custom/parkour/slide_Iucy.json" },
+      { title: "slide_Liminal", path: "resources/maps/custom/parkour/slide_Liminal.json" },
+      { title: "slide_Miasma", path: "resources/maps/custom/parkour/slide_Miasma.json" },
+      { title: "Slide_Party", path: "resources/maps/custom/parkour/Slide_Party.json" },
+      { title: "slide_Twain", path: "resources/maps/custom/parkour/slide_Twain.json" },
+      { title: "Super_Parkour!", path: "resources/maps/custom/parkour/Super_Parkour!.json" },
+      { title: "YouTube_Parkour", path: "resources/maps/custom/parkour/YouTube_Parkour.json" },
+    ],
+  },
+  'maps-official-tdm': {
+    title: 'Custom TDM Maps',
+    intro: 'A curated batch of community-made TDM / general-purpose maps.',
+    files: [
+      { title: "Acid_Run", path: "resources/maps/custom/tdm/Acid_Run.json" },
+      { title: "AIM_Room", path: "resources/maps/custom/tdm/AIM_Room.json" },
+      { title: "Aqua_Run", path: "resources/maps/custom/tdm/Aqua_Run.json" },
+      { title: "Best_Zombie_inf", path: "resources/maps/custom/tdm/Best_Zombie_inf.json" },
+      { title: "Black_Tower", path: "resources/maps/custom/tdm/Black_Tower.json" },
+      { title: "BuildSurvival", path: "resources/maps/custom/tdm/BuildSurvival.json" },
+      { title: "Celeste", path: "resources/maps/custom/tdm/Celeste.json" },
+      { title: "Chocolate_Run", path: "resources/maps/custom/tdm/Chocolate_Run.json" },
+      { title: "CONTAGIOUS", path: "resources/maps/custom/tdm/CONTAGIOUS.json" },
+      { title: "Death_Run", path: "resources/maps/custom/tdm/Death_Run.json" },
+      { title: "Dungeon_Mystery", path: "resources/maps/custom/tdm/Dungeon_Mystery.json" },
+      { title: "FightTeams", path: "resources/maps/custom/tdm/FightTeams.json" },
+      { title: "Flood_Escape", path: "resources/maps/custom/tdm/Flood_Escape.json" },
+      { title: "Football-stadium", path: "resources/maps/custom/tdm/Football-stadium.json" },
+      { title: "Last_Defence", path: "resources/maps/custom/tdm/Last_Defence.json" },
+      { title: "Lava_Run", path: "resources/maps/custom/tdm/Lava_Run.json" },
+      { title: "Nuclear_Escape", path: "resources/maps/custom/tdm/Nuclear_Escape.json" },
+      { title: "Pool_Scene1", path: "resources/maps/custom/tdm/Pool_Scene1.json" },
+      { title: "Sand_Run", path: "resources/maps/custom/tdm/Sand_Run.json" },
+      { title: "That_Level_Again", path: "resources/maps/custom/tdm/That_Level_Again.json" },
+      { title: "Tower_Of_God#U267f", path: "resources/maps/custom/tdm/Tower_Of_God#U267f.json" },
+      { title: "Trench_War_H1", path: "resources/maps/custom/tdm/Trench_War_H1.json" },
+      { title: "Valorant.Ascent", path: "resources/maps/custom/tdm/Valorant.Ascent.json" },
+      { title: "Venom_Run", path: "resources/maps/custom/tdm/Venom_Run.json" },
+      { title: "War_of_the_Egg", path: "resources/maps/custom/tdm/War_of_the_Egg.json" },
+      { title: "ZBuild", path: "resources/maps/custom/tdm/ZBuild.json" },
+      { title: "Zombie_AIO", path: "resources/maps/custom/tdm/Zombie_AIO.json" },
+      { title: "Zombie_Pathmaker", path: "resources/maps/custom/tdm/Zombie_Pathmaker.json" },
+      { title: "ZombWorlds", path: "resources/maps/custom/tdm/ZombWorlds.json" },
+      { title: "ZombWorlds3", path: "resources/maps/custom/tdm/ZombWorlds3.json" },
+    ],
+  },
 };
 
 function renderMapList(node, main, crumbs){
@@ -1082,20 +1295,41 @@ function renderMapList(node, main, crumbs){
       <span class="chip">${section.files.length} map${section.files.length > 1 ? 's' : ''}</span>
     </div>
     <div class="file-gallery">
-      ${section.files.map(f => `
+      ${section.files.map(f => {
+        const ext = (f.path.split('.').pop() || 'json').toLowerCase();
+        return `
         <div class="file-card">
           <div class="file-icon">\uD83D\uDDFA\uFE0F</div>
           <div class="file-info">
             <div class="gallery-title">${escapeHtml(f.title)}</div>
-            <div class="gallery-meta">.json map file</div>
+            <div class="gallery-meta">.${escapeHtml(ext)} map file</div>
           </div>
           <div class="gallery-actions">
-            <a class="gallery-btn" href="${encodeURI(f.path)}" download="${escapeHtml(f.title)}.json">Download</a>
+            <a class="gallery-btn" href="${encodeURI(f.path)}" download="${escapeHtml(f.title)}.${escapeHtml(ext)}">Download</a>
           </div>
         </div>
-      `).join('')}
+      `;
+      }).join('')}
     </div>
+    ${POST_LINKS[node.id] ? `<button class="btn-createpost" id="btnCreatePost">Create Post</button>` : ''}
+    ${FILE_GALLERY_SECTIONS[node.id] ? `
+      <div class="gallery-wrap">
+        <h3 class="gallery-heading">${FILE_GALLERY_SECTIONS[node.id].title || 'Community Files'}</h3>
+        <div class="file-gallery" id="fileGallery"><div class="gallery-empty">Loading...</div></div>
+      </div>
+    ` : ''}
   `;
+
+  if(POST_LINKS[node.id]){
+    document.getElementById('btnCreatePost').addEventListener('click', () => {
+      manualEmbedNodeId = node.id;
+      renderContent();
+    });
+  }
+
+  if(FILE_GALLERY_SECTIONS[node.id]){
+    loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat);
+  }
 }
 
 /* Leaf nodes that stay as a plain placeholder by default, but offer a
