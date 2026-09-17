@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Account Settings — Krunker Resource Hub</title>
+<title>Theme Settings — Krunker Resource Hub</title>
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
@@ -19,121 +19,136 @@
   </div>
 
   <div class="card">
-    <h1>Account Settings</h1>
-    <p class="subtitle">Manage your profile picture, personal info, email, and password.</p>
+    <h1>Theme Settings</h1>
+    <p class="subtitle">Make it yours — pick an accent color, build your own gradient, and set a custom background. Changes preview live on this page; hit Save to keep them everywhere.</p>
   </div>
 
-  <!-- Profile Picture -->
+  <!-- Live preview -->
   <div class="card">
-    <h2>Profile Picture</h2>
-    <div style="display:flex; align-items:center; gap:16px; margin-bottom:6px;" id="avatarPreviewWrap"></div>
-    <input type="file" id="fAvatar" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:14px;">
-    <p class="hint">PNG, JPG, WEBP or GIF. Max 2MB. Square images look best.</p>
-    <button class="btn" id="btnAvatarUpload">Upload New Picture</button>
-    <div class="msg" id="avatarMsg"></div>
-  </div>
-
-  <!-- Profile Details -->
-  <div class="card">
-    <h2>Profile Details</h2>
-    <label>Full Name</label>
-    <input type="text" id="fName" placeholder="Your real name">
-
-    <label>Username</label>
-    <input type="text" id="fUsername" placeholder="Unique username">
-
-    <label>Krunker Username</label>
-    <input type="text" id="fKrunker" placeholder="Your Krunker username (optional)">
-
-    <label>Bio</label>
-    <textarea id="fBio" placeholder="Tell people a bit about yourself (optional)" maxlength="200" style="min-height:90px;"></textarea>
-    <p class="hint" id="bioCounter" style="margin-top:-8px;">0 / 200</p>
-
-    <button class="btn" id="btnSaveProfile">Save Changes</button>
-    <div class="msg" id="profileMsg"></div>
-  </div>
-
-  <!-- Personal Info: birthday + gender -->
-  <div class="card">
-    <h2>Personal Info</h2>
-    <div class="row2">
-      <div>
-        <label>Date of Birth</label>
-        <input type="date" id="fBirthdate">
-      </div>
-      <div>
-        <label>Gender</label>
-        <select id="fGender">
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-          <option value="prefer_not_to_say">Prefer not to say</option>
-        </select>
-      </div>
+    <h2>Preview</h2>
+    <div class="theme-preview" id="previewBox">
+      <div class="pv-title">Krunker Resource Hub</div>
+      <div class="pv-sub">This is what your accent &amp; gradient look like.</div>
+      <div class="pv-btn">Sample Button</div>
     </div>
-    <button class="btn" id="btnSavePersonal">Save Changes</button>
-    <div class="msg" id="personalMsg"></div>
   </div>
 
-  <!-- Email -->
+  <!-- Accent color -->
   <div class="card">
-    <h2>Email</h2>
-    <div id="emailDisplayView">
-      <label>Current Email</label>
-      <input type="email" id="fCurrentEmailDisplay" disabled>
-      <button class="btn ghost" id="btnEditEmail">Change Email</button>
+    <h2>Accent Color</h2>
+    <p class="hint" style="margin-top:0;">Used for buttons, links and the site logo.</p>
+    <div class="swatch-grid" id="accentSwatches"></div>
+    <div class="color-row">
+      <input type="color" id="fAccentColor">
+      <input type="text" id="fAccentHex" placeholder="#ff6b9d" maxlength="7">
     </div>
-    <div id="emailEditView" style="display:none;">
-      <label>New Email</label>
-      <input type="email" id="fNewEmail" placeholder="new-email@example.com">
+  </div>
 
-      <label>Current Password</label>
-      <div class="pw-wrap">
-        <input type="password" id="fEmailPassword" placeholder="Confirm with your current password">
-        <button class="pw-toggle" data-target="fEmailPassword" tabindex="-1"></button>
+  <!-- Gradient -->
+  <div class="card">
+    <h2>Gradient</h2>
+    <div class="toggle-row">
+      <span class="toggle-label">Use a gradient instead of a flat color</span>
+      <label class="switch">
+        <input type="checkbox" id="fGradientEnabled" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div id="gradientControls">
+      <p class="hint">Presets</p>
+      <div class="preset-grid" id="gradientPresets"></div>
+
+      <p class="hint" style="margin-top:16px;">Color stops</p>
+      <div id="accentStops"></div>
+      <button class="btn ghost stop-add" id="btnAddAccentStop" type="button">+ Add Color Stop</button>
+
+      <div class="range-row">
+        <div class="range-label"><span>Angle</span><span id="accentAngleLabel">135°</span></div>
+        <input type="range" id="fAccentAngle" min="0" max="360" step="5" value="135">
       </div>
+      <div class="gradient-bar" id="accentGradientBar"></div>
+    </div>
+  </div>
 
-      <div class="row2" style="margin-top:14px;">
-        <button class="btn ghost" id="btnCancelEmail" style="margin-top:0;">Cancel</button>
-        <button class="btn" id="btnSaveEmail" style="margin-top:0;">Save Email</button>
+  <!-- Background -->
+  <div class="card">
+    <h2>Background</h2>
+    <p class="hint" style="margin-top:0;">What shows behind every page, under the site's ambient glow.</p>
+    <div class="bg-type-grid" id="bgTypeGrid">
+      <button class="bg-type-btn" data-type="default" type="button">Default<br><span class="hint" style="margin:2px 0 0;">Site's aurora glow</span></button>
+      <button class="bg-type-btn" data-type="solid" type="button">Solid Color<br><span class="hint" style="margin:2px 0 0;">One flat color</span></button>
+      <button class="bg-type-btn" data-type="gradient" type="button">Custom Gradient<br><span class="hint" style="margin:2px 0 0;">Build your own</span></button>
+      <button class="bg-type-btn" data-type="image" type="button">Custom Image<br><span class="hint" style="margin:2px 0 0;">Upload or link one</span></button>
+    </div>
+
+    <!-- Solid -->
+    <div id="bgSolidPanel" style="display:none;">
+      <div class="color-row">
+        <input type="color" id="fBgSolid">
+        <input type="text" id="fBgSolidHex" placeholder="#120c28" maxlength="7">
       </div>
     </div>
-    <div class="msg" id="emailMsg"></div>
-  </div>
 
-  <!-- Password -->
-  <div class="card">
-    <h2>Change Password</h2>
-    <label>Current Password</label>
-    <div class="pw-wrap">
-      <input type="password" id="fCurrentPassword" placeholder="Your current password">
-      <button class="pw-toggle" data-target="fCurrentPassword" tabindex="-1"></button>
+    <!-- Gradient -->
+    <div id="bgGradientPanel" style="display:none;">
+      <p class="hint" style="margin-top:14px;">Color stops</p>
+      <div id="bgStops"></div>
+      <button class="btn ghost stop-add" id="btnAddBgStop" type="button">+ Add Color Stop</button>
+
+      <div class="range-row">
+        <div class="range-label"><span>Angle</span><span id="bgAngleLabel">135°</span></div>
+        <input type="range" id="fBgAngle" min="0" max="360" step="5" value="135">
+      </div>
+      <div class="gradient-bar" id="bgGradientBar"></div>
     </div>
 
-    <label>New Password</label>
-    <div class="pw-wrap">
-      <input type="password" id="fNewPassword" placeholder="Minimum 6 characters">
-      <button class="pw-toggle" data-target="fNewPassword" tabindex="-1"></button>
+    <!-- Image -->
+    <div id="bgImagePanel" style="display:none;">
+      <div class="bg-preview-thumb" id="bgImageThumb"></div>
+      <label>Upload an image</label>
+      <input type="file" id="fBgUpload" accept="image/png,image/jpeg,image/webp,image/gif">
+      <p class="hint">PNG, JPG, WEBP or GIF. Max 5MB.</p>
+      <button class="btn ghost small" id="btnBgUpload" type="button" style="margin-top:10px;">Upload Image</button>
+
+      <label style="margin-top:18px;">Or paste an image URL</label>
+      <input type="text" id="fBgImageUrl" placeholder="https://example.com/my-wallpaper.jpg">
+
+      <div class="range-row">
+        <div class="range-label"><span>Overlay Darkness</span><span id="bgDimLabel">35%</span></div>
+        <input type="range" id="fBgDim" min="0" max="80" step="5" value="35">
+      </div>
+      <p class="hint">Darkens the image a bit so text stays readable.</p>
     </div>
 
-    <label>Confirm New Password</label>
-    <div class="pw-wrap">
-      <input type="password" id="fConfirmPassword" placeholder="Repeat new password">
-      <button class="pw-toggle" data-target="fConfirmPassword" tabindex="-1"></button>
+    <div class="msg" id="bgMsg"></div>
+  </div>
+
+  <!-- Display -->
+  <div class="card">
+    <h2>Display</h2>
+    <p class="hint" style="margin-top:0;">Adjust the overall UI scale, color saturation, and hue — affects the whole site, not just accent colors.</p>
+
+    <div class="range-row" style="margin-top:6px;">
+      <div class="range-label"><span>UI Scale</span><span id="uiScaleLabel">100%</span></div>
+      <input type="range" id="fUiScale" min="80" max="130" step="5" value="100">
     </div>
 
-    <button class="btn" id="btnChangePassword">Update Password</button>
-    <div class="msg" id="passwordMsg"></div>
+    <div class="range-row">
+      <div class="range-label"><span>Saturation</span><span id="uiSaturationLabel">100%</span></div>
+      <input type="range" id="fUiSaturation" min="0" max="200" step="10" value="100">
+    </div>
+
+    <div class="range-row">
+      <div class="range-label"><span>Color Hue</span><span id="uiHueLabel">0°</span></div>
+      <input type="range" id="fUiHue" min="0" max="360" step="5" value="0">
+    </div>
   </div>
 
   <div class="card">
-    <h2>Account Info</h2>
-    <p class="hint" id="accountInfo" style="margin-top:0;"></p>
-    <a href="#" id="viewProfileLink" class="btn ghost" style="display:inline-flex; width:auto; padding:9px 18px; text-decoration:none; margin-top:10px;">View My Public Profile</a>
-  </div>
-
-  <div class="card">
-    <button class="btn logout-btn" id="btnLogout">Logout</button>
+    <button class="btn" id="btnSaveTheme">Save Theme</button>
+    <button class="btn ghost" id="btnResetTheme">Reset to Default</button>
+    <div class="msg" id="themeMsg"></div>
   </div>
 </div>
 
@@ -142,264 +157,369 @@
 let me = null;
 let myProfile = null;
 
+const ACCENT_PRESETS = ["#ff6b9d","#b895ff","#3fe0d8","#5b9dff","#4ade9a","#ffb454","#ff9a7d","#ffe08a","#6be6e0","#ff9fc6"];
+
+const GRADIENT_PRESETS = [
+  { name: "Aurora",     angle: 135, stops: ["#ff6b9d","#b895ff","#3fe0d8"] },
+  { name: "Sunset",     angle: 120, stops: ["#ffb454","#ff6b9d","#b895ff"] },
+  { name: "Ocean",      angle: 90,  stops: ["#5b9dff","#3fe0d8","#4ade9a"] },
+  { name: "Candy",      angle: 100, stops: ["#ff9fc6","#ffe08a","#6be6e0"] },
+  { name: "Blaze",      angle: 135, stops: ["#ff6b9d","#ffb454"] },
+];
+
+// Working copy of the theme being edited. Starts from defaults and gets
+// merged with whatever the user already saved.
+let draft = JSON.parse(JSON.stringify(DEFAULT_THEME));
+
+function clampStops(stops) {
+  // keep between 2 and 4 stops
+  const s = (stops || []).slice(0, 4);
+  while (s.length < 2) s.push(s[s.length - 1] || "#ff6b9d");
+  return s;
+}
+
+function mergeTheme(base, saved) {
+  const merged = JSON.parse(JSON.stringify(base));
+  if (!saved) return merged;
+  if (saved.accent) merged.accent = saved.accent;
+  if (saved.gradient) {
+    merged.gradient.enabled = saved.gradient.enabled !== false;
+    if (saved.gradient.angle != null) merged.gradient.angle = saved.gradient.angle;
+    if (saved.gradient.stops) merged.gradient.stops = clampStops(saved.gradient.stops);
+  }
+  if (saved.background) {
+    merged.background.type = saved.background.type || "default";
+    if (saved.background.solid) merged.background.solid = saved.background.solid;
+    if (saved.background.gradient) {
+      if (saved.background.gradient.angle != null) merged.background.gradient.angle = saved.background.gradient.angle;
+      if (saved.background.gradient.stops) merged.background.gradient.stops = clampStops(saved.background.gradient.stops);
+    }
+    merged.background.image_url = saved.background.image_url || null;
+    if (saved.background.dim != null) merged.background.dim = saved.background.dim;
+  }
+  if (saved.ui) {
+    if (saved.ui.scale != null) merged.ui.scale = saved.ui.scale;
+    if (saved.ui.saturation != null) merged.ui.saturation = saved.ui.saturation;
+    if (saved.ui.hue != null) merged.ui.hue = saved.ui.hue;
+  }
+  return merged;
+}
+
 async function boot() {
   me = await requireLogin("login.html");
   myProfile = await getMyProfile();
   if (!myProfile) { window.location.href = "login.html"; return; }
 
   const nav = document.getElementById("topnav");
-  let links = ``;
+  let links = "";
   if (myProfile.role === "admin" || myProfile.role === "developer") links += `<a href="admin.html">Admin Panel</a>`;
   if (myProfile.role === "developer") links += `<a href="developer.html">Developer Panel</a>`;
+  links += `<a href="account-settings.html" style="margin-left:6px;">Account</a>`;
   nav.innerHTML = links;
-  document.getElementById("btnLogout").addEventListener("click", async (e) => {
-    e.preventDefault();
-    if (!confirm("Are you sure you want to log out?")) return;
-    await sb.auth.signOut(); window.location.href = "../index.html";
+
+  draft = mergeTheme(DEFAULT_THEME, myProfile.theme_settings);
+  renderAccentSwatches();
+  renderGradientPresets();
+  renderAll();
+}
+
+// ---------- Rendering ----------
+function renderAll() {
+  // Accent
+  document.getElementById("fAccentColor").value = draft.accent;
+  document.getElementById("fAccentHex").value = draft.accent;
+  highlightActive("#accentSwatches .swatch", draft.accent);
+  highlightActivePreset();
+
+  // Gradient toggle
+  document.getElementById("fGradientEnabled").checked = draft.gradient.enabled;
+  document.getElementById("gradientControls").style.opacity = draft.gradient.enabled ? "1" : ".45";
+  document.getElementById("gradientControls").style.pointerEvents = draft.gradient.enabled ? "auto" : "none";
+
+  renderStops("accentStops", draft.gradient.stops, (stops) => { draft.gradient.stops = stops; applyLive(); }, "fAccentAngle");
+  document.getElementById("fAccentAngle").value = draft.gradient.angle;
+  document.getElementById("accentAngleLabel").textContent = draft.gradient.angle + "°";
+  document.getElementById("accentGradientBar").style.background = gradientCss(draft.gradient.stops, draft.gradient.angle);
+
+  // Background type buttons
+  document.querySelectorAll("#bgTypeGrid .bg-type-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.type === draft.background.type);
   });
+  document.getElementById("bgSolidPanel").style.display = draft.background.type === "solid" ? "block" : "none";
+  document.getElementById("bgGradientPanel").style.display = draft.background.type === "gradient" ? "block" : "none";
+  document.getElementById("bgImagePanel").style.display = draft.background.type === "image" ? "block" : "none";
 
-  renderAvatarPreview();
-  document.getElementById("fName").value = myProfile.display_name || "";
-  document.getElementById("fUsername").value = myProfile.username || "";
-  document.getElementById("fKrunker").value = myProfile.krunker_username || "";
-  document.getElementById("fBio").value = myProfile.bio || "";
-  document.getElementById("bioCounter").textContent = `${(myProfile.bio || "").length} / 200`;
-  document.getElementById("fBirthdate").value = myProfile.birthdate || "";
-  document.getElementById("fGender").value = myProfile.gender || "prefer_not_to_say";
-  document.getElementById("fCurrentEmailDisplay").value = me.email || "";
+  document.getElementById("fBgSolid").value = draft.background.solid;
+  document.getElementById("fBgSolidHex").value = draft.background.solid;
 
-  document.getElementById("accountInfo").innerHTML =
-    `Joined: ${formatDate(myProfile.created_at)}` +
-    (myProfile.discord_username ? `<br>Discord: ${escapeHtml(myProfile.discord_username)}` : "");
-  document.getElementById("viewProfileLink").href = `profile.html?user=${encodeURIComponent(myProfile.username)}`;
+  renderStops("bgStops", draft.background.gradient.stops, (stops) => { draft.background.gradient.stops = stops; applyLive(); }, "fBgAngle");
+  document.getElementById("fBgAngle").value = draft.background.gradient.angle;
+  document.getElementById("bgAngleLabel").textContent = draft.background.gradient.angle + "°";
+  document.getElementById("bgGradientBar").style.background = gradientCss(draft.background.gradient.stops, draft.background.gradient.angle);
+
+  const thumb = document.getElementById("bgImageThumb");
+  thumb.style.backgroundImage = draft.background.image_url ? `url("${draft.background.image_url}")` : "none";
+  document.getElementById("fBgImageUrl").value = draft.background.image_url || "";
+  document.getElementById("fBgDim").value = Math.round(draft.background.dim * 100);
+  document.getElementById("bgDimLabel").textContent = Math.round(draft.background.dim * 100) + "%";
+
+  // Display
+  document.getElementById("fUiScale").value = draft.ui.scale;
+  document.getElementById("uiScaleLabel").textContent = draft.ui.scale + "%";
+  document.getElementById("fUiSaturation").value = draft.ui.saturation;
+  document.getElementById("uiSaturationLabel").textContent = draft.ui.saturation + "%";
+  document.getElementById("fUiHue").value = draft.ui.hue;
+  document.getElementById("uiHueLabel").textContent = draft.ui.hue + "°";
 }
 
-function renderAvatarPreview() {
-  document.getElementById("avatarPreviewWrap").innerHTML =
-    avatarHtml(myProfile, 72) +
-    `<span class="hint" style="margin-top:0;">Current profile picture</span>`;
+function gradientCss(stops, angle) {
+  return `linear-gradient(${angle}deg, ${stops.join(", ")})`;
 }
 
-document.getElementById("fBio").addEventListener("input", (e) => {
-  document.getElementById("bioCounter").textContent = `${e.target.value.length} / 200`;
+function highlightActive(selector, color) {
+  document.querySelectorAll(selector).forEach(el => {
+    el.classList.toggle("active", el.dataset.color?.toLowerCase() === color?.toLowerCase());
+  });
+}
+
+function highlightActivePreset() {
+  const stopsKey = JSON.stringify(draft.gradient.stops) + "|" + draft.gradient.angle;
+  document.querySelectorAll("#gradientPresets .preset-swatch").forEach(el => {
+    el.classList.toggle("active", el.dataset.key === stopsKey);
+  });
+}
+
+function renderAccentSwatches() {
+  const wrap = document.getElementById("accentSwatches");
+  wrap.innerHTML = ACCENT_PRESETS.map(c =>
+    `<button type="button" class="swatch" data-color="${c}" style="background:${c};" title="${c}"></button>`
+  ).join("");
+  wrap.querySelectorAll(".swatch").forEach(btn => {
+    btn.addEventListener("click", () => {
+      draft.accent = btn.dataset.color;
+      renderAll();
+      applyLive();
+    });
+  });
+}
+
+function renderGradientPresets() {
+  const wrap = document.getElementById("gradientPresets");
+  wrap.innerHTML = GRADIENT_PRESETS.map(p => {
+    const key = JSON.stringify(p.stops) + "|" + p.angle;
+    return `<button type="button" class="preset-swatch" data-key="${key}" title="${p.name}" style="background:${gradientCss(p.stops, p.angle)};"></button>`;
+  }).join("");
+  wrap.querySelectorAll(".preset-swatch").forEach((btn, i) => {
+    btn.addEventListener("click", () => {
+      const p = GRADIENT_PRESETS[i];
+      draft.gradient.stops = clampStops(p.stops);
+      draft.gradient.angle = p.angle;
+      renderAll();
+      applyLive();
+    });
+  });
+}
+
+// Renders a stack of color-stop rows into `containerId`. `onChange(stops)`
+// is called with the updated stops array whenever a stop is edited,
+// added, or removed.
+function renderStops(containerId, stops, onChange, angleInputId) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = stops.map((c, i) => `
+    <div class="stop-row" data-i="${i}">
+      <input type="color" value="${c}">
+      <button type="button" class="stop-remove" ${stops.length <= 2 ? "disabled" : ""}>&times;</button>
+    </div>
+  `).join("");
+
+  wrap.querySelectorAll(".stop-row").forEach((row) => {
+    const i = Number(row.dataset.i);
+    row.querySelector("input[type=color]").addEventListener("input", (e) => {
+      const next = stops.slice();
+      next[i] = e.target.value;
+      onChange(next);
+      // update the little gradient bar without a full re-render of the row
+      const barId = angleInputId === "fAccentAngle" ? "accentGradientBar" : "bgGradientBar";
+      const angle = document.getElementById(angleInputId).value;
+      document.getElementById(barId).style.background = gradientCss(next, angle);
+    });
+    row.querySelector(".stop-remove").addEventListener("click", () => {
+      if (stops.length <= 2) return;
+      const next = stops.slice(0, i).concat(stops.slice(i + 1));
+      onChange(next);
+      renderAll();
+    });
+  });
+}
+
+function applyLive() {
+  applyUserTheme(draft);
+}
+
+// ---------- Accent color inputs ----------
+document.getElementById("fAccentColor").addEventListener("input", (e) => {
+  draft.accent = e.target.value;
+  document.getElementById("fAccentHex").value = e.target.value;
+  highlightActive("#accentSwatches .swatch", draft.accent);
+  applyLive();
+});
+document.getElementById("fAccentHex").addEventListener("input", (e) => {
+  const v = e.target.value.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    draft.accent = v;
+    document.getElementById("fAccentColor").value = v;
+    highlightActive("#accentSwatches .swatch", draft.accent);
+    applyLive();
+  }
 });
 
-// ---------- Avatar upload ----------
-document.getElementById("btnAvatarUpload").addEventListener("click", async () => {
-  const msg = document.getElementById("avatarMsg");
+// ---------- Gradient toggle / angle / add stop ----------
+document.getElementById("fGradientEnabled").addEventListener("change", (e) => {
+  draft.gradient.enabled = e.target.checked;
+  renderAll();
+  applyLive();
+});
+document.getElementById("fAccentAngle").addEventListener("input", (e) => {
+  draft.gradient.angle = Number(e.target.value);
+  document.getElementById("accentAngleLabel").textContent = draft.gradient.angle + "°";
+  document.getElementById("accentGradientBar").style.background = gradientCss(draft.gradient.stops, draft.gradient.angle);
+  applyLive();
+});
+document.getElementById("btnAddAccentStop").addEventListener("click", () => {
+  if (draft.gradient.stops.length >= 4) return;
+  draft.gradient.stops = draft.gradient.stops.concat(["#ffffff"]);
+  renderAll();
+  applyLive();
+});
+
+// ---------- Background type ----------
+document.getElementById("bgTypeGrid").addEventListener("click", (e) => {
+  const btn = e.target.closest(".bg-type-btn");
+  if (!btn) return;
+  draft.background.type = btn.dataset.type;
+  renderAll();
+  applyLive();
+});
+
+document.getElementById("fBgSolid").addEventListener("input", (e) => {
+  draft.background.solid = e.target.value;
+  document.getElementById("fBgSolidHex").value = e.target.value;
+  applyLive();
+});
+document.getElementById("fBgSolidHex").addEventListener("input", (e) => {
+  const v = e.target.value.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    draft.background.solid = v;
+    document.getElementById("fBgSolid").value = v;
+    applyLive();
+  }
+});
+
+document.getElementById("fBgAngle").addEventListener("input", (e) => {
+  draft.background.gradient.angle = Number(e.target.value);
+  document.getElementById("bgAngleLabel").textContent = draft.background.gradient.angle + "°";
+  document.getElementById("bgGradientBar").style.background = gradientCss(draft.background.gradient.stops, draft.background.gradient.angle);
+  applyLive();
+});
+document.getElementById("btnAddBgStop").addEventListener("click", () => {
+  if (draft.background.gradient.stops.length >= 4) return;
+  draft.background.gradient.stops = draft.background.gradient.stops.concat(["#ffffff"]);
+  renderAll();
+  applyLive();
+});
+
+document.getElementById("fBgImageUrl").addEventListener("input", (e) => {
+  draft.background.image_url = e.target.value.trim() || null;
+  document.getElementById("bgImageThumb").style.backgroundImage = draft.background.image_url ? `url("${draft.background.image_url}")` : "none";
+  applyLive();
+});
+document.getElementById("fBgDim").addEventListener("input", (e) => {
+  draft.background.dim = Number(e.target.value) / 100;
+  document.getElementById("bgDimLabel").textContent = e.target.value + "%";
+  applyLive();
+});
+
+// ---------- Display: scale / saturation / hue ----------
+document.getElementById("fUiScale").addEventListener("input", (e) => {
+  draft.ui.scale = Number(e.target.value);
+  document.getElementById("uiScaleLabel").textContent = e.target.value + "%";
+  applyLive();
+});
+document.getElementById("fUiSaturation").addEventListener("input", (e) => {
+  draft.ui.saturation = Number(e.target.value);
+  document.getElementById("uiSaturationLabel").textContent = e.target.value + "%";
+  applyLive();
+});
+document.getElementById("fUiHue").addEventListener("input", (e) => {
+  draft.ui.hue = Number(e.target.value);
+  document.getElementById("uiHueLabel").textContent = e.target.value + "°";
+  applyLive();
+});
+
+// ---------- Background image upload ----------
+document.getElementById("btnBgUpload").addEventListener("click", async () => {
+  const msg = document.getElementById("bgMsg");
   msg.className = "msg"; msg.textContent = "";
-  const file = document.getElementById("fAvatar").files[0];
+  const file = document.getElementById("fBgUpload").files[0];
   if (!file) {
     msg.className = "msg error show"; msg.textContent = "Choose an image file first.";
     return;
   }
-  if (file.size > 2 * 1024 * 1024) {
-    msg.className = "msg error show"; msg.textContent = "File is too large (max 2MB).";
+  const sizeError = checkUploadSize(file);
+  if (sizeError) {
+    msg.className = "msg error show"; msg.textContent = sizeError;
     return;
   }
 
-  const btn = document.getElementById("btnAvatarUpload");
+  const btn = document.getElementById("btnBgUpload");
   btn.disabled = true; btn.textContent = "Uploading...";
 
   const ext = file.name.split(".").pop();
-  const path = `${me.id}/avatar.${ext}`;
+  const path = `${me.id}/background.${ext}`;
 
   const { error: uploadError } = await sb.storage
-    .from("avatars")
+    .from("backgrounds")
     .upload(path, file, { upsert: true, cacheControl: "3600" });
+
+  btn.disabled = false; btn.textContent = "Upload Image";
 
   if (uploadError) {
     msg.className = "msg error show"; msg.textContent = uploadError.message;
-    btn.disabled = false; btn.textContent = "Upload New Picture";
     return;
   }
 
-  const { data: publicData } = sb.storage.from("avatars").getPublicUrl(path);
-  const avatar_url = publicData.publicUrl + "?t=" + Date.now(); // cache-bust
-
-  const { error: updateError } = await sb.from("profiles").update({ avatar_url }).eq("id", me.id);
-  if (updateError) {
-    msg.className = "msg error show"; msg.textContent = updateError.message;
-    btn.disabled = false; btn.textContent = "Upload New Picture";
-    return;
-  }
-
-  myProfile.avatar_url = avatar_url;
-  renderAvatarPreview();
-  msg.className = "msg ok show"; msg.textContent = "Profile picture updated!";
-  btn.disabled = false; btn.textContent = "Upload New Picture";
+  const { data: publicData } = sb.storage.from("backgrounds").getPublicUrl(path);
+  draft.background.image_url = publicData.publicUrl + "?t=" + Date.now();
+  draft.background.type = "image";
+  renderAll();
+  applyLive();
+  msg.className = "msg ok show"; msg.textContent = "Image uploaded! Don't forget to Save.";
 });
 
-// ---------- Profile details (name / username / krunker) ----------
-document.getElementById("btnSaveProfile").addEventListener("click", async () => {
-  const msg = document.getElementById("profileMsg");
+// ---------- Save / Reset ----------
+document.getElementById("btnSaveTheme").addEventListener("click", async () => {
+  const msg = document.getElementById("themeMsg");
   msg.className = "msg"; msg.textContent = "";
-
-  const display_name = document.getElementById("fName").value.trim();
-  const username = document.getElementById("fUsername").value.trim();
-  const krunker_username = document.getElementById("fKrunker").value.trim();
-  const bio = document.getElementById("fBio").value.trim();
-
-  if (!display_name || !username) {
-    msg.className = "msg error show"; msg.textContent = "Full name & username are required.";
-    return;
-  }
-
-  const btn = document.getElementById("btnSaveProfile");
+  const btn = document.getElementById("btnSaveTheme");
   btn.disabled = true; btn.textContent = "Saving...";
 
-  const { error } = await sb.from("profiles").update({
-    display_name, username, krunker_username: krunker_username || null, bio: bio || null,
-  }).eq("id", me.id);
+  const { error } = await sb.from("profiles").update({ theme_settings: draft }).eq("id", me.id);
 
-  btn.disabled = false; btn.textContent = "Save Changes";
+  btn.disabled = false; btn.textContent = "Save Theme";
 
   if (error) {
     msg.className = "msg error show"; msg.textContent = error.message;
     return;
   }
-  myProfile.display_name = display_name;
-  myProfile.username = username;
-  myProfile.bio = bio;
-  msg.className = "msg ok show"; msg.textContent = "Profile updated!";
+  myProfile.theme_settings = draft;
+  msg.className = "msg ok show"; msg.textContent = "Theme saved!";
 });
 
-// ---------- Personal info (birthday / gender) ----------
-document.getElementById("btnSavePersonal").addEventListener("click", async () => {
-  const msg = document.getElementById("personalMsg");
-  msg.className = "msg"; msg.textContent = "";
-
-  const birthdate = document.getElementById("fBirthdate").value;
-  const gender = document.getElementById("fGender").value;
-
-  if (!birthdate) {
-    msg.className = "msg error show"; msg.textContent = "Date of birth is required.";
-    return;
-  }
-
-  const btn = document.getElementById("btnSavePersonal");
-  btn.disabled = true; btn.textContent = "Saving...";
-
-  const { error } = await sb.from("profiles").update({ birthdate, gender }).eq("id", me.id);
-
-  btn.disabled = false; btn.textContent = "Save Changes";
-
-  if (error) {
-    msg.className = "msg error show"; msg.textContent = error.message;
-    return;
-  }
-  myProfile.birthdate = birthdate;
-  myProfile.gender = gender;
-  msg.className = "msg ok show"; msg.textContent = "Personal info updated!";
-});
-
-// ---------- Email (Discord-style: show current, click to edit) ----------
-document.getElementById("btnEditEmail").addEventListener("click", () => {
-  document.getElementById("emailDisplayView").style.display = "none";
-  document.getElementById("emailEditView").style.display = "block";
-  document.getElementById("fNewEmail").value = me.email || "";
-});
-
-document.getElementById("btnCancelEmail").addEventListener("click", () => {
-  document.getElementById("emailEditView").style.display = "none";
-  document.getElementById("emailDisplayView").style.display = "block";
-  document.getElementById("fNewEmail").value = "";
-  document.getElementById("fEmailPassword").value = "";
-  document.getElementById("emailMsg").className = "msg";
-  document.getElementById("emailMsg").textContent = "";
-});
-
-document.getElementById("btnSaveEmail").addEventListener("click", async () => {
-  const msg = document.getElementById("emailMsg");
-  msg.className = "msg"; msg.textContent = "";
-
-  const newEmail = document.getElementById("fNewEmail").value.trim();
-  const currentPassword = document.getElementById("fEmailPassword").value;
-
-  if (!newEmail || !currentPassword) {
-    msg.className = "msg error show"; msg.textContent = "Fill in the new email and your current password.";
-    return;
-  }
-  if (newEmail === me.email) {
-    msg.className = "msg error show"; msg.textContent = "That's already your current email.";
-    return;
-  }
-
-  const btn = document.getElementById("btnSaveEmail");
-  btn.disabled = true; btn.textContent = "Verifying...";
-
-  // Verify current password by re-authenticating before allowing an email change
-  const { error: verifyError } = await sb.auth.signInWithPassword({ email: me.email, password: currentPassword });
-  if (verifyError) {
-    msg.className = "msg error show"; msg.textContent = "Incorrect current password.";
-    btn.disabled = false; btn.textContent = "Save Email";
-    return;
-  }
-
-  btn.textContent = "Updating...";
-  const { error: updateError } = await sb.auth.updateUser({ email: newEmail });
-
-  btn.disabled = false; btn.textContent = "Save Email";
-
-  if (updateError) {
-    msg.className = "msg error show"; msg.textContent = updateError.message;
-    return;
-  }
-
-  msg.className = "msg ok show";
-  msg.textContent = "Confirmation links sent to your old and new email. Click both to finish changing your email.";
-  document.getElementById("fEmailPassword").value = "";
-});
-
-// ---------- Password (requires current password) ----------
-document.getElementById("btnChangePassword").addEventListener("click", async () => {
-  const msg = document.getElementById("passwordMsg");
-  msg.className = "msg"; msg.textContent = "";
-
-  const currentPw = document.getElementById("fCurrentPassword").value;
-  const pw1 = document.getElementById("fNewPassword").value;
-  const pw2 = document.getElementById("fConfirmPassword").value;
-
-  if (!currentPw || !pw1 || !pw2) {
-    msg.className = "msg error show"; msg.textContent = "Fill in your current password and the new password twice.";
-    return;
-  }
-  if (pw1.length < 6) {
-    msg.className = "msg error show"; msg.textContent = "New password must be at least 6 characters.";
-    return;
-  }
-  if (pw1 !== pw2) {
-    msg.className = "msg error show"; msg.textContent = "New passwords do not match.";
-    return;
-  }
-  if (pw1 === currentPw) {
-    msg.className = "msg error show"; msg.textContent = "New password must be different from your current password.";
-    return;
-  }
-
-  const btn = document.getElementById("btnChangePassword");
-  btn.disabled = true; btn.textContent = "Verifying...";
-
-  const { error: verifyError } = await sb.auth.signInWithPassword({ email: me.email, password: currentPw });
-  if (verifyError) {
-    msg.className = "msg error show"; msg.textContent = "Current password is incorrect.";
-    btn.disabled = false; btn.textContent = "Update Password";
-    return;
-  }
-
-  btn.textContent = "Updating...";
-  const { error } = await sb.auth.updateUser({ password: pw1 });
-
-  btn.disabled = false; btn.textContent = "Update Password";
-
-  if (error) {
-    msg.className = "msg error show"; msg.textContent = error.message;
-    return;
-  }
-  document.getElementById("fCurrentPassword").value = "";
-  document.getElementById("fNewPassword").value = "";
-  document.getElementById("fConfirmPassword").value = "";
-  msg.className = "msg ok show"; msg.textContent = "Password updated!";
+document.getElementById("btnResetTheme").addEventListener("click", () => {
+  if (!confirm("Reset the preview back to the default theme? This won't save until you click Save Theme.")) return;
+  draft = JSON.parse(JSON.stringify(DEFAULT_THEME));
+  renderAll();
+  applyLive();
 });
 
 boot();

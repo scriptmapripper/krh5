@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="assets/favicon.ico">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a0f28">
+<meta name="theme-color" content="#120c28">
 <meta name="description" content="Crosshairs, CSS, settings, maps, mods and scripts made by the community.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Krunker Resource Hub">
@@ -21,7 +21,7 @@
 <meta name="twitter:description" content="Crosshairs, CSS, settings, maps, mods and scripts made by the community.">
 <meta name="twitter:image" content="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -29,14 +29,14 @@
 <div class="shell">
 
   <header>
-    <img src="assets/logo.png" alt="Krunker Resource Hub" class="logo-img">
+    <div class="logo-frame"><img src="assets/logo.png" alt="Krunker Resource Hub" class="logo-img"></div>
     <div class="title-block">
       <div class="brand-title">Krunker Resource Hub</div>
       <div class="tagline">Made by <b>Aura Gangs Team</b></div>
     </div>
     <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
-      <a href="community/login.html" id="navLogin" style="padding:9px 16px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-1); font-size:13.5px; font-weight:600;">Login</a>
-      <a href="community/signup.html" id="navSignup" style="padding:9px 16px; border-radius:8px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; font-size:13.5px; font-weight:700;">Sign Up</a>
+      <a href="community/login.html" id="navLogin" class="btn-ghost">Login</a>
+      <a href="community/signup.html" id="navSignup" class="btn-primary">Sign Up</a>
       <span id="navDivider" style="display:none; width:1px; height:22px; background:var(--border); margin:0 2px;"></span>
       <div id="navLinks" style="display:none; gap:10px; align-items:center;"></div>
       <a href="community/settings.html" id="navAvatar" title="Account Settings" style="display:none; align-items:center; gap:8px; text-decoration:none;"></a>
@@ -100,21 +100,16 @@
         getUnreadMessageCount(user.id),
       ]);
 
-      /* Same look as the old Dashboard button so the header stays consistent. */
-      const btn = "padding:9px 16px; border-radius:8px; border:1px solid var(--border);" +
-                  " background:var(--surface); color:var(--text-1); font-size:13.5px;" +
-                  " font-weight:600; text-decoration:none; display:inline-flex; align-items:center;";
-
       let links = "";
       if (profile.role === "developer") {
-        links += `<a href="community/developer.html" style="${btn}">Developer Panel</a>`;
+        links += `<a href="community/developer.html" class="navlink-btn">Developer Panel</a>`;
       }
       if (profile.role === "admin" || profile.role === "developer") {
-        links += `<a href="community/admin.html" style="${btn}">Admin Panel</a>`;
+        links += `<a href="community/admin.html" class="navlink-btn">Admin Panel</a>`;
       }
-      links += `<a href="community/messages.html" style="${btn}">Messages${unreadBadgeHtml(unreadMsgCount)}</a>`;
-      links += `<a href="community/inbox.html" style="${btn}">Inbox${unreadBadgeHtml(unreadCount)}</a>`;
-      links += `<a href="community/saved.html" style="${btn}">Saved</a>`;
+      links += `<a href="community/messages.html" class="navlink-btn">Messages${unreadBadgeHtml(unreadMsgCount)}</a>`;
+      links += `<a href="community/inbox.html" class="navlink-btn">Inbox${unreadBadgeHtml(unreadCount)}</a>`;
+      links += `<a href="community/saved.html" class="navlink-btn">Saved</a>`;
 
       const navLinks = document.getElementById("navLinks");
       navLinks.innerHTML = links;

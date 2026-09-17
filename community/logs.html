@@ -14,11 +14,11 @@
   /* Khusus halaman ini — sisanya pakai community.css */
   .log-row{
     display:flex; gap:14px; align-items:flex-start;
-    border:1px solid var(--border); border-radius:12px;
+    border:1px solid var(--border); border-radius:20px;
     padding:14px 16px; margin-bottom:10px; background:var(--surface);
   }
   .log-icon{
-    flex:0 0 auto; width:30px; height:30px; border-radius:8px;
+    flex:0 0 auto; width:30px; height:30px; border-radius:16px;
     display:flex; align-items:center; justify-content:center;
     font-size:14px; font-weight:700; border:1px solid var(--border);
     background:var(--bg-1);
@@ -42,10 +42,10 @@
   .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
   @media(max-width:700px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
   .stat{
-    border:1px solid var(--border); border-radius:11px;
+    border:1px solid var(--border); border-radius:19px;
     padding:14px 16px; background:var(--bg-1);
   }
-  .stat .num{font-family:'Orbitron',sans-serif; font-size:21px; font-weight:800; color:var(--text-0);}
+  .stat .num{font-family:'Baloo 2',sans-serif; font-size:21px; font-weight:800; color:var(--text-0);}
   .stat .lbl{font-size:11.5px; color:var(--text-2); text-transform:uppercase; letter-spacing:.5px; margin-top:4px;}
 
   .filter-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
@@ -165,7 +165,8 @@ async function boot() {
   let links = `<a href="dashboard.html">Dashboard</a><a href="admin.html">Admin Panel</a>`;
   if (profile.role === "developer") links += `<a href="developer.html">Developer Panel</a>`;
   links += `<span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>`;
-  links += `<a href="settings.html" style="margin-left:6px;">Settings</a>`;
+  links += `<a href="account-settings.html" style="margin-left:6px;">Account</a>`;
+  links += `<a href="settings.html" style="margin-left:6px;">Theme</a>`;
   nav.innerHTML = links;
 
   document.getElementById("btnLogout").addEventListener("click", async (e) => {

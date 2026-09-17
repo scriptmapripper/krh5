@@ -63,7 +63,8 @@ async function boot() {
     <a href="admin.html">Admin Panel</a>
     <a href="logs.html">History Logs</a>
     <span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>
-    <a href="settings.html" style="margin-left:6px;">Settings</a>
+    <a href="account-settings.html" style="margin-left:6px;">Account</a>
+    <a href="settings.html" style="margin-left:6px;">Theme</a>
   `;
   document.getElementById("btnLogout").addEventListener("click", async (e) => {
     e.preventDefault();

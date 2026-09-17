@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="../assets/favicon.ico">
 <link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#0a0f28">
+<meta name="theme-color" content="#120c28">
 <meta name="description" content="Community-made Krunker CSS files — browse and download.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Krunker Resource Hub">
@@ -24,7 +24,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   #dropzone{
-    border:2px dashed var(--border-strong); border-radius:10px; padding:22px;
+    border:2px dashed var(--border-strong); border-radius:18px; padding:22px;
     text-align:center; color:var(--text-2); font-size:14px; cursor:pointer;
     transition:.15s ease;
   }
@@ -33,7 +33,7 @@
     display:grid; grid-template-columns:repeat(auto-fill, minmax(100px,1fr));
     gap:10px; margin-top:12px;
   }
-  .preview-thumb{ position:relative; border-radius:8px; overflow:hidden; border:1px solid var(--border); background:#05070f; }
+  .preview-thumb{ position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--border); background:#05070f; }
   .preview-thumb img{ width:100%; height:90px; object-fit:cover; display:block; }
   .preview-thumb button{
     position:absolute; top:4px; right:4px; width:20px; height:20px; border-radius:50%;
@@ -43,7 +43,7 @@
   .preview-thumb button:hover{ background:var(--red); }
   #fileChip{
     display:none; align-items:center; gap:8px; padding:8px 12px; margin-top:10px;
-    border:1px solid var(--border); border-radius:8px; background:rgba(255,255,255,.03);
+    border:1px solid var(--border); border-radius:16px; background:rgba(255,255,255,.03);
     font-size:13.5px; color:var(--text-1);
   }
   #fileChip button{

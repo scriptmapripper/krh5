@@ -58,7 +58,8 @@ async function boot() {
   let links = `<a href="dashboard.html">Dashboard</a><a href="logs.html">History Logs</a>`;
   if (profile.role === "developer") links += `<a href="developer.html">Developer Panel</a>`;
   links += `<span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>`;
-  links += `<a href="settings.html" style="margin-left:6px;">Settings</a>`;
+  links += `<a href="account-settings.html" style="margin-left:6px;">Account</a>`;
+  links += `<a href="settings.html" style="margin-left:6px;">Theme</a>`;
   nav.innerHTML = links;
   document.getElementById("btnLogout").addEventListener("click", async (e) => {
     e.preventDefault();

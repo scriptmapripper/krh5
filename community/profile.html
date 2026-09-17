@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="../assets/favicon.ico">
 <link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#0a0f28">
+<meta name="theme-color" content="#120c28">
 <meta name="description" content="A community member's profile on Krunker Resource Hub.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Krunker Resource Hub">
@@ -27,7 +27,7 @@
   .profile-avatar-wrap{ flex:none; }
   .profile-info{ flex:1; min-width:240px; }
   .profile-name-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
-  .profile-display-name{ font-family:'Orbitron',sans-serif; font-size:22px; }
+  .profile-display-name{ font-family:'Baloo 2',sans-serif; font-size:22px; }
   .profile-username{ color:var(--text-2); font-size:13.5px; margin-bottom:12px; }
   .profile-stats{ display:flex; gap:26px; margin:14px 0; flex-wrap:wrap; }
   .profile-stat b{ color:var(--text-0); font-size:15px; }
@@ -35,17 +35,17 @@
   .profile-bio{ color:var(--text-1); font-size:13.5px; line-height:1.55; white-space:pre-wrap; max-width:480px; }
   .profile-actions{ margin-top:14px; display:flex; gap:8px; }
   .btn-follow{
-    padding:9px 22px; border-radius:9px; border:none; background:var(--blue-glow); color:#05070f;
-    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; cursor:pointer;
+    padding:9px 22px; border-radius:17px; border:none; background:var(--blue-glow); color:#05070f;
+    font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px; cursor:pointer;
   }
   .btn-unfollow{
-    padding:9px 22px; border-radius:9px; border:1px solid var(--border-strong); background:rgba(255,255,255,.04);
-    color:var(--text-1); font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; cursor:pointer;
+    padding:9px 22px; border-radius:17px; border:1px solid var(--border-strong); background:rgba(255,255,255,.04);
+    color:var(--text-1); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px; cursor:pointer;
   }
   .profile-posts-heading{ margin-top:34px; border-top:1px solid var(--border); padding-top:20px; }
   .posts-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:10px; margin-top:16px; }
   .post-tile{
-    aspect-ratio:1/1; border-radius:12px; overflow:hidden; border:1px solid var(--border);
+    aspect-ratio:1/1; border-radius:20px; overflow:hidden; border:1px solid var(--border);
     background:var(--surface-2); text-decoration:none; position:relative; display:block;
   }
   .post-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -188,7 +188,7 @@ function renderProfile(profile) {
   const actionsEl = document.getElementById('profileActions');
   const isOwnProfile = me && me.id === profile.id;
   if (isOwnProfile) {
-    actionsEl.innerHTML = `<a href="settings.html" class="btn-unfollow" style="text-decoration:none; display:inline-flex; align-items:center;">Edit Profile</a>`;
+    actionsEl.innerHTML = `<a href="account-settings.html" class="btn-unfollow" style="text-decoration:none; display:inline-flex; align-items:center;">Edit Profile</a>`;
   } else {
     actionsEl.innerHTML = `
       <button class="btn-follow" id="btnFollow">Follow</button>

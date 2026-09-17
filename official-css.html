@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="assets/favicon.ico">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a0f28">
+<meta name="theme-color" content="#120c28">
 <meta name="description" content="Browse official, ready-to-use Krunker CSS files.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Krunker Resource Hub">
@@ -20,22 +20,24 @@
 <meta name="twitter:title" content="Official CSS — Krunker Resource Hub">
 <meta name="twitter:description" content="Browse official, ready-to-use Krunker CSS files.">
 <meta name="twitter:image" content="assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{ --bg:#0b0e1a; --panel:#111528; --border:#232945; --text0:#f2f4ff; --text1:#a6b0d6; --green:#22c55e; }
+  :root{ --bg:#120c28; --panel:#1e1642; --border:rgba(255,255,255,.14); --text0:#fdfbff; --text1:#c3b8e8; --green:#4ade9a; }
   *{ box-sizing:border-box; }
-  html,body{ margin:0; background:transparent; font-family:'Rajdhani',sans-serif; color:var(--text0); }
+  html,body{ margin:0; background:transparent; font-family:'Plus Jakarta Sans',sans-serif; color:var(--text0); }
   .wrap{ padding:0; }
   .head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .head h2{ font-family:'Baloo 2',sans-serif; }
   .head p{ margin:4px 0 0; color:var(--text1); font-size:14px; }
   .btn{
-    display:inline-block; padding:10px 18px; border-radius:8px; border:1px solid var(--border);
-    background:rgba(34,197,94,.12); color:var(--text0); font-weight:700; text-decoration:none;
-    cursor:pointer; font-family:inherit; font-size:14px; transition:.15s ease;
+    display:inline-block; padding:11px 22px; border-radius:999px; border:1px solid var(--border);
+    background:linear-gradient(135deg, var(--green), #3fe0d8); color:#12081f; font-weight:700; text-decoration:none;
+    cursor:pointer; font-family:inherit; font-size:14px; transition:.2s ease;
   }
-  .btn:hover{ background:rgba(34,197,94,.22); border-color:var(--green); }
+  .btn:hover{ filter:brightness(1.08); transform:translateY(-2px); }
   pre{
-    margin:0; max-height:640px; overflow:auto; background:#05070f; border:1px solid var(--border);
-    border-radius:10px; padding:16px; font-size:12.5px; line-height:1.55;
+    margin:0; max-height:640px; overflow:auto; background:rgba(0,0,0,.25); border:1px solid var(--border);
+    border-radius:22px; padding:20px; font-size:12.5px; line-height:1.55;
     font-family:'Fira Code','Consolas',monospace; color:#c7d0f5; white-space:pre;
   }
   .meta{ font-size:12.5px; color:var(--text1); margin-top:10px; }

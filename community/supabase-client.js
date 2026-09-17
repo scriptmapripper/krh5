@@ -33,6 +33,12 @@ async function getMyProfile() {
   // query profiles lagi cuma buat tahu siapa yang lagi login.
   if (data) _logActorCache = data;
 
+  // Terapkan tema kustom (accent/gradient/background) yang disimpan
+  // lewat community/settings.html. Karena getMyProfile() dipanggil
+  // di boot() hampir semua halaman community/*, ini otomatis bikin
+  // tema kepake di seluruh situs tanpa perlu edit tiap halaman.
+  if (data) applyUserTheme(data.theme_settings);
+
   if (data && data.banned) {
     /* Banned accounts stay logged in — they're just locked to banned.html.
        No sign-out here on purpose: this way there's no Logout button
@@ -158,6 +164,73 @@ function checkUploadSize(file) {
     return `"${file.name}" is too large (max ${formatMaxSize(max)}).`;
   }
   return "";
+}
+
+// ---------- Custom theme (accent color / gradient / background) ----------
+// Dipakai di community/settings.html buat preview + save, dan dipanggil
+// otomatis dari getMyProfile() di atas supaya tema kepake di semua
+// halaman. `theme` = kolom profiles.theme_settings (jsonb), bisa null.
+const DEFAULT_THEME = {
+  accent: "#ff6b9d",
+  gradient: { enabled: true, angle: 135, stops: ["#ff6b9d", "#b895ff", "#3fe0d8"] },
+  background: { type: "default", solid: "#120c28", gradient: { angle: 135, stops: ["#ff6b9d", "#b895ff", "#3fe0d8"] }, image_url: null, dim: 0.35 },
+  ui: { scale: 100, saturation: 100, hue: 0 },
+};
+
+function applyUserTheme(theme) {
+  const t = theme || {};
+  const root = document.documentElement.style;
+
+  const accent = t.accent || DEFAULT_THEME.accent;
+  root.setProperty("--accent", accent);
+
+  const g = t.gradient || {};
+  const stops = (g.stops && g.stops.length >= 2) ? g.stops : DEFAULT_THEME.gradient.stops;
+  const angle = g.angle ?? DEFAULT_THEME.gradient.angle;
+  const gradientCss = g.enabled === false ? accent : `linear-gradient(${angle}deg, ${stops.join(", ")})`;
+  root.setProperty("--accent-gradient", gradientCss);
+
+  // Aurora glow behind the page picks up the gradient stops (low alpha)
+  const glow = stops.slice(0, 3);
+  while (glow.length < 3) glow.push(glow[glow.length - 1] || accent);
+  root.setProperty("--bg-glow-1", hexToRgba(glow[0], .28));
+  root.setProperty("--bg-glow-2", hexToRgba(glow[2], .22));
+  root.setProperty("--bg-glow-3", hexToRgba(glow[1], .24));
+
+  const bg = t.background || {};
+  if (bg.type === "image" && bg.image_url) {
+    root.setProperty("--page-bg-image", `url("${bg.image_url}")`);
+    root.setProperty("--page-bg-size", "cover");
+  } else if (bg.type === "gradient" && bg.gradient?.stops?.length >= 2) {
+    const ga = bg.gradient.angle ?? 135;
+    root.setProperty("--page-bg-image", `linear-gradient(${ga}deg, ${bg.gradient.stops.join(", ")})`);
+    root.setProperty("--page-bg-size", "cover");
+  } else if (bg.type === "solid" && bg.solid) {
+    root.setProperty("--page-bg-image", "none");
+  } else {
+    root.setProperty("--page-bg-image", "none");
+  }
+  root.setProperty("--bg-0", (bg.type === "solid" && bg.solid) ? bg.solid : "#120c28");
+  // The dim overlay only makes sense over a custom image (readability aid) —
+  // solid/gradient/default backgrounds are already designed to be readable.
+  root.setProperty("--page-bg-dim", String(bg.type === "image" ? (bg.dim ?? 0.35) : 0));
+
+  // ---- Display: UI scale / saturation / hue ----
+  const ui = t.ui || {};
+  const scale = (ui.scale ?? DEFAULT_THEME.ui.scale) / 100;
+  const saturation = (ui.saturation ?? DEFAULT_THEME.ui.saturation) / 100;
+  const hue = ui.hue ?? DEFAULT_THEME.ui.hue;
+  root.setProperty("--ui-scale", String(scale));
+  root.setProperty("--ui-saturation", String(saturation));
+  root.setProperty("--ui-hue", hue + "deg");
+}
+
+// "#ff6b9d" -> "rgba(255,107,157,.28)"
+function hexToRgba(hex, alpha) {
+  const clean = (hex || "").replace("#", "");
+  if (clean.length !== 6) return `rgba(255,107,157,${alpha})`;
+  const r = parseInt(clean.slice(0, 2), 16), g = parseInt(clean.slice(2, 4), 16), b = parseInt(clean.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 function escapeHtml(str) {

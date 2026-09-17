@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="../assets/favicon.ico">
 <link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#0a0f28">
+<meta name="theme-color" content="#120c28">
 <meta name="description" content="Manage your posts on Krunker Resource Hub.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Krunker Resource Hub">
@@ -104,7 +104,8 @@ async function boot() {
   links += `<a href="inbox.html" style="margin-left:6px;">Inbox${unreadBadgeHtml(unreadCount)}</a>`;
   links += `<a href="messages.html" style="margin-left:6px;">Messages${unreadBadgeHtml(unreadMsgCount)}</a>`;
   links += `<a href="saved.html" style="margin-left:6px;">Saved</a>`;
-  links += `<a href="settings.html" style="margin-left:6px;">Settings</a>`;
+  links += `<a href="account-settings.html" style="margin-left:6px;">Account</a>`;
+  links += `<a href="settings.html" style="margin-left:6px;">Theme</a>`;
   nav.innerHTML = links;
   document.getElementById("btnLogout").addEventListener("click", async (e) => {
     e.preventDefault();

@@ -9,7 +9,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="assets/favicon.ico">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a0f28">
+<meta name="theme-color" content="#120c28">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <meta name="description" content="Build a custom Krunker settings file visually, no coding needed.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Krunker Resource Hub">
@@ -22,40 +23,41 @@
 <meta name="twitter:image" content="assets/logo.png">
 <style>
   :root{
-    --bg:#0a0d12; --bg2:#0c1017; --panel:#11161f; --panel2:#161c27; --line:#212a38; --line2:#2c3848;
-    --txt:#e8eef5; --dim:#8b97a8; --faint:#5b6678;
-    --accent:#8b7bff; --accent2:#34d6c8; --bad:#ff5d7a; --good:#55d98a; --warn:#ffb454;
+    --bg:#120c28; --bg2:#170f33; --panel:#1e1642; --panel2:#291c56; --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.20);
+    --txt:#fdfbff; --dim:#c3b8e8; --faint:#8177ab;
+    --accent:#b895ff; --accent2:#3fe0d8; --bad:#ff6b9d; --good:#4ade9a; --warn:#ffb454;
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --sans:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --display:'Baloo 2',var(--sans);
   }
   *{box-sizing:border-box}
   body{margin:0;background:
-      radial-gradient(900px 500px at 12% -8%,rgba(139,123,255,.10),transparent 60%),
-      radial-gradient(900px 500px at 100% 0%,rgba(52,214,200,.07),transparent 55%),
+      radial-gradient(900px 500px at 12% -8%,rgba(184,149,255,.10),transparent 60%),
+      radial-gradient(900px 500px at 100% 0%,rgba(63,224,216,.07),transparent 55%),
       var(--bg);
     color:var(--txt);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
 
   header{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:20px;flex-wrap:wrap;
-    background:linear-gradient(180deg,rgba(18,23,33,.7),transparent)}
+    background:linear-gradient(180deg,rgba(30,22,66,.7),transparent)}
   header .brand{flex:1;min-width:240px}
-  header h1{margin:0;font-size:21px;font-weight:800;letter-spacing:.2px}
+  header h1{margin:0;font-family:var(--display);font-size:21px;font-weight:800;letter-spacing:.2px}
   header h1 .c{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   header p{margin:4px 0 0;color:var(--dim);font-size:13px}
-  .verpill{font:600 12px var(--mono);color:#cfc8ff;background:rgba(139,123,255,.13);border:1px solid rgba(139,123,255,.5);padding:4px 11px;border-radius:20px}
+  .verpill{font:600 12px var(--mono);color:#f0e9ff;background:rgba(184,149,255,.13);border:1px solid rgba(184,149,255,.5);padding:4px 11px;border-radius:20px}
 
   .wrap{display:grid;grid-template-columns:minmax(420px,1fr) 400px;gap:20px;align-items:start;
     max-width:1620px;margin:0 auto;padding:20px}
 
   /* top tab bar */
-  .toptabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:20px;z-index:5}
-  .toptabs button{flex:1;min-width:80px;background:transparent;border:none;color:var(--dim);font:700 12.5px var(--sans);padding:9px 10px;border-radius:9px;cursor:pointer;letter-spacing:.3px}
+  .toptabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:5px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:20px;z-index:5}
+  .toptabs button{flex:1;min-width:80px;background:transparent;border:none;color:var(--dim);font:700 12.5px var(--sans);padding:9px 10px;border-radius:17px;cursor:pointer;letter-spacing:.3px}
   .toptabs button:hover{color:var(--txt)}
-  .toptabs button.active{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#08121a}
+  .toptabs button.active{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#150c2c}
 
   .tabpanel{display:none;flex-direction:column;gap:14px}
   .tabpanel.active{display:flex}
 
-  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:16px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:20px;padding:16px}
   details.card>summary{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--txt);font-weight:800;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
   details.card>summary::-webkit-details-marker{display:none}
   details.card>summary::before{content:"▸";color:var(--accent);font-size:13px;transition:.15s;display:inline-block}
@@ -67,47 +69,47 @@
   label.f{display:block;font-size:12px;color:var(--dim);margin:12px 0 5px;font-weight:500}
   label.f:first-child{margin-top:0}
   label.f .val{float:right;color:var(--accent2);font:600 11px var(--mono)}
-  input,textarea,select{width:100%;min-width:0;background:#0b0f16;border:1px solid var(--line);border-radius:9px;color:var(--txt);padding:9px 11px;font:13px var(--mono);transition:.12s}
-  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,123,255,.13)}
+  input,textarea,select{width:100%;min-width:0;background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:17px;color:var(--txt);padding:9px 11px;font:13px var(--mono);transition:.12s}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(184,149,255,.13)}
   input[type=range]{padding:0;height:28px;accent-color:var(--accent);background:transparent;border:none}
   input[type=color]{padding:2px;height:34px;cursor:pointer}
-  input::placeholder,textarea::placeholder{color:#4d5667}
+  input::placeholder,textarea::placeholder{color:#665a8c}
   .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
   select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:30px;
     background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);
     background-position:calc(100% - 16px) 16px,calc(100% - 11px) 16px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
-  select option{background:#0e131b;color:var(--txt)}
+  select option{background:#1a1236;color:var(--txt)}
 
   .toggles{display:grid;gap:8px}
-  .tg{display:flex;gap:10px;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:var(--panel);cursor:pointer;transition:.12s}
+  .tg{display:flex;gap:10px;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:19px;background:var(--panel);cursor:pointer;transition:.12s}
   .tg:hover{border-color:var(--line2);background:var(--panel2)}
-  .tg.on{border-color:rgba(139,123,255,.55);background:rgba(139,123,255,.07)}
+  .tg.on{border-color:rgba(184,149,255,.55);background:rgba(184,149,255,.07)}
   .tg input{width:17px;height:17px;margin:0;accent-color:var(--accent);flex:0 0 auto;cursor:pointer}
   .tg .t{font-weight:600;font-size:12.5px;flex:1}
   .tgrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-  button{font:600 13.5px var(--sans);border:1px solid var(--line2);background:var(--panel2);color:var(--txt);border-radius:10px;padding:10px 15px;cursor:pointer;transition:.12s;white-space:nowrap}
+  button{font:600 13.5px var(--sans);border:1px solid var(--line2);background:var(--panel2);color:var(--txt);border-radius:18px;padding:10px 15px;cursor:pointer;transition:.12s;white-space:nowrap}
   button:hover{border-color:#46566a;background:#1b2230}
   button:active{transform:translateY(1px)}
-  button.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#08121a;border:none;font-weight:800;box-shadow:0 6px 22px rgba(80,120,200,.28)}
+  button.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#150c2c;border:none;font-weight:800;box-shadow:0 6px 22px rgba(80,120,200,.28)}
   button.primary:hover{filter:brightness(1.06)}
   .presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .presets button{text-align:left;padding:10px 12px}
   .presets button b{display:block;font-size:12.5px}
   .presets button span{display:block;color:var(--faint);font-size:10.5px;font-weight:500;margin-top:2px}
 
-  .station{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;position:sticky;top:20px;max-height:calc(100vh - 40px)}
+  .station{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;position:sticky;top:20px;max-height:calc(100vh - 40px)}
   .card-h{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--txt);font-weight:800;display:flex;align-items:baseline;gap:8px}
   .gen-row .primary{width:100%;font-size:15px;padding:13px}
-  .badge{display:inline-block;background:rgba(52,214,200,.12);border:1px solid rgba(52,214,200,.5);color:#9af0e6;border-radius:20px;padding:3px 11px;font:600 11px var(--mono);margin-left:auto}
+  .badge{display:inline-block;background:rgba(63,224,216,.12);border:1px solid rgba(63,224,216,.5);color:#a6f5ef;border-radius:20px;padding:3px 11px;font:600 11px var(--mono);margin-left:auto}
   .out{position:relative;min-height:0;flex:1;display:flex}
-  pre{flex:1;background:#080b10;border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;margin:0;
-    font:12px/1.55 var(--mono);color:#cfe0ee;white-space:pre-wrap;word-break:break-word}
+  pre{flex:1;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:20px;padding:16px;overflow:auto;margin:0;
+    font:12px/1.55 var(--mono);color:#e2d9ff;white-space:pre-wrap;word-break:break-word}
   .pre-actions{position:absolute;top:10px;right:14px;display:flex;gap:6px;z-index:2}
   .pre-actions button{padding:6px 12px;font-size:12px;background:rgba(18,24,34,.92);backdrop-filter:blur(4px)}
-  .empty{flex:1;color:var(--faint);padding:40px 20px;text-align:center;border:1px dashed var(--line);border-radius:12px;
+  .empty{flex:1;color:var(--faint);padding:40px 20px;text-align:center;border:1px dashed var(--line);border-radius:20px;
     display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center}
   .empty b{color:var(--accent2)}
   .deploy{font-size:11.5px;color:var(--faint);line-height:1.6;border-top:1px solid var(--line);padding-top:11px}
@@ -116,22 +118,22 @@
   .cfg-grid{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
   .note{font-size:11px;color:var(--faint);border-top:1px dashed var(--line);padding-top:9px;line-height:1.5}
 
-  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--good);color:#062012;padding:11px 20px;border-radius:11px;font-weight:700;opacity:0;transition:.2s;pointer-events:none;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--good);color:#0e2a1c;padding:11px 20px;border-radius:19px;font-weight:700;opacity:0;transition:.2s;pointer-events:none;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.4)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
   @media (max-width:1080px){ .wrap{grid-template-columns:1fr} .station{position:static;max-height:none} }
 
   /* ── keybinds ── */
   .kbtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-  .kbtabs button{background:var(--panel);border:1px solid var(--line);color:var(--dim);font:600 11.5px var(--sans);padding:7px 12px;border-radius:9px;cursor:pointer}
+  .kbtabs button{background:var(--panel);border:1px solid var(--line);color:var(--dim);font:600 11.5px var(--sans);padding:7px 12px;border-radius:17px;cursor:pointer}
   .kbtabs button:hover{color:var(--txt);border-color:var(--line2)}
-  .kbtabs button.active{background:rgba(139,123,255,.14);border-color:var(--accent);color:var(--txt)}
+  .kbtabs button.active{background:rgba(184,149,255,.14);border-color:var(--accent);color:var(--txt)}
   .kbgroup{margin-bottom:14px}
   .kbgroup-h{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--faint);font-weight:800;margin:0 0 8px 2px}
-  .kbrow{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-bottom:6px}
+  .kbrow{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--line);border-radius:18px;background:var(--panel);margin-bottom:6px}
   .kbrow .kblabel{flex:1;font-size:12.5px;font-weight:600;color:var(--txt)}
   .kbchip{display:flex;align-items:center;gap:6px}
-  .kbkey{min-width:64px;text-align:center;background:#0b0f16;border:1px solid var(--line2);color:var(--accent2);font:700 11.5px var(--mono);padding:7px 9px;border-radius:8px;cursor:pointer;white-space:nowrap}
+  .kbkey{min-width:64px;text-align:center;background:rgba(0,0,0,.22);border:1px solid var(--line2);color:var(--accent2);font:700 11.5px var(--mono);padding:7px 9px;border-radius:16px;cursor:pointer;white-space:nowrap}
   .kbkey:hover{border-color:var(--accent)}
   .kbkey.listening{border-color:var(--warn);color:var(--warn);animation:kbpulse 1s infinite}
   .kbkey.unbound{color:var(--faint)}
@@ -147,7 +149,7 @@
 <header>
   <div class="brand">
     <h1><span class="c">Settings</span> Builder</h1>
-    <p>Full Krunker <code style="font:12px var(--mono);background:#0c1118;border:1px solid var(--line);padding:1px 6px;border-radius:6px;color:#b9c6d6">settings.json</code> generator — mirrors General / Controls / Display / Render / Game / Sound.</p>
+    <p>Full Krunker <code style="font:12px var(--mono);background:rgba(0,0,0,.25);border:1px solid var(--line);padding:1px 6px;border-radius:14px;color:#e2d9ff">settings.json</code> generator — mirrors General / Controls / Display / Render / Game / Sound.</p>
   </div>
   <span style="color:var(--accent);font-size:12px;font-weight:600" class="credit">✦ made with love by 3000Auras ✦</span>
   <span class="verpill" id="verTag">v2.0.0</span>
