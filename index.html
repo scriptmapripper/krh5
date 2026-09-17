@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="assets/site-glow.css">
+<script>(function(){try{var v=localStorage.getItem("krh5:reduceEffects");var r=v==="1"||(v!=="0"&&window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);if(r)document.documentElement.setAttribute("data-glow-effects","off");}catch(e){}})();</script>
 <script src="assets/site-glow.js" defer></script>
 </head>
 <body>
@@ -41,7 +42,14 @@
       <a href="community/signup.html" id="navSignup" class="btn-primary">Sign Up</a>
       <span id="navDivider" style="display:none; width:1px; height:22px; background:var(--border); margin:0 2px;"></span>
       <div id="navLinks" style="display:none; gap:10px; align-items:center;"></div>
-      <a href="community/settings.html" id="navAvatar" title="Account Settings" style="display:none; align-items:center; gap:8px; text-decoration:none;"></a>
+      <div class="nav-avatar-wrap" id="navAvatarWrap" style="display:none;">
+        <button type="button" class="nav-avatar-trigger" id="navAvatar" aria-haspopup="true" aria-expanded="false"></button>
+        <div class="nav-avatar-menu" id="navAvatarMenu" role="menu">
+          <a href="community/account-settings.html" role="menuitem">Account</a>
+          <a href="community/settings.html" role="menuitem">Settings</a>
+          <button type="button" id="navLogoutBtn" role="menuitem">Log Out</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -117,12 +125,49 @@
       navLinks.innerHTML = links;
       navLinks.style.display = "flex";
 
-      const avatarLink = document.getElementById("navAvatar");
+      const avatarWrap = document.getElementById("navAvatarWrap");
+      const avatarTrigger = document.getElementById("navAvatar");
       const displayName = profile.display_name || profile.username || "Account";
-      avatarLink.innerHTML = `<span style="color:var(--text-1); font-size:13.5px; font-weight:600;">${escapeHtml(displayName)}</span>${avatarHtml(profile, 28)}`;
-      avatarLink.title = displayName;
-      avatarLink.style.display = "inline-flex";
+      avatarTrigger.innerHTML = `<span style="color:var(--text-1); font-size:13.5px; font-weight:600;">${escapeHtml(displayName)}</span>${avatarHtml(profile, 28)}`;
+      avatarTrigger.title = displayName;
+      avatarWrap.style.display = "inline-flex";
       document.getElementById("navDivider").style.display = "inline-block";
+
+      // Hover to open (mouse), click to toggle (touch), focus/blur to
+      // support keyboard users tabbing through the menu items.
+      let avatarCloseTimer = null;
+      const openAvatarMenu = () => {
+        clearTimeout(avatarCloseTimer);
+        avatarWrap.classList.add("is-open");
+        avatarTrigger.setAttribute("aria-expanded", "true");
+      };
+      const closeAvatarMenu = () => {
+        avatarWrap.classList.remove("is-open");
+        avatarTrigger.setAttribute("aria-expanded", "false");
+      };
+      const scheduleCloseAvatarMenu = () => {
+        clearTimeout(avatarCloseTimer);
+        avatarCloseTimer = setTimeout(closeAvatarMenu, 150);
+      };
+
+      avatarWrap.addEventListener("mouseenter", openAvatarMenu);
+      avatarWrap.addEventListener("mouseleave", scheduleCloseAvatarMenu);
+      avatarWrap.addEventListener("focusin", openAvatarMenu);
+      avatarWrap.addEventListener("focusout", (e) => {
+        if (!avatarWrap.contains(e.relatedTarget)) scheduleCloseAvatarMenu();
+      });
+      avatarTrigger.addEventListener("click", () => {
+        avatarWrap.classList.contains("is-open") ? closeAvatarMenu() : openAvatarMenu();
+      });
+      document.addEventListener("click", (e) => {
+        if (!avatarWrap.contains(e.target)) closeAvatarMenu();
+      });
+
+      document.getElementById("navLogoutBtn").addEventListener("click", async () => {
+        if (!confirm("Are you sure you want to log out?")) return;
+        await sb.auth.signOut();
+        window.location.href = "index.html";
+      });
     }
   }
 })();
