@@ -677,6 +677,176 @@ function renderLinkPage(node, main, crumbs){
   `;
 }
 
+/* Leaf nodes that render a searchable directory of Discord server
+   invites, with a best-effort live icon preview, a copy-link button
+   and an open-in-new-tab button per card. */
+const DISCORD_SERVER_LISTS = {
+  'servers-discord': {
+    title: 'Krunker Discord Community Servers',
+    intro: 'Community, clan, trading and competitive Discord servers around Krunker.io.',
+    servers: [
+      { name: "Krunker Bunker", url: "https://discord.gg/krunker" },
+      { name: "Map Makers Of Krunker", url: "https://discord.com/servers/map-makers-of-krunker-484192043833491487" },
+      { name: "Krunker Pro Circuit", url: "https://discord.gg/kpc-672146248182136863" },
+      { name: "North American Competitive Krunker", url: "https://discord.gg/nJmqWam3tj" },
+      { name: "Krunker Market & Trading", url: "https://discord.gg/kmt" },
+      { name: "Krunker Trading", url: "https://discord.gg/krunker-trading-1290880126468227083" },
+      { name: "Krunker Korea", url: "https://discord.gg/CMjXHQdZJ5" },
+      { name: "Krunker Design Hub", url: "https://discord.gg/cUA2cXN9Jz" },
+      { name: "Krunker Parkour Hub", url: "https://discord.gg/uFfme37GqY" },
+      { name: "Krunker Police Civilian Group", url: "https://discord.gg/WTYTpH8RKB" },
+      { name: "M3OW Clan", url: "https://discord.gg/beSgj73vku" },
+      { name: "ax clan", url: "https://discord.gg/UBrhqWrA3t" },
+      { name: "24/7 Clan", url: "https://discord.gg/6kX2WjP" },
+      { name: "-525 Clan", url: "https://discord.gg/efRWZyJFM5" },
+      { name: "Hovi Clan", url: "https://discord.gg/6tvsyxc29U" },
+      { name: "Keybi Hub", url: "https://discord.gg/qxUWAa68sx" },
+      { name: "crosshair server", url: "https://discord.gg/crosshair-server-952475775901237258" },
+      { name: "Competitive Krunker Asia", url: "https://discord.gg/bRs2PVzZza" },
+      { name: "Krunker Infect", url: "https://discord.gg/jGuvhTEFUB" },
+      { name: "Krunker Mumbai", url: "https://discord.gg/Sce5p7GGey" },
+      { name: "rise clan", url: "https://discord.gg/Zdsb4CSm6C" },
+      { name: "Krunker Events", url: "https://discord.gg/aFmGg9s8s8" },
+      { name: "Krunker Middle East", url: "https://discord.gg/WpeVEcJ4ep" },
+      { name: "guts clan", url: "https://discord.gg/FjhQvnyKhQ" },
+      { name: "ZombWorlds_Server", url: "https://discord.gg/PrW7suqVWK" },
+      { name: "Krunker Indonesia Community", url: "https://discord.gg/NNXpvJ4aWX" },
+      { name: "QAZ Clan", url: "https://discord.gg/HwrVg32BGa" },
+      { name: "\u311eClan", url: "https://discord.gg/YDt5P4tsJy" },
+      { name: "\u521d\u6200 Clan", url: "https://discord.gg/hEBXqhYQTV" },
+      { name: "Pandora Clan", url: "https://discord.gg/sh-pandora-657419822157791262" },
+      { name: "YAHU Clan", url: "https://discord.gg/yNf5YrYAzX" },
+      { name: "THE PARADOX", url: "https://discord.gg/cJ3dQSV8ag" },
+      { name: "Rampage Clan", url: "https://discord.gg/5HmkV4dr7p" },
+      { name: "Vamp Clan", url: "https://discord.gg/NVpwMqGZxG" },
+      { name: "O2 Clan", url: "https://discord.gg/znETdAhAj8" },
+      { name: "Krunker Pickups International", url: "https://discord.gg/KUfVUxXrYS" },
+      { name: "Gin Clan", url: "https://discord.gg/gwn7252rcf" },
+      { name: "Romulus Server", url: "https://discord.gg/7FHP9PDFXB" },
+      { name: "Arnas Server", url: "https://discord.gg/mUfnXnfTpd" },
+      { name: "Tiranga", url: "https://discord.gg/Drp2udwUra" },
+      { name: "cry clan", url: "https://discord.gg/7JjaNqvW4c" },
+      { name: "PC7 Client", url: "https://discord.gg/BxweEFyZFm" },
+      { name: "-TW- Clan", url: "https://discord.gg/ctxjz53dj6" },
+      { name: "kbot", url: "https://discord.gg/3BnFPUK8dA" },
+      { name: "PSVM Clan", url: "https://discord.gg/mGnNxbuyeh" },
+    ],
+  },
+};
+
+function extractInviteCode(url){
+  const m = url.match(/discord\.(?:gg|com\/invite)\/([^\/?#]+)/i);
+  return m ? m[1] : null;
+}
+
+function initialsAvatar(name){
+  const clean = name.replace(/[^\p{L}\p{N}]/gu, ' ').trim();
+  const parts = clean.split(/\s+/).filter(Boolean);
+  if(!parts.length) return '?';
+  if(parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+function renderDiscordServers(node, main, crumbs){
+  const section = DISCORD_SERVER_LISTS[node.id];
+  const el = document.getElementById('content');
+  el.innerHTML = `
+    <div class="breadcrumb">${crumbs}</div>
+    <div class="content-head">
+      <div class="content-icon">${icon(main.glyph)}</div>
+      <h2>${node.label}</h2>
+    </div>
+    <p class="content-desc">${escapeHtml(section.intro)}</p>
+    <div class="meta-strip">
+      <span class="chip">${escapeHtml(main.label)}</span>
+      <span class="chip" id="discordCountChip">${section.servers.length} server${section.servers.length > 1 ? 's' : ''}</span>
+    </div>
+    <div class="search-bar-wrap">
+      <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="discordSearchInput" class="search-bar-input" placeholder="Search ${section.servers.length} servers by name..." autocomplete="off">
+    </div>
+    <div class="discord-server-grid" id="discordServerGrid">
+      ${section.servers.map((s, i) => `
+        <div class="discord-server-card" data-name="${escapeHtml(s.name.toLowerCase())}">
+          <div class="discord-server-icon" id="discordIcon-${i}">${escapeHtml(initialsAvatar(s.name))}</div>
+          <div class="discord-server-info">
+            <div class="discord-server-name">${escapeHtml(s.name)}</div>
+            <div class="discord-server-url">${escapeHtml(s.url.replace(/^https?:\/\//,''))}</div>
+          </div>
+          <div class="discord-server-actions">
+            <button class="gallery-btn" data-copy="${escapeHtml(s.url)}">Copy</button>
+            <a class="gallery-btn" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">Open</a>
+          </div>
+        </div>
+      `).join('')}
+      <div class="gallery-empty" id="discordSearchEmpty" style="display:none;">No servers match your search.</div>
+    </div>
+  `;
+
+  /* Search / filter */
+  const searchInput = document.getElementById('discordSearchInput');
+  const cards = Array.from(document.querySelectorAll('#discordServerGrid .discord-server-card'));
+  const emptyState = document.getElementById('discordSearchEmpty');
+  const countChip = document.getElementById('discordCountChip');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    let visible = 0;
+    cards.forEach(card => {
+      const match = !q || card.getAttribute('data-name').includes(q);
+      card.style.display = match ? '' : 'none';
+      if(match) visible++;
+    });
+    emptyState.style.display = visible === 0 ? '' : 'none';
+    countChip.textContent = `${visible} server${visible !== 1 ? 's' : ''}${q ? ' found' : ''}`;
+  });
+
+  /* Copy-link buttons */
+  el.querySelectorAll('.discord-server-actions [data-copy]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const url = btn.getAttribute('data-copy');
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch(err) {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(e2) {}
+        document.body.removeChild(ta);
+      }
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+
+  /* Best-effort live server icon fetch (Discord public invite API).
+     Runs sequentially with a small stagger to avoid hammering the
+     endpoint; silently keeps the initials fallback on any failure. */
+  section.servers.forEach((s, i) => {
+    const code = extractInviteCode(s.url);
+    if(!code) return;
+    setTimeout(() => {
+      fetch(`https://discord.com/api/v10/invites/${encodeURIComponent(code)}?with_counts=false`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if(!data || !data.guild || !data.guild.icon) return;
+          const iconEl = document.getElementById(`discordIcon-${i}`);
+          if(!iconEl) return;
+          const ext = data.guild.icon.startsWith('a_') ? 'gif' : 'png';
+          const img = document.createElement('img');
+          img.src = `https://cdn.discordapp.com/icons/${data.guild.id}/${data.guild.icon}.${ext}?size=64`;
+          img.alt = '';
+          img.loading = 'lazy';
+          img.onerror = () => {};
+          iconEl.textContent = '';
+          iconEl.appendChild(img);
+        })
+        .catch(() => {});
+    }, i * 120);
+  });
+}
+
 /* Leaf nodes that show a curated list of YouTube video guides with
    thumbnail, title, and a short written summary of the video. */
 const VIDEO_GUIDE_SECTIONS = {
@@ -1294,9 +1464,9 @@ function renderMapList(node, main, crumbs){
       <span class="chip">${escapeHtml(main.label)}</span>
       <span class="chip" id="mapCountChip">${section.files.length} map${section.files.length > 1 ? 's' : ''}</span>
     </div>
-    <div class="map-search-wrap">
-      <svg class="map-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Search ${section.files.length} maps by name..." autocomplete="off">
+    <div class="search-bar-wrap">
+      <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="mapSearchInput" class="search-bar-input" placeholder="Search ${section.files.length} maps by name..." autocomplete="off">
     </div>
     <div class="file-gallery" id="mapFileGallery">
       ${section.files.map(f => {
@@ -1477,6 +1647,11 @@ function renderContent(){
 
   if(STATIC_MAP_LISTS[node.id]){
     renderMapList(node, main, crumbs);
+    return;
+  }
+
+  if(DISCORD_SERVER_LISTS[node.id]){
+    renderDiscordServers(node, main, crumbs);
     return;
   }
 
