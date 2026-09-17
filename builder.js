@@ -1292,13 +1292,17 @@ function renderMapList(node, main, crumbs){
     <p class="content-desc">${escapeHtml(section.intro)}</p>
     <div class="meta-strip">
       <span class="chip">${escapeHtml(main.label)}</span>
-      <span class="chip">${section.files.length} map${section.files.length > 1 ? 's' : ''}</span>
+      <span class="chip" id="mapCountChip">${section.files.length} map${section.files.length > 1 ? 's' : ''}</span>
     </div>
-    <div class="file-gallery">
+    <div class="map-search-wrap">
+      <svg class="map-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Search ${section.files.length} maps by name..." autocomplete="off">
+    </div>
+    <div class="file-gallery" id="mapFileGallery">
       ${section.files.map(f => {
         const ext = (f.path.split('.').pop() || 'json').toLowerCase();
         return `
-        <div class="file-card">
+        <div class="file-card" data-title="${escapeHtml(f.title.toLowerCase())}">
           <div class="file-icon">\uD83D\uDDFA\uFE0F</div>
           <div class="file-info">
             <div class="gallery-title">${escapeHtml(f.title)}</div>
@@ -1310,6 +1314,7 @@ function renderMapList(node, main, crumbs){
         </div>
       `;
       }).join('')}
+      <div class="gallery-empty" id="mapSearchEmpty" style="display:none;">No maps match your search.</div>
     </div>
     ${POST_LINKS[node.id] ? `<button class="btn-createpost" id="btnCreatePost">Create Post</button>` : ''}
     ${FILE_GALLERY_SECTIONS[node.id] ? `
@@ -1319,6 +1324,22 @@ function renderMapList(node, main, crumbs){
       </div>
     ` : ''}
   `;
+
+  const searchInput = document.getElementById('mapSearchInput');
+  const cards = Array.from(document.querySelectorAll('#mapFileGallery .file-card'));
+  const emptyState = document.getElementById('mapSearchEmpty');
+  const countChip = document.getElementById('mapCountChip');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    let visible = 0;
+    cards.forEach(card => {
+      const match = !q || card.getAttribute('data-title').includes(q);
+      card.style.display = match ? '' : 'none';
+      if(match) visible++;
+    });
+    emptyState.style.display = visible === 0 ? '' : 'none';
+    countChip.textContent = `${visible} map${visible !== 1 ? 's' : ''}${q ? ` found` : ''}`;
+  });
 
   if(POST_LINKS[node.id]){
     document.getElementById('btnCreatePost').addEventListener('click', () => {
@@ -1331,6 +1352,7 @@ function renderMapList(node, main, crumbs){
     loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat);
   }
 }
+
 
 /* Leaf nodes that stay as a plain placeholder by default, but offer a
    "Create Post" button that loads the real community post page on demand. */
