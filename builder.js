@@ -160,8 +160,7 @@ function wireReactionButtons(container, currentUser, reload){
 
 /* ---------------- data model (from mindmap) ---------------- */
 const DATA = [
-  { id:'home', label:'Home', color:'blue', glyph:'home',
-    children:[ { id:'home-intro', label:'Introduction' } ] },
+  { id:'home', label:'Home', color:'blue', glyph:'home' },
 
   { id:'crosshair', label:'Crosshair', color:'green', glyph:'crosshair',
     children:[
@@ -275,7 +274,7 @@ const COLOR_VAR = { blue:'var(--blue)', green:'var(--green)', orange:'var(--oran
 
 /* ---------------- state ---------------- */
 let activeMainId = DATA[0].id;
-let selectedId = DATA[0].children[0].id;
+let selectedId = DATA[0].id;
 let expanded = new Set();
 let manualEmbedNodeId = null; /* set when "Create Post" is clicked on a placeholder page */
 
@@ -1225,7 +1224,7 @@ function renderContent(){
     return;
   }
 
-  if(node.id === 'home-intro'){
+  if(node.id === 'home'){
     const HOME_SHORTCUT_DESC = {
       crosshair: 'Crosshairs, overlays &amp; icons',
       settings: 'Pro player settings',
