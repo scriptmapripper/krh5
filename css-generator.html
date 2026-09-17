@@ -149,7 +149,23 @@
   .logo{display:block;flex:0 0 auto}
   header .logo{width:38px;height:38px;border-radius:12px}
 
+  /* ── glow controls + live preview ── */
+  .glow-row{display:flex;gap:8px;align-items:center}
+  input[type="color"]{padding:3px;height:38px;cursor:pointer}
+  input[type="range"]{width:100%;accent-color:var(--accent);padding:0;background:transparent;height:20px}
+  .glow-val{font:700 12px var(--mono);color:var(--accent2);min-width:44px;text-align:right}
+  .glow-preview{margin-top:12px;padding:26px 18px;border-radius:16px;border:1px solid var(--line);
+    background:radial-gradient(600px 200px at 50% 0%,rgba(255,255,255,.05),transparent),#0c081e;
+    display:flex;flex-direction:column;align-items:center;gap:14px;overflow:hidden}
+  .glow-preview .p-logo{font-family:var(--display);font-weight:800;font-size:22px;line-height:1;color:#fff;
+    transition:text-shadow .1s linear}
+  .glow-preview .p-btn{font:700 13px var(--sans);color:#fff;padding:10px 22px;border-radius:14px;
+    background:rgba(255,255,255,.08);backdrop-filter:blur(5px);cursor:default;user-select:none;
+    transition:box-shadow .1s linear,border-color .1s linear}
+
 </style>
+<link rel="stylesheet" href="assets/site-glow.css">
+<script src="assets/site-glow.js" defer></script>
 </head>
 <body>
 
@@ -241,6 +257,15 @@
       <input id="leaderFontSize" value="20">
       <label class="f">UI scale (%) <span class="q">(100 = default size)</span></label>
       <input id="uiScale" value="125">
+      <label class="f">Glow accent color <span class="q">(neon glow on buttons, HUD cards &amp; the logo — needs the Glassmorphism UI feature on)</span></label>
+      <div class="glow-row"><input type="color" id="glowColor" value="#b895ff" style="flex:0 0 54px"><input id="glowColorHex" value="#b895ff" placeholder="#b895ff" style="flex:1"></div>
+      <label class="f">Glow intensity <span class="q">(0 = no glow, 100 = default, 200 = max)</span></label>
+      <div class="glow-row"><input type="range" id="glowIntensity" min="0" max="200" value="100"><span class="glow-val" id="glowIntensityVal">100%</span></div>
+      <div class="glow-preview" id="glowPreview">
+        <div class="p-logo" id="pvLogo">3000 Auras</div>
+        <div class="p-btn" id="pvBtn">PLAY</div>
+      </div>
+      <div class="hint">Live preview — updates as you edit color/intensity. Buttons, HUD cards, popups and the logo all pick up this glow when Generate runs.</div>
     </details>
 
     <details class="card">
@@ -311,6 +336,7 @@ function readCfg(){
     watermarkText:val("watermarkText"), watermarkSize:val("watermarkSize"),
     chatFontSize:val("chatFontSize"), leaderFontSize:val("leaderFontSize"),
     uiScale:val("uiScale"),
+    glowColor:val("glowColorHex"), glowIntensity:val("glowIntensity"),
     customCode:val("customCode"),
     mods:readMods()
   };
@@ -416,7 +442,41 @@ function refreshSavedList(sel){
   var cb=document.getElementById(id); if(!cb) return;
   cb.addEventListener("change",function(){ cb.closest(".mod").classList.toggle("on",cb.checked); });
 });
-renderFeats(); refreshSavedList();
+
+/* ── glow accent + intensity: keep the color swatch/hex box in sync and
+   live-update the little preview card so the effect is visible before
+   the user ever presses Generate ── */
+function hexToRgbCss(hex){
+  var h=String(hex||"").trim().replace(/^#/,"");
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  if(!/^[0-9a-fA-F]{6}$/.test(h)) return "184, 149, 255";
+  return parseInt(h.slice(0,2),16)+", "+parseInt(h.slice(2,4),16)+", "+parseInt(h.slice(4,6),16);
+}
+function updateGlowPreview(){
+  var rgb=hexToRgbCss(val("glowColorHex"));
+  var i=(Number(val("glowIntensity"))||0)/100;
+  document.getElementById("glowIntensityVal").textContent=Math.round(i*100)+"%";
+  var logo=document.getElementById("pvLogo"), btn=document.getElementById("pvBtn");
+  var lt=(val("logoTop")||"LOGO"), lb=(val("logoBottom")||"");
+  logo.textContent=lt+(lb?" "+lb:"");
+  logo.style.textShadow=
+    "0 0 "+(8*i)+"px rgba("+rgb+","+(0.8*i)+"), "+
+    "0 0 "+(20*i)+"px rgba("+rgb+","+(0.55*i)+"), "+
+    "0 0 "+(40*i)+"px rgba("+rgb+","+(0.3*i)+")";
+  btn.style.border="1px solid rgba("+rgb+","+(0.55*i)+")";
+  btn.style.boxShadow=
+    "0 0 "+(10*i)+"px rgba("+rgb+","+(0.25*i)+"), "+
+    "0 0 "+(20*i)+"px rgba("+rgb+","+(0.12*i)+"), inset 0 1px 1px rgba(255,255,255,"+(0.15)+")";
+}
+(function(){
+  var picker=document.getElementById("glowColor"), hexBox=document.getElementById("glowColorHex"), rng=document.getElementById("glowIntensity");
+  picker.addEventListener("input",function(){ hexBox.value=picker.value; updateGlowPreview(); });
+  hexBox.addEventListener("input",function(){ if(/^#[0-9a-fA-F]{6}$/.test(hexBox.value)) picker.value=hexBox.value; updateGlowPreview(); });
+  rng.addEventListener("input",updateGlowPreview);
+  ["logoTop","logoBottom"].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener("input",updateGlowPreview); });
+})();
+
+renderFeats(); refreshSavedList(); updateGlowPreview();
 var _vt=document.getElementById("verTag"); if(_vt) _vt.textContent="v"+(KB.VERSION||"")+" · "+KB.today();
 </script>
 </body>

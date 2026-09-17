@@ -8,6 +8,9 @@
 	--red: #ff0000;
 	--link: #9dd4f1;
 	--blackHT: #00000099;
+	/* lets the site-wide glow layer (assets/site-glow.css) pick up the
+	   docs' own blue-grey instead of falling back to the site purple */
+	--accent: var(--main);
 }
 
 * {
