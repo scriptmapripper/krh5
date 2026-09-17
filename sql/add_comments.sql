@@ -22,12 +22,14 @@ using (
   exists (select 1 from public.posts p where p.id = post_id and p.status = 'published')
 );
 
--- A logged-in user can comment on a published post, only as themselves
+-- A logged-in user can comment on a published post, only as themselves,
+-- and only if they're not banned.
 drop policy if exists "comments_insert_own" on public.comments;
 create policy "comments_insert_own"
 on public.comments for insert
 with check (
   auth.uid() = author_id
+  and not coalesce((select banned from public.profiles where id = auth.uid()), false)
   and exists (select 1 from public.posts p where p.id = post_id and p.status = 'published')
 );
 

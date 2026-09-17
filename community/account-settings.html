@@ -284,7 +284,8 @@ document.getElementById("btnSavePersonal").addEventListener("click", async () =>
   const btn = document.getElementById("btnSavePersonal");
   btn.disabled = true; btn.textContent = "Saving...";
 
-  const { error } = await sb.from("profiles").update({ birthdate, gender }).eq("id", me.id);
+  // birthdate/gender live in profile_private now, not profiles.
+  const { error } = await sb.from("profile_private").upsert({ id: me.id, birthdate, gender });
 
   btn.disabled = false; btn.textContent = "Save Changes";
 

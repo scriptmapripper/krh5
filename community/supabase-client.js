@@ -28,6 +28,20 @@ async function getMyProfile() {
     .maybeSingle();
   if (error) { console.error(error); return null; }
 
+  // Sensitive fields (birthdate, gender, discord_id, discord_username,
+  // ban_reason, banned_at, banned_by) live in profile_private now, not
+  // on profiles — merge them in here so every existing caller that reads
+  // myProfile.birthdate / .ban_reason / etc. keeps working unchanged.
+  // RLS on profile_private only ever lets this succeed for your OWN id.
+  if (data) {
+    const { data: priv } = await sb
+      .from("profile_private")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (priv) Object.assign(data, priv);
+  }
+
   // Isi cache buat logAction() sekalian — tiap halaman staff sudah
   // manggil getMyProfile() pas boot, jadi logAction() gak perlu
   // query profiles lagi cuma buat tahu siapa yang lagi login.

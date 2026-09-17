@@ -143,10 +143,13 @@ async function approveAppeal(appealId, userId) {
 
   const me2 = await getSessionUser();
 
-  const { error: unbanErr } = await sb.from("profiles").update({
-    banned: false, ban_reason: null, banned_at: null, banned_by: null,
-  }).eq("id", userId);
+  const { error: unbanErr } = await sb.from("profiles").update({ banned: false }).eq("id", userId);
   if (unbanErr) { alert("Failed: " + unbanErr.message); return; }
+
+  const { error: privError } = await sb.from("profile_private").upsert({
+    id: userId, ban_reason: null, banned_at: null, banned_by: null,
+  });
+  if (privError) { alert("Unbanned, but failed to clear the ban reason: " + privError.message); }
 
   await sb.from("notifications").insert({
     user_id: userId, type: "unbanned", actor_id: me2 ? me2.id : null,
@@ -198,7 +201,10 @@ async function rejectAppeal(appealId, userId) {
 }
 
 async function loadUsers() {
-  const { data, error } = await sb.from("profiles").select("*").order("created_at", { ascending: false });
+  // profile_private (birthdate/gender/discord/ban details) only comes
+  // back here because this page is developer-gated and RLS on that
+  // table separately allows staff to read every row.
+  const { data, error } = await sb.from("profiles").select("*, profile_private(*)").order("created_at", { ascending: false });
   const el = document.getElementById("userList");
   if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
   allUsers = data;
@@ -218,11 +224,11 @@ function render() {
       <div class="meta">
         ${roleBadge(u.role)}
         ${u.banned ? `<span class="role-badge" style="background:rgba(240,69,69,.15); color:var(--red);">Banned</span>` : ''}
-        ${u.discord_username ? `<span>Discord: ${escapeHtml(u.discord_username)}</span>` : ""}
+        ${u.profile_private?.discord_username ? `<span>Discord: ${escapeHtml(u.profile_private.discord_username)}</span>` : ""}
         ${u.krunker_username ? `<span>Krunker: ${escapeHtml(u.krunker_username)}</span>` : ""}
         <span>Joined ${formatDate(u.created_at)}</span>
       </div>
-      ${u.banned && u.ban_reason ? `<div class="hint" style="margin-top:4px;">Ban reason: ${escapeHtml(u.ban_reason)}</div>` : ''}
+      ${u.banned && u.profile_private?.ban_reason ? `<div class="hint" style="margin-top:4px;">Ban reason: ${escapeHtml(u.profile_private.ban_reason)}</div>` : ''}
       <div class="post-actions">
         ${u.role === 'developer' ? `<span class="hint">Developer role can only be changed via SQL.</span>` : ""}
         ${u.role === 'user' ? `<button class="btn small green" onclick="setRole('${u.id}','admin')">Make Admin</button>` : ""}
@@ -258,10 +264,14 @@ async function banUser(id) {
   if (!confirm(`Ban ${user ? user.display_name : 'this user'}?\n\nReason: ${reason}\n\nThey will be immediately signed out and lose all access. Confirm?`)) return;
 
   const me = await getSessionUser();
-  const { error } = await sb.from("profiles").update({
-    banned: true, ban_reason: reason, banned_at: new Date().toISOString(), banned_by: me ? me.id : null,
-  }).eq("id", id);
+  const { error } = await sb.from("profiles").update({ banned: true }).eq("id", id);
   if (error) { alert("Failed: " + error.message); return; }
+
+  // Ban detail fields (reason/when/who) live in profile_private now.
+  const { error: privError } = await sb.from("profile_private").upsert({
+    id, ban_reason: reason, banned_at: new Date().toISOString(), banned_by: me ? me.id : null,
+  });
+  if (privError) { alert("Banned, but failed to save the ban reason: " + privError.message); }
 
   await sb.from("notifications").insert({
     user_id: id, type: "banned", actor_id: me ? me.id : null, reason: reason,
@@ -280,10 +290,13 @@ async function unbanUser(id) {
   const user = allUsers.find(u => u.id === id);
   if (!confirm(`Unban ${user ? user.display_name : 'this user'}? They'll regain full access immediately.`)) return;
 
-  const { error } = await sb.from("profiles").update({
-    banned: false, ban_reason: null, banned_at: null, banned_by: null,
-  }).eq("id", id);
+  const { error } = await sb.from("profiles").update({ banned: false }).eq("id", id);
   if (error) { alert("Failed: " + error.message); return; }
+
+  const { error: privError } = await sb.from("profile_private").upsert({
+    id, ban_reason: null, banned_at: null, banned_by: null,
+  });
+  if (privError) { alert("Unbanned, but failed to clear the ban reason: " + privError.message); }
 
   const me = await getSessionUser();
   await sb.from("notifications").insert({

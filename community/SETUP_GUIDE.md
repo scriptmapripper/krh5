@@ -189,3 +189,26 @@ jadi penghalang cukup besar buat bot biasa. Kalau mau nambah lapisan lagi
 4. Selesai — Supabase yang verifikasi token-nya di server, situsmu gak
    perlu backend tambahan. Kalau `TURNSTILE_SITE_KEY` dibiarkan kosong,
    signup jalan seperti biasa tanpa captcha (default sekarang).
+
+## Security Hardening (Wajib — data pribadi, storage, rate limit chat)
+- **Wajib jalankan `sql/fix_security_issues.sql`** di Supabase SQL Editor,
+  SETELAH semua file `sql/*.sql` lainnya sudah pernah dijalankan minimal
+  sekali. Aman dijalankan berkali-kali.
+- Ini benerin 3 hal:
+  1. **Data pribadi bocor ke publik** — sebelumnya `birthdate`, `gender`,
+     `discord_id`, `discord_username`, `ban_reason`, `banned_at`,
+     `banned_by` ikut kebaca siapa aja (termasuk yang belum login, dan
+     lewat API Supabase langsung tanpa buka situs) karena nempel di
+     tabel `profiles` yang publik. Sekarang field-field itu pindah ke
+     tabel baru `profile_private`, yang cuma bisa dibaca oleh pemilik
+     akunnya sendiri atau staff (admin/developer).
+  2. **User yang di-ban masih bisa upload file** — sekarang upload ke
+     bucket `avatars`, `crosshairs`, `post-files` ikut keblok kalau akun
+     lagi banned (upload proof ban-appeal tetap boleh, sesuai desain).
+  3. **DM & Public Chat gak ada rate limit** — sekarang dibatasi 1 pesan
+     tiap 2 detik per user (level database, bukan cuma JS), sama kayak
+     rate limit post/komentar. Admin & developer dikecualikan.
+- Setelah menjalankan file ini, `community/supabase-client.js`,
+  `signup.html`, `account-settings.html`, dan `developer.html` di repo
+  ini sudah disesuaikan otomatis untuk baca/tulis ke `profile_private` —
+  gak perlu ubah apa-apa lagi di kode.

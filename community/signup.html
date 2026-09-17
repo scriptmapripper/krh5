@@ -198,16 +198,29 @@ document.getElementById("btnSubmit").addEventListener("click", async () => {
     id: user.id,
     username,
     display_name: name,
-    birthdate,
-    gender,
     krunker_username: krunker || null,
-    discord_id: discordMeta?.discord_id || null,
-    discord_username: discordMeta?.discord_username || null,
   });
 
   if (profileError) {
     msg.className = "msg error show";
     msg.textContent = "Login account created but profile failed to save: " + profileError.message;
+    btn.disabled = false; btn.textContent = "Create Account";
+    return;
+  }
+
+  // Sensitive personal fields go in profile_private (only you / staff can
+  // read this table — see sql/fix_security_issues.sql).
+  const { error: privateError } = await sb.from("profile_private").insert({
+    id: user.id,
+    birthdate,
+    gender,
+    discord_id: discordMeta?.discord_id || null,
+    discord_username: discordMeta?.discord_username || null,
+  });
+
+  if (privateError) {
+    msg.className = "msg error show";
+    msg.textContent = "Account created but personal info failed to save: " + privateError.message;
     btn.disabled = false; btn.textContent = "Create Account";
     return;
   }

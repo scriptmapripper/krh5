@@ -8,15 +8,17 @@
 -- ---------- 1. Table: profiles ----------
 -- Satu baris per user, dibuat manual saat signup (bukan trigger),
 -- supaya semua field tambahan (nama, tgl lahir, dll) langsung terisi.
+-- NOTE: birthdate, gender, discord_id, discord_username (and, once you
+-- run add_ban_system.sql, ban_reason/banned_at/banned_by) do NOT live
+-- here — they go in public.profile_private, a table only the row's
+-- owner or staff can read. This table is public-readable (see the
+-- policy below), so it only ever holds non-sensitive fields.
+-- See sql/fix_security_issues.sql.
 create table if not exists public.profiles (
   id              uuid primary key references auth.users(id) on delete cascade,
   username        text unique not null,
   display_name    text not null,
-  birthdate       date not null,
-  gender          text not null check (gender in ('male','female','other','prefer_not_to_say')),
   krunker_username text,
-  discord_id      text,
-  discord_username text,
   role            text not null default 'user' check (role in ('user','admin','developer')),
   created_at      timestamptz not null default now()
 );
