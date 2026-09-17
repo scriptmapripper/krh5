@@ -1225,6 +1225,56 @@ function renderContent(){
     return;
   }
 
+  if(node.id === 'home-intro'){
+    const HOME_SHORTCUT_DESC = {
+      crosshair: 'Crosshairs, overlays &amp; icons',
+      settings: 'Pro player settings',
+      css: 'Custom CSS codes',
+      maps: 'Official &amp; custom map collection',
+      mods: 'Game modifications',
+      scripts: 'KrunkScript &amp; userscripts',
+      guides: 'Tips, tricks &amp; raid walkthroughs',
+      news: 'Krunker updates &amp; events',
+      clients: 'Official &amp; custom clients',
+      servers: 'Game &amp; Discord servers',
+      about: 'Who we are',
+    };
+    const shortcuts = DATA.filter(m => m.id !== 'home');
+    el.innerHTML = `
+      <div class="breadcrumb">${crumbs}</div>
+      <div class="content-head">
+        <div class="content-icon">${icon(main.glyph)}</div>
+        <h2>${node.label}</h2>
+      </div>
+      <p class="content-desc">Krunker Resource Hub is a community-run library built for one purpose: making it easy to find and use everything that customizes your Krunker.io experience. Instead of digging through scattered Discord servers, forum posts, and dead links, everything here — crosshairs, CSS, settings, maps, mods, and scripts — lives in one organized, searchable place. Pick a section below to jump straight in.</p>
+      <div class="home-shortcut-grid">
+        ${shortcuts.map(m => `
+          <button class="home-shortcut-card" data-id="${m.id}" style="--c:${COLOR_VAR[m.color]}">
+            <span class="home-shortcut-icon">${icon(m.glyph)}</span>
+            <span class="home-shortcut-text">
+              <span class="home-shortcut-title">${m.label}</span>
+              <span class="home-shortcut-desc">${HOME_SHORTCUT_DESC[m.id] || ''}</span>
+            </span>
+          </button>`).join('')}
+      </div>
+      <p class="content-desc">On the customization side, you'll find ready-made crosshairs, hitmarkers, overlays, and kill/death/ammo/streak icons alongside official and community-made settings and CSS themes. If nothing pre-made fits what you're after, the built-in Custom Crosshair Maker and CSS Generator let you design your own from scratch and export it straight into your Resource Swapper.</p>
+      <p class="content-desc">Beyond visuals, the Maps section carries the official Pubs, Parkour, and Raids map files plus community-made Infected, TDM, and Parkour maps. The Mods and Scripts sections cover modding guides, mod files, KrunkScript generators and usable scripts, and UserScripts — including setup guides for players who are new to any of this.</p>
+      <p class="content-desc">For everything that isn't a downloadable file, there's a Guides section covering tips & tricks and boss-by-boss Raids walkthroughs (Tortuga, Khepri, Soul Sanctum, Laboratory, and more), plus News, Clients, and Servers pages tracking Krunker updates, events, and community Discord/game servers.</p>
+      <p class="content-desc">Create a free account to post your own crosshairs, settings, and CSS for others to use, save the resources you like for later, and message other members of the community. Krunker Resource Hub is made by the Aura Gangs Team — it's a fan-run community project, not an official Krunker.io site.</p>
+    `;
+    el.querySelectorAll('.home-shortcut-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = card.getAttribute('data-id');
+        activeMainId = id;
+        expanded = new Set([id]);
+        selectedId = id;
+        renderAll();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    return;
+  }
+
   el.innerHTML = `
     <div class="breadcrumb">${crumbs}</div>
     <div class="content-head">
