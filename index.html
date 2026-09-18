@@ -130,10 +130,14 @@
     const q = input.value.trim();
     if (!q) { results.classList.remove("show"); results.innerHTML = ""; return; }
 
+    // PostgREST's .or() filter treats "," and "(" / ")" as syntax, so
+    // escape any comma the user typed before it reaches the query string.
+    const safeQ = q.replace(/,/g, "\\,");
+
     const { data, error } = await sb
       .from("profiles")
       .select("id,username,display_name,avatar_url")
-      .ilike("username", `%${q}%`)
+      .or(`username.ilike.%${safeQ}%,display_name.ilike.%${safeQ}%`)
       .limit(8);
 
     results.classList.add("show");
