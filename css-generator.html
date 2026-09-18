@@ -313,6 +313,23 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<script>
+// #modal and #toast are position:fixed and need to stay pinned to the
+// viewport. <body> carries a `filter` (for the account theme's UI
+// saturation/hue controls), and any element with a filter becomes the
+// containing block for its position:fixed descendants — so left as
+// children of body, they'd end up anchored to body's own (page-length)
+// box instead of the viewport. Moving them to be siblings of <body>
+// (direct children of <html>, which never gets that filter) keeps them
+// correctly fixed. Safe: nothing styles them via a parent-relative
+// selector, and script access is by ID only.
+(function(){
+  ["modal", "toast"].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) document.documentElement.appendChild(el);
+  });
+})();
+</script>
 <script src="css-generator.js"></script>
 <script>
 "use strict";

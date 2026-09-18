@@ -97,7 +97,16 @@
       render();
     });
 
-    document.body.appendChild(btn);
+    // Appended to <html>, not <body>: several pages put a `filter`
+    // (saturate/hue-rotate, for the account theme's UI controls) on
+    // <body> for their aurora/background effect. Any element with a
+    // filter becomes the containing block for its position:fixed
+    // descendants — so a fixed child of a filtered <body> ends up
+    // anchored to body's own (page-length) box instead of the
+    // viewport, and stops following scroll. <html> itself never gets
+    // that filter, so mounting here keeps the toggle truly viewport-fixed
+    // on every page, filtered or not.
+    document.documentElement.appendChild(btn);
 
     // Show it at full opacity the first time a visitor lands on the
     // site (across any page), then settle to its normal low-key

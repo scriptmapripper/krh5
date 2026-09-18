@@ -95,6 +95,18 @@
   </div>
 </div>
 
+<script>
+// #resourceModal is position:fixed and needs to stay pinned to the
+// viewport. <body> carries a `filter` (for the account theme's UI
+// saturation/hue controls), and any element with a filter becomes the
+// containing block for its position:fixed descendants — so left as a
+// child of body, the modal would end up anchored to body's own
+// (page-length) box instead of the viewport. Moving it to be a
+// sibling of <body> (a direct child of <html>, which never gets that
+// filter) keeps it correctly fixed. Safe: nothing styles it via a
+// parent-relative selector, and script access is by ID only.
+(function(){ var m = document.getElementById("resourceModal"); if (m) document.documentElement.appendChild(m); })();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="community/supabase-client.js"></script>
 <script>

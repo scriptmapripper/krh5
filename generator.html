@@ -658,6 +658,17 @@
 
 <div class="toast" id="toast"></div>
 
+<script>
+// #toast is position:fixed and needs to stay pinned to the viewport.
+// <body> carries a `filter` (for the account theme's UI saturation/hue
+// controls), and any element with a filter becomes the containing block
+// for its position:fixed descendants — so left as a child of body, it'd
+// end up anchored to body's own (page-length) box instead of the
+// viewport. Moving it to be a sibling of <body> (a direct child of
+// <html>, which never gets that filter) keeps it correctly fixed.
+(function(){ var t = document.getElementById("toast"); if (t) document.documentElement.appendChild(t); })();
+</script>
+
 <script src="generator.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="community/supabase-client.js"></script>
