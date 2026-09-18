@@ -254,8 +254,7 @@ const DATA = [
       { id:'news-events', label:'Krunker Events' },
     ] },
 
-  { id:'clients', label:'Clients', color:'cyan', glyph:'clients',
-    children:[ { id:'clients-official', label:'Krunker Official & Custom Clients' } ] },
+  { id:'clients', label:'Clients', color:'cyan', glyph:'clients' },
 
   { id:'servers', label:'Servers', color:'cyan', glyph:'server',
     children:[
@@ -853,6 +852,103 @@ function renderDiscordServers(node, main, crumbs){
         })
         .catch(() => {});
     }, i * 120);
+  });
+}
+
+/* Leaf nodes that show a searchable directory of Krunker client
+   downloads (unofficial clients on GitHub, plus the official
+   installer), reusing the same card/search-bar styling as the Discord
+   server directory above — it's the same "name + link, with Copy and
+   an open-in-new-tab action" shape. */
+const CLIENT_DOWNLOAD_LISTS = {
+  'clients': {
+    title: 'Krunker Client Downloads',
+    intro: 'Unofficial third-party Krunker clients, plus the official installer. Third-party clients are made by independent developers, not Krunker.io or the Krunker Resource Hub team — download at your own discretion.',
+    clients: [
+      { name: "Official Client", url: "https://client2.krunker.io/setup.exe/" },
+      { name: "Water Client", url: "https://github.com/ghostypostie/Water/releases/" },
+      { name: "Idkr Client", url: "https://github.com/idkr-client/idkr/releases/" },
+      { name: "Kpal Client", url: "https://github.com/kpal81xd/krunker-kpal-client-RELEASE/releases" },
+      { name: "Crankshaft", url: "https://github.com/KraXen72/crankshaft/releases/" },
+      { name: "Glorp Client", url: "https://github.com/slavcp/glorp/releases/" },
+      { name: "Client++ Pico", url: "https://files.cuffuffles.dev/Client++%20Pico.exe" },
+      { name: "Serpent Client", url: "https://github.com/SerpentKR/client-download/releases" },
+      { name: "sealfr0 Client", url: "https://github.com/sealfr0/client--/releases" },
+    ],
+  },
+};
+
+function renderClientDownloads(node, main, crumbs){
+  const section = CLIENT_DOWNLOAD_LISTS[node.id];
+  const el = document.getElementById('content');
+  el.innerHTML = `
+    <div class="breadcrumb">${crumbs}</div>
+    <div class="content-head">
+      <div class="content-icon">${icon(main.glyph)}</div>
+      <h2>${node.label}</h2>
+    </div>
+    <p class="content-desc">${escapeHtml(section.intro)}</p>
+    <div class="meta-strip">
+      <span class="chip">${escapeHtml(main.label)}</span>
+      <span class="chip" id="clientCountChip">${section.clients.length} client${section.clients.length > 1 ? 's' : ''}</span>
+    </div>
+    <div class="search-bar-wrap">
+      <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="clientSearchInput" class="search-bar-input" placeholder="Search ${section.clients.length} clients by name..." autocomplete="off">
+    </div>
+    <div class="discord-server-grid" id="clientGrid">
+      ${section.clients.map(c => `
+        <div class="discord-server-card" data-name="${escapeHtml(c.name.toLowerCase())}">
+          <div class="discord-server-icon">${escapeHtml(initialsAvatar(c.name))}</div>
+          <div class="discord-server-info">
+            <div class="discord-server-name">${escapeHtml(c.name)}</div>
+            <div class="discord-server-url">${escapeHtml(c.url.replace(/^https?:\/\//,''))}</div>
+          </div>
+          <div class="discord-server-actions">
+            <button class="gallery-btn" data-copy="${escapeHtml(c.url)}">Copy</button>
+            <a class="gallery-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener">Download</a>
+          </div>
+        </div>
+      `).join('')}
+      <div class="gallery-empty" id="clientSearchEmpty" style="display:none;">No clients match your search.</div>
+    </div>
+  `;
+
+  /* Search / filter */
+  const searchInput = document.getElementById('clientSearchInput');
+  const cards = Array.from(document.querySelectorAll('#clientGrid .discord-server-card'));
+  const emptyState = document.getElementById('clientSearchEmpty');
+  const countChip = document.getElementById('clientCountChip');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    let visible = 0;
+    cards.forEach(card => {
+      const match = !q || card.getAttribute('data-name').includes(q);
+      card.style.display = match ? '' : 'none';
+      if(match) visible++;
+    });
+    emptyState.style.display = visible === 0 ? '' : 'none';
+    countChip.textContent = `${visible} client${visible !== 1 ? 's' : ''}${q ? ' found' : ''}`;
+  });
+
+  /* Copy-link buttons */
+  el.querySelectorAll('.discord-server-actions [data-copy]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const url = btn.getAttribute('data-copy');
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch(err) {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(e2) {}
+        document.body.removeChild(ta);
+      }
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+    });
   });
 }
 
@@ -1661,6 +1757,11 @@ function renderContent(){
 
   if(DISCORD_SERVER_LISTS[node.id]){
     renderDiscordServers(node, main, crumbs);
+    return;
+  }
+
+  if(CLIENT_DOWNLOAD_LISTS[node.id]){
+    renderClientDownloads(node, main, crumbs);
     return;
   }
 
