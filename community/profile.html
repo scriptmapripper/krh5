@@ -301,7 +301,7 @@ function renderPosts() {
     <a class="post-tile" href="post.html?id=${p.id}" title="${escapeHtml(p.title)}">
       <span class="post-tile-cat">${escapeHtml(catLabel)}</span>
       ${thumb
-        ? `<img src="${thumb}" alt="${escapeHtml(p.title)}">`
+        ? `<img src="${escapeHtml(thumb)}" alt="${escapeHtml(p.title)}">`
         : `<div class="post-tile-fallback"><span class="icon">\u{1F4C4}</span><span class="title">${escapeHtml(p.title)}</span></div>`}
     </a>
   `;

@@ -370,7 +370,7 @@ function renderPost(post, isOwner, isStaff) {
 
   const media = document.getElementById('postMedia');
   if (mainImage) {
-    media.innerHTML = `<img id="heroImg" src="${mainImage}" alt="${escapeHtml(post.title)}">`;
+    media.innerHTML = `<img id="heroImg" src="${escapeHtml(mainImage)}" alt="${escapeHtml(post.title)}">`;
   } else if (c.crosshairCode) {
     media.innerHTML = `<canvas id="heroCanvas" width="220" height="220"></canvas>`;
     const state = typeof decodeCrosshairCode === 'function' ? decodeCrosshairCode(c.crosshairCode) : null;
@@ -384,11 +384,11 @@ function renderPost(post, isOwner, isStaff) {
   if (c.previews && c.previews.length > 1) {
     const strip = document.createElement('div');
     strip.className = 'preview-strip';
-    strip.innerHTML = c.previews.map((url, i) => `<img src="${url}" class="${i === 0 ? 'active' : ''}" data-src="${url}">`).join('');
+    strip.innerHTML = c.previews.map((url, i) => `<img src="${escapeHtml(url)}" class="${i === 0 ? 'active' : ''}" data-src="${encodeURIComponent(url)}">`).join('');
     document.getElementById('postMedia').insertAdjacentElement('afterend', strip);
     strip.querySelectorAll('img').forEach(thumb => {
       thumb.addEventListener('click', () => {
-        document.getElementById('heroImg').src = thumb.getAttribute('data-src');
+        document.getElementById('heroImg').src = decodeURIComponent(thumb.getAttribute('data-src'));
         strip.querySelectorAll('img').forEach(t => t.classList.remove('active'));
         thumb.classList.add('active');
       });

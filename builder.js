@@ -1988,7 +1988,7 @@ async function loadCrosshairGallery(cat, searchQuery){
       return `
       <div class="gallery-card" data-post-id="${p.id}">
         ${isImage
-          ? `<img class="gallery-canvas" src="${imageUrl}" alt="${escapeHtml(p.title)}">`
+          ? `<img class="gallery-canvas" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(p.title)}">`
           : `<canvas class="gallery-canvas" id="ghCanvas${i}" width="120" height="120"></canvas>`}
         ${extraImages ? `<div class="gallery-meta">+${extraImages} more image${extraImages > 1 ? 's' : ''}</div>` : ''}
         <div class="gallery-title">${escapeHtml(p.title)}</div>
@@ -2301,7 +2301,7 @@ async function loadCssGallery(searchQuery){
       const isOwner = currentUser && p.author_id === currentUser.id;
 
       const previewHtml = previews.length
-        ? `<img class="gallery-canvas" src="${previews[0]}" alt="${escapeHtml(p.title)}">`
+        ? `<img class="gallery-canvas" src="${escapeHtml(previews[0])}" alt="${escapeHtml(p.title)}">`
         : `<div class="gallery-canvas" style="display:flex;align-items:center;justify-content:center;color:var(--text-2);font-size:24px;">📄</div>`;
 
       return `
