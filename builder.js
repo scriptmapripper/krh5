@@ -541,6 +541,7 @@ function tagChip(tag){
 
 function renderResourceList(node, main, path, crumbs, color){
   const list = RESOURCE_LISTS[node.id];
+  if(gallerySearchNodeId !== node.id){ gallerySearchQuery = ''; gallerySearchNodeId = node.id; }
   const el = document.getElementById('content');
   el.innerHTML = `
     <div class="breadcrumb">${crumbs}</div>
@@ -587,6 +588,10 @@ function renderResourceList(node, main, path, crumbs, color){
     ${FILE_GALLERY_SECTIONS[node.id] ? `
       <div class="gallery-wrap">
         <h3 class="gallery-heading">${FILE_GALLERY_SECTIONS[node.id].title || 'Community Files'}</h3>
+        <div class="search-bar-wrap">
+          <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="search-bar-input" id="gallerySearchInput" placeholder="Search community posts by title..." value="${escapeHtml(gallerySearchQuery)}" autocomplete="off">
+        </div>
         <div class="file-gallery" id="fileGallery"><div class="gallery-empty">Loading...</div></div>
       </div>
     ` : ''}
@@ -600,7 +605,21 @@ function renderResourceList(node, main, path, crumbs, color){
   }
 
   if(FILE_GALLERY_SECTIONS[node.id]){
-    loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat);
+    loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat, gallerySearchQuery);
+  }
+
+  const gallerySearchInput = document.getElementById('gallerySearchInput');
+  if(gallerySearchInput){
+    let gallerySearchDebounce = null;
+    gallerySearchInput.addEventListener('input', (e) => {
+      clearTimeout(gallerySearchDebounce);
+      const thisNodeId = node.id;
+      gallerySearchDebounce = setTimeout(() => {
+        gallerySearchQuery = e.target.value.trim();
+        gallerySearchNodeId = thisNodeId;
+        if(FILE_GALLERY_SECTIONS[thisNodeId]) loadFileGallery(FILE_GALLERY_SECTIONS[thisNodeId].cat, gallerySearchQuery);
+      }, 300);
+    });
   }
 
   const resourceSearchInput = document.getElementById('resourceSearchInput');
@@ -1558,6 +1577,7 @@ const STATIC_MAP_LISTS = {
 
 function renderMapList(node, main, crumbs){
   const section = STATIC_MAP_LISTS[node.id];
+  if(gallerySearchNodeId !== node.id){ gallerySearchQuery = ''; gallerySearchNodeId = node.id; }
   const el = document.getElementById('content');
   el.innerHTML = `
     <div class="breadcrumb">${crumbs}</div>
@@ -1596,6 +1616,10 @@ function renderMapList(node, main, crumbs){
     ${FILE_GALLERY_SECTIONS[node.id] ? `
       <div class="gallery-wrap">
         <h3 class="gallery-heading">${FILE_GALLERY_SECTIONS[node.id].title || 'Community Files'}</h3>
+        <div class="search-bar-wrap">
+          <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="search-bar-input" id="gallerySearchInput" placeholder="Search community posts by title..." value="${escapeHtml(gallerySearchQuery)}" autocomplete="off">
+        </div>
         <div class="file-gallery" id="fileGallery"><div class="gallery-empty">Loading...</div></div>
       </div>
     ` : ''}
@@ -1625,7 +1649,21 @@ function renderMapList(node, main, crumbs){
   }
 
   if(FILE_GALLERY_SECTIONS[node.id]){
-    loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat);
+    loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat, gallerySearchQuery);
+  }
+
+  const gallerySearchInput = document.getElementById('gallerySearchInput');
+  if(gallerySearchInput){
+    let gallerySearchDebounce = null;
+    gallerySearchInput.addEventListener('input', (e) => {
+      clearTimeout(gallerySearchDebounce);
+      const thisNodeId = node.id;
+      gallerySearchDebounce = setTimeout(() => {
+        gallerySearchQuery = e.target.value.trim();
+        gallerySearchNodeId = thisNodeId;
+        if(FILE_GALLERY_SECTIONS[thisNodeId]) loadFileGallery(FILE_GALLERY_SECTIONS[thisNodeId].cat, gallerySearchQuery);
+      }, 300);
+    });
   }
 }
 

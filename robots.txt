@@ -3,15 +3,15 @@ Allow: /
 
 # Don't index account/moderation pages — nothing useful to search engines,
 # and no point indexing private/staff-only screens.
-Disallow: /community/login.html
-Disallow: /community/signup.html
-Disallow: /community/forgot-password.html
-Disallow: /community/reset-password.html
-Disallow: /community/settings.html
-Disallow: /community/inbox.html
-Disallow: /community/messages.html
-Disallow: /community/saved.html
-Disallow: /community/admin.html
-Disallow: /community/developer.html
-Disallow: /community/logs.html
-Disallow: /community/banned.html
+Disallow: /krh5/community/login.html
+Disallow: /krh5/community/signup.html
+Disallow: /krh5/community/forgot-password.html
+Disallow: /krh5/community/reset-password.html
+Disallow: /krh5/community/settings.html
+Disallow: /krh5/community/inbox.html
+Disallow: /krh5/community/messages.html
+Disallow: /krh5/community/saved.html
+Disallow: /krh5/community/admin.html
+Disallow: /krh5/community/developer.html
+Disallow: /krh5/community/logs.html
+Disallow: /krh5/community/banned.html

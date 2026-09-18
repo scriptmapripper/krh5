@@ -50,8 +50,8 @@
     <h1>This page doesn't exist</h1>
     <p>The link might be broken, or the page may have been moved or removed. Let's get you back on track.</p>
     <div class="actions">
-      <a href="/" class="btn primary">Back to Home</a>
-      <a href="/community/login.html" class="btn ghost" id="profileLink">My Profile</a>
+      <a href="/krh5/" class="btn primary">Back to Home</a>
+      <a href="/krh5/community/login.html" class="btn ghost" id="profileLink">My Profile</a>
     </div>
   </div>
 </div>
@@ -62,7 +62,7 @@
     if (await getSessionUser()) {
       const profile = await getMyProfile();
       if (profile) {
-        document.getElementById("profileLink").href = `/community/profile.html?user=${encodeURIComponent(profile.username)}`;
+        document.getElementById("profileLink").href = `/krh5/community/profile.html?user=${encodeURIComponent(profile.username)}`;
       }
     }
   } catch (e) {}
