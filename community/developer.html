@@ -222,13 +222,23 @@ async function loadUsers() {
   // table separately allows staff to read every row.
   //
   // profile_private has TWO foreign keys to profiles (id -> profiles.id,
-  // and banned_by -> profiles.id), so a plain "profile_private(*)" embed
-  // is ambiguous to PostgREST ("more than one relationship was found").
-  // The "!id" hint tells it to join on the id column specifically.
-  const { data, error } = await sb.from("profiles").select("*, profile_private!id(*)").order("created_at", { ascending: false });
+  // and banned_by -> profiles.id), so a single embedded query like
+  // "profiles.select('*, profile_private(*)')" is ambiguous to
+  // PostgREST ("more than one relationship was found") — it can't tell
+  // which of the two FKs to embed on. Sidestep it entirely: fetch both
+  // tables separately and merge them here instead of embedding.
+  const [{ data: profiles, error }, { data: privates, error: privError }] = await Promise.all([
+    sb.from("profiles").select("*").order("created_at", { ascending: false }),
+    sb.from("profile_private").select("*"),
+  ]);
+
   const el = document.getElementById("userList");
   if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
-  allUsers = data;
+  if (privError) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(privError.message)}</div>`; return; }
+
+  const privById = {};
+  (privates || []).forEach(p => { privById[p.id] = p; });
+  allUsers = (profiles || []).map(u => ({ ...u, profile_private: privById[u.id] || null }));
   render();
 }
 
