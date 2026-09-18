@@ -220,7 +220,12 @@ async function loadUsers() {
   // profile_private (birthdate/gender/discord/ban details) only comes
   // back here because this page is developer-gated and RLS on that
   // table separately allows staff to read every row.
-  const { data, error } = await sb.from("profiles").select("*, profile_private(*)").order("created_at", { ascending: false });
+  //
+  // profile_private has TWO foreign keys to profiles (id -> profiles.id,
+  // and banned_by -> profiles.id), so a plain "profile_private(*)" embed
+  // is ambiguous to PostgREST ("more than one relationship was found").
+  // The "!id" hint tells it to join on the id column specifically.
+  const { data, error } = await sb.from("profiles").select("*, profile_private!id(*)").order("created_at", { ascending: false });
   const el = document.getElementById("userList");
   if (error) { el.innerHTML = `<div class="empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
   allUsers = data;
