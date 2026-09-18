@@ -112,7 +112,7 @@ function onTurnstileSuccess(token) { turnstileToken = token; }
 function onTurnstileExpired() { turnstileToken = null; }
 
 async function init() {
-  // Kalau balik dari OAuth redirect, sesi sementara Discord aktif di sini
+  // If returning from the OAuth redirect, a temporary Discord session is active here
   const { data: { session } } = await sb.auth.getSession();
   if (session && session.user.app_metadata.provider === "discord") {
     const identity = session.user.identities.find(i => i.provider === "discord");
@@ -180,7 +180,7 @@ document.getElementById("btnSubmit").addEventListener("click", async () => {
     return;
   }
 
-  // Kalau confirm email aktif, session belum langsung ada — coba sign in manual
+  // If confirm email is enabled, there's no session yet right away — try signing in manually
   let user = signUpData.user;
   if (!signUpData.session) {
     const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({ email, password });

@@ -1,13 +1,15 @@
 -- =========================================================
 --  Krunker Resource Hub — Account / Role / Post system
---  Jalankan seluruh file ini di Supabase Dashboard > SQL Editor
---  Versi RERUNNABLE — aman dijalankan berkali-kali, gak akan
---  error "already exists" walaupun tabel/policy udah ada.
+--  Run this entire file in Supabase Dashboard > SQL Editor
+--  RERUNNABLE version — safe to run multiple times, won't
+--  throw an "already exists" error even if the tables/policies
+--  already exist.
 -- =========================================================
 
 -- ---------- 1. Table: profiles ----------
--- Satu baris per user, dibuat manual saat signup (bukan trigger),
--- supaya semua field tambahan (nama, tgl lahir, dll) langsung terisi.
+-- One row per user, created manually at signup (not via trigger),
+-- so all the extra fields (name, date of birth, etc.) are filled in
+-- right away.
 -- NOTE: birthdate, gender, discord_id, discord_username (and, once you
 -- run add_ban_system.sql, ban_reason/banned_at/banned_by) do NOT live
 -- here — they go in public.profile_private, a table only the row's
@@ -25,20 +27,20 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
--- Semua orang (termasuk yang belum login) boleh lihat profil dasar
--- (dibutuhkan supaya nama penulis post bisa ditampilkan di feed publik)
+-- Everyone (including logged-out visitors) can view basic profile info
+-- (needed so a post's author name can be shown in the public feed)
 drop policy if exists "profiles_public_read" on public.profiles;
 create policy "profiles_public_read"
 on public.profiles for select
 using (true);
 
--- User cuma boleh bikin profil untuk dirinya sendiri, role wajib 'user'
+-- Users can only create a profile for themselves, role must be 'user'
 drop policy if exists "profiles_insert_self" on public.profiles;
 create policy "profiles_insert_self"
 on public.profiles for insert
 with check (auth.uid() = id and role = 'user');
 
--- User boleh update profil sendiri, TAPI TIDAK BOLEH ganti role-nya sendiri
+-- Users can update their own profile, BUT CANNOT change their own role
 drop policy if exists "profiles_update_self" on public.profiles;
 create policy "profiles_update_self"
 on public.profiles for update
@@ -48,7 +50,7 @@ with check (
   and role = (select role from public.profiles where id = auth.uid())
 );
 
--- Developer boleh update profil siapa saja (termasuk ganti role -> admin/dev)
+-- Developers can update anyone's profile (including changing role -> admin/dev)
 drop policy if exists "profiles_update_by_developer" on public.profiles;
 create policy "profiles_update_by_developer"
 on public.profiles for update
@@ -79,8 +81,8 @@ create table if not exists public.posts (
   updated_at  timestamptz not null default now()
 );
 
--- Kalau tabel posts sudah pernah dibuat SEBELUM kolom category ada,
--- jalankan ini aja (aman dijalankan berkali-kali):
+-- If the posts table was already created BEFORE the category column
+-- existed, just run this (safe to run multiple times):
 -- alter table public.posts add column if not exists category text not null default 'crosshair' check (category in (
 --   'crosshair','crosshair-scope','crosshair-hitmarker',
 --   'crosshair-overlay-damage','crosshair-overlay-game',
@@ -92,19 +94,19 @@ create table if not exists public.posts (
 
 alter table public.posts enable row level security;
 
--- Post published boleh dibaca siapa saja (termasuk yang belum login)
+-- Published posts can be read by anyone (including logged-out visitors)
 drop policy if exists "posts_public_read_published" on public.posts;
 create policy "posts_public_read_published"
 on public.posts for select
 using (status = 'published');
 
--- Penulis boleh baca post draft miliknya sendiri
+-- Authors can read their own draft posts
 drop policy if exists "posts_owner_read_own" on public.posts;
 create policy "posts_owner_read_own"
 on public.posts for select
 using (auth.uid() = author_id);
 
--- Admin & developer boleh baca SEMUA post (termasuk draft orang lain)
+-- Admins & developers can read ALL posts (including other users' drafts)
 drop policy if exists "posts_staff_read_all" on public.posts;
 create policy "posts_staff_read_all"
 on public.posts for select
@@ -112,21 +114,21 @@ using (
   exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('admin','developer'))
 );
 
--- Cuma user yang sudah login & sudah punya profil yang boleh bikin post,
--- dan author_id wajib dirinya sendiri
+-- Only logged-in users who already have a profile can create posts,
+-- and author_id must be themselves
 drop policy if exists "posts_insert_own" on public.posts;
 create policy "posts_insert_own"
 on public.posts for insert
 with check (auth.uid() = author_id);
 
--- Penulis boleh edit post-nya sendiri
+-- Authors can edit their own posts
 drop policy if exists "posts_update_own" on public.posts;
 create policy "posts_update_own"
 on public.posts for update
 using (auth.uid() = author_id)
 with check (auth.uid() = author_id);
 
--- Admin & developer boleh edit (mis. publish/unpublish) post siapa saja
+-- Admins & developers can edit (e.g. publish/unpublish) anyone's posts
 drop policy if exists "posts_update_staff" on public.posts;
 create policy "posts_update_staff"
 on public.posts for update
@@ -134,13 +136,13 @@ using (
   exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('admin','developer'))
 );
 
--- Penulis boleh hapus post-nya sendiri
+-- Authors can delete their own posts
 drop policy if exists "posts_delete_own" on public.posts;
 create policy "posts_delete_own"
 on public.posts for delete
 using (auth.uid() = author_id);
 
--- Admin & developer boleh hapus post siapa saja
+-- Admins & developers can delete anyone's posts
 drop policy if exists "posts_delete_staff" on public.posts;
 create policy "posts_delete_staff"
 on public.posts for delete
@@ -163,16 +165,16 @@ before update on public.posts
 for each row execute function public.set_updated_at();
 
 -- =========================================================
--- CATATAN PENTING
+-- IMPORTANT NOTES
 -- =========================================================
--- 1. Developer PERTAMA harus di-set manual lewat SQL Editor, contoh:
---      update public.profiles set role = 'developer' where username = 'USERNAME_KAMU';
---    Jalankan ini SETELAH kamu daftar akun pertama kali lewat website.
---    (Lihat juga sql/set_developer.sql — sudah disiapkan untuk akun knlvx_aura.)
+-- 1. The FIRST Developer must be set manually via the SQL Editor, e.g.:
+--      update public.profiles set role = 'developer' where username = 'YOUR_USERNAME';
+--    Run this AFTER you've signed up your first account through the website.
+--    (See also sql/set_developer.sql — already set up for the knlvx_aura account.)
 --
--- 2. Setelah itu, Developer bisa angkat/turunin Admin lewat halaman
---    /community/developer.html (tidak perlu SQL lagi).
+-- 2. After that, the Developer can promote/demote Admins through the
+--    /community/developer.html page (no more SQL needed).
 --
--- 3. Role 'developer' TIDAK BISA diangkat dari panel web (sengaja),
---    biar gak ada admin yang bisa naikin diri sendiri jadi developer.
---    Kalau mau nambah developer baru, jalankan SQL update di atas manual.
+-- 3. The 'developer' role CANNOT be granted from the web panel
+--    (deliberately), so no admin can escalate themselves to developer.
+--    To add a new developer, run the SQL update above manually.

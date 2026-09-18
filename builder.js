@@ -692,9 +692,12 @@ document.addEventListener('DOMContentLoaded', () => {
    the generic placeholder. */
 const LINK_PAGES = {
   'about-discord': {
-    label:'Discord', url:'https://discord.gg/HVpGk9a5Cu', icon:'fa-discord', iconType:'fab',
-    blurb:'Join the Aura Gangs Team Discord for community chat, support, and updates.',
-    cta:'Join Discord',
+    label:'Discord', icon:'fa-discord', iconType:'fab',
+    blurb:'Join our Discord servers for community chat, support, and updates.',
+    links:[
+      { url:'https://discord.gg/vpXbhyBMhe', cta:'Join Krunker Resource Hub' },
+      { url:'https://discord.gg/HVpGk9a5Cu', cta:'Join Aura Gangs Team' },
+    ],
   },
 };
 
@@ -711,10 +714,14 @@ function renderLinkPage(node, main, crumbs){
     <div class="meta-strip">
       <span class="chip">${main.label}</span>
     </div>
-    <a class="link-cta" href="${link.url}" target="_blank" rel="noopener">
-      <i class="${link.iconType} ${link.icon}"></i>
-      <span>${link.cta}</span>
-    </a>
+    <div style="display:flex; flex-wrap:wrap; gap:12px;">
+      ${link.links.map(l => `
+        <a class="link-cta" href="${l.url}" target="_blank" rel="noopener">
+          <i class="${link.iconType} ${link.icon}"></i>
+          <span>${l.cta}</span>
+        </a>
+      `).join('')}
+    </div>
   `;
 }
 
@@ -727,6 +734,7 @@ const DISCORD_SERVER_LISTS = {
     intro: 'Community, clan, trading and competitive Discord servers around Krunker.io.',
     submitNote: 'Please join the Krunker Resource Hub server and make a ticket in there if you want to put your server in here.',
     servers: [
+      { name: "Krunker Resource Hub", url: "https://discord.gg/vpXbhyBMhe" },
       { name: "Krunker Bunker", url: "https://discord.gg/krunker" },
       { name: "Map Makers Of Krunker", url: "https://discord.com/servers/map-makers-of-krunker-484192043833491487" },
       { name: "Krunker Pro Circuit", url: "https://discord.gg/kpc-672146248182136863" },

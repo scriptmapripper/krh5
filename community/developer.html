@@ -176,10 +176,11 @@ async function approveAppeal(appealId, userId) {
   }).eq("id", appealId);
   if (error) { alert("Unbanned, but failed to update the ticket: " + error.message); }
 
-  /* logAction sengaja TIDAK di-await: aksinya sendiri sudah sukses,
-     jadi UI boleh langsung refresh sambil lognya ditulis di belakang.
-     (Di post.html tetap di-await karena halamannya langsung pindah —
-     kalau gak ditunggu, request-nya kebatalin browser.) */
+  /* logAction is DELIBERATELY not awaited: the action itself already
+     succeeded, so the UI can refresh right away while the log is
+     written in the background.
+     (In post.html it's still awaited because the page navigates away
+     immediately — if not awaited, the browser cancels the request.) */
   logAction("appeal_approve", {
     targetType: "appeal", targetId: appealId,
     targetLabel: appeal ? appeal.username : null, targetUserId: userId,

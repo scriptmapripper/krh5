@@ -124,10 +124,11 @@ async function setStatus(id, status) {
   const { error } = await sb.from("posts").update({ status }).eq("id", id);
   if (error) { alert("Failed: " + error.message); return; }
 
-  /* logAction sengaja TIDAK di-await: aksinya sendiri sudah sukses,
-     jadi UI boleh langsung refresh sambil lognya ditulis di belakang.
-     (Di post.html tetap di-await karena halamannya langsung pindah —
-     kalau gak ditunggu, request-nya kebatalin browser.) */
+  /* logAction is DELIBERATELY not awaited: the action itself already
+     succeeded, so the UI can refresh right away while the log is
+     written in the background.
+     (In post.html it's still awaited because the page navigates away
+     immediately — if not awaited, the browser cancels the request.) */
   logAction(status === "published" ? "post_publish" : "post_unpublish", {
     targetType: "post",
     targetId: id,
@@ -150,13 +151,14 @@ async function removePost(id) {
   const { error } = await sb.from("posts").delete().eq("id", id);
   if (error) { alert("Failed: " + error.message); return; }
 
-  /* Log ditulis SETELAH delete berhasil, tapi judul & author sudah
-     di-snapshot dari allData di atas — jadi log tetap informatif
-     walaupun post-nya sudah hilang dari database. */
-  /* logAction sengaja TIDAK di-await: aksinya sendiri sudah sukses,
-     jadi UI boleh langsung refresh sambil lognya ditulis di belakang.
-     (Di post.html tetap di-await karena halamannya langsung pindah —
-     kalau gak ditunggu, request-nya kebatalin browser.) */
+  /* The log is written AFTER the delete succeeds, but the title &
+     author were already snapshotted from allData above — so the log
+     stays informative even after the post is gone from the database. */
+  /* logAction is DELIBERATELY not awaited: the action itself already
+     succeeded, so the UI can refresh right away while the log is
+     written in the background.
+     (In post.html it's still awaited because the page navigates away
+     immediately — if not awaited, the browser cancels the request.) */
   logAction("post_delete", {
     targetType: "post",
     targetId: id,

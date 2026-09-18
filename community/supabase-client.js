@@ -1,5 +1,5 @@
 // =========================================================
-//  ISI 2 BARIS INI SETELAH BIKIN PROJECT SUPABASE
+//  FILL IN THESE 2 LINES AFTER CREATING YOUR SUPABASE PROJECT
 //  Supabase Dashboard > Project Settings > API
 // =========================================================
 const SUPABASE_URL = "https://yqvtlbrwhjkyfogokwqd.supabase.co";
@@ -8,9 +8,9 @@ const SUPABASE_ANON_KEY = "sb_publishable_qBvS9QAc9dJVVqTKVdB4dg_MTubzx4N";
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ---------- helpers dipakai di semua halaman community/* ----------
+// ---------- helpers used on every community/* page ----------
 
-// Profil user yang lagi login, dicache buat logAction() (lihat bawah)
+// Currently logged-in user's profile, cached for logAction() (see below)
 let _logActorCache = null;
 
 async function getSessionUser() {
@@ -42,15 +42,15 @@ async function getMyProfile() {
     if (priv) Object.assign(data, priv);
   }
 
-  // Isi cache buat logAction() sekalian — tiap halaman staff sudah
-  // manggil getMyProfile() pas boot, jadi logAction() gak perlu
-  // query profiles lagi cuma buat tahu siapa yang lagi login.
+  // Fill the cache for logAction() while we're at it — every staff page
+  // already calls getMyProfile() on boot, so logAction() doesn't need to
+  // query profiles again just to find out who's currently logged in.
   if (data) _logActorCache = data;
 
-  // Terapkan tema kustom (accent/gradient/background) yang disimpan
-  // lewat community/settings.html. Karena getMyProfile() dipanggil
-  // di boot() hampir semua halaman community/*, ini otomatis bikin
-  // tema kepake di seluruh situs tanpa perlu edit tiap halaman.
+  // Apply the custom theme (accent/gradient/background) saved via
+  // community/settings.html. Since getMyProfile() is called in boot()
+  // on almost every community/* page, this automatically makes the
+  // theme apply site-wide without needing to edit every page.
   if (data) applyUserTheme(data.theme_settings);
 
   if (data && data.banned) {
@@ -75,14 +75,14 @@ async function getMyProfile() {
   return data;
 }
 
-// Redirect kalau belum login sama sekali
+// Redirect if not logged in at all
 async function requireLogin(redirectTo = "login.html") {
   const user = await getSessionUser();
   if (!user) { window.location.href = redirectTo; return null; }
   return user;
 }
 
-// Redirect kalau role gak cukup. allowed = ["admin","developer"] misalnya
+// Redirect if role isn't sufficient. E.g. allowed = ["admin","developer"]
 async function requireRole(allowed, redirectTo = "../index.html") {
   const profile = await getMyProfile();
   if (!profile || !allowed.includes(profile.role)) {
@@ -181,9 +181,9 @@ function checkUploadSize(file) {
 }
 
 // ---------- Custom theme (accent color / gradient / background) ----------
-// Dipakai di community/settings.html buat preview + save, dan dipanggil
-// otomatis dari getMyProfile() di atas supaya tema kepake di semua
-// halaman. `theme` = kolom profiles.theme_settings (jsonb), bisa null.
+// Used by community/settings.html for preview + save, and called
+// automatically from getMyProfile() above so the theme applies on every
+// page. `theme` = the profiles.theme_settings column (jsonb), can be null.
 const DEFAULT_THEME = {
   accent: "#ff6b9d",
   gradient: { enabled: true, angle: 135, stops: ["#ff6b9d", "#b895ff", "#3fe0d8"] },
@@ -259,10 +259,10 @@ function formatDate(iso) {
 }
 
 // ---------- History Logs (audit trail) ----------
-// Dipakai di admin.html, developer.html, dan post.html.
-// Tabel: public.activity_logs (lihat sql/add_history_logs.sql)
+// Used in admin.html, developer.html, and post.html.
+// Table: public.activity_logs (see sql/add_history_logs.sql)
 
-// Label + warna per jenis aksi, dipakai logs.html buat nampilin badge.
+// Label + color per action type, used by logs.html to render badges.
 const LOG_ACTIONS = {
   post_publish:      { label: "Published post",   icon: "▲", color: "var(--green)"  },
   post_unpublish:    { label: "Unpublished post", icon: "▼", color: "var(--orange)" },
@@ -278,13 +278,13 @@ const LOG_ACTIONS = {
   comment_delete:    { label: "Deleted comment",  icon: "✕", color: "var(--red)"    },
 };
 
-/* Tulis satu baris ke activity_logs.
-   SENGAJA tidak pernah throw: kalau nulis log gagal (offline, RLS, dll),
-   aksi utamanya (ban, delete, publish) tetap dianggap sukses — log cuma
-   dicatat error-nya di console. Jangan pernah bikin moderasi gagal
-   cuma gara-gara logging.
+/* Writes a single row to activity_logs.
+   DELIBERATELY never throws: if writing the log fails (offline, RLS,
+   etc.), the main action (ban, delete, publish) is still considered
+   successful — only the error gets logged to the console. Never let a
+   moderation action fail just because of logging.
 
-   Contoh:
+   Example:
      await logAction("user_ban", {
        targetType: "user", targetId: u.id, targetLabel: u.username,
        targetUserId: u.id, reason,
@@ -294,10 +294,10 @@ async function logAction(action, opts = {}) {
     const user = await getSessionUser();
     if (!user) return;
 
-    /* Biasanya cache-nya sudah keisi sama getMyProfile() waktu halaman
-       boot, jadi baris ini gak bikin query tambahan. Query ke profiles
-       cuma jalan kalau cache-nya kosong (mis. halaman yang gak pernah
-       manggil getMyProfile). */
+    /* Usually the cache is already filled by getMyProfile() when the
+       page boots, so this line doesn't add an extra query. The query to
+       profiles only runs if the cache is empty (e.g. a page that never
+       called getMyProfile). */
     if (!_logActorCache || _logActorCache.id !== user.id) {
       const { data } = await sb
         .from("profiles")
@@ -309,7 +309,7 @@ async function logAction(action, opts = {}) {
     }
     const actor = _logActorCache;
 
-    // User biasa gak punya izin insert (ditolak RLS), jadi stop di sini aja
+    // Regular users don't have insert permission (rejected by RLS), so just stop here
     if (!["admin", "developer"].includes(actor.role)) return;
 
     const { error } = await sb.from("activity_logs").insert({
@@ -331,7 +331,7 @@ async function logAction(action, opts = {}) {
   }
 }
 
-// "15 Sep 2026, 14:03" — dipakai di logs.html (formatDate cuma tanggal)
+// "15 Sep 2026, 14:03" — used in logs.html (formatDate is date-only)
 function formatDateTime(iso) {
   const d = new Date(iso);
   return d.toLocaleString("en-US", {
@@ -340,7 +340,7 @@ function formatDateTime(iso) {
   });
 }
 
-// "3 menit lalu" style, buat kolom waktu yang ringkas
+// "3 minutes ago" style, for a compact time column
 function timeAgo(iso) {
   const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
   if (secs < 60) return "just now";
@@ -354,16 +354,17 @@ function timeAgo(iso) {
 }
 
 // ---------- Show/Hide password toggle ----------
-// Pasang otomatis di semua input dengan class "pw-toggle" yang punya
-// data-target = id input password terkait. Cukup bungkus input pakai
-// <div class="pw-wrap">...<button class="pw-toggle" data-target="...">
-// dan ini jalan sendiri di semua halaman yang load supabase-client.js.
+// Automatically attaches to every input with class "pw-toggle" that has
+// data-target = the id of the related password input. Just wrap the
+// input with <div class="pw-wrap">...<button class="pw-toggle"
+// data-target="..."> and this runs itself on every page that loads
+// supabase-client.js.
 const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
 const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a13.16 13.16 0 0 1-3.19 3.94M6.61 6.61A13.31 13.31 0 0 0 1 11s4 7 11 7a9.28 9.28 0 0 0 5.39-1.61M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M1 1l22 22"/></svg>';
 
 function initPasswordToggles() {
   document.querySelectorAll(".pw-toggle").forEach((btn) => {
-    if (btn.dataset.pwInit) return; // hindari double-bind kalau dipanggil ulang
+    if (btn.dataset.pwInit) return; // avoid double-binding if called again
     btn.dataset.pwInit = "1";
     btn.type = "button";
     btn.setAttribute("aria-label", "Show password");

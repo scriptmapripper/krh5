@@ -3,12 +3,12 @@
 --  (Kill, Death, Ammo, Streak Counter)
 --
 --  Run this ONCE in Supabase Dashboard > SQL Editor.
---  Versi RERUNNABLE — aman dijalankan berkali-kali.
+--  RERUNNABLE version — safe to run multiple times.
 --
---  Semua section ini pakai upload 1 gambar per post lewat
---  community/image-section.html, jadi gambarnya masuk bucket
---  `crosshairs` yang udah ada. Kalau bucket itu belum pernah
---  dibuat, jalankan juga sql/add_crosshair_storage.sql.
+--  All these sections use a single image upload per post via
+--  community/image-section.html, so the image goes into the
+--  `crosshairs` bucket that already exists. If that bucket
+--  hasn't been created yet, also run sql/add_crosshair_storage.sql.
 -- =========================================================
 
 -- Widen the allowed category list so the new sections pass the check.

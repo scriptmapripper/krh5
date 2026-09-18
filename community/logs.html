@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="community.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* Khusus halaman ini — sisanya pakai community.css */
+  /* Specific to this page — everything else uses community.css */
   .log-row{
     display:flex; gap:14px; align-items:flex-start;
     border:1px solid var(--border); border-radius:20px;
@@ -138,27 +138,28 @@
 <script src="supabase-client.js"></script>
 <script>
 /* ---------------------------------------------------------------
-   CATATAN PERFORMA
-   Semua filter, sort, dan paging dikerjakan di DATABASE, bukan di
-   browser. Yang ditarik cuma 25 baris per halaman, dan cuma kolom
-   yang benar-benar ditampilkan (kolom "meta" gak pernah diambil
-   karena gak dirender di sini).
+   PERFORMANCE NOTE
+   All filtering, sorting, and paging is done in the DATABASE, not in
+   the browser. Only 25 rows per page are fetched, and only the
+   columns that are actually displayed (the "meta" column is never
+   fetched since it isn't rendered here).
 
-   Paging-nya pakai KEYSET, bukan offset: halaman berikutnya minta
-   "yang created_at-nya lebih kecil dari baris terakhir". Offset
-   makin dalam makin lambat karena database tetap harus melewati
-   baris yang di-skip; keyset selalu langsung loncat lewat index.
+   Paging uses KEYSET, not offset: the next page asks for "rows whose
+   created_at is earlier than the last row's". Offset paging gets
+   slower the deeper you go, since the database still has to skip
+   past every skipped row; keyset always jumps straight through the
+   index.
    --------------------------------------------------------------- */
 
 const PAGE_SIZE = 25;
 const COLUMNS = "id,actor_id,actor_username,actor_display_name,actor_role," +
                 "action,target_type,target_id,target_label,reason,created_at";
 
-let rows = [];          // baris yang lagi tampil
-let cursor = null;      // created_at baris terakhir (buat keyset paging)
+let rows = [];          // rows currently displayed
+let cursor = null;      // created_at of the last row (for keyset paging)
 let hasMore = false;
 let busy = false;
-let reqId = 0;          // penanda request, buat buang respon filter yang keburu basi
+let reqId = 0;          // request marker, used to discard stale filter responses
 
 async function boot() {
   const profile = await requireRole(["admin", "developer"]);
@@ -182,8 +183,8 @@ async function boot() {
     document.getElementById(id).addEventListener("change", reload)
   );
 
-  /* Search di-debounce 350ms. Tanpa ini, tiap huruf yang diketik
-     = satu query ke database. */
+  /* Search is debounced by 350ms. Without this, every keystroke
+     would trigger a separate database query. */
   let timer = null;
   document.getElementById("filterSearch").addEventListener("input", () => {
     clearTimeout(timer);
@@ -213,8 +214,9 @@ async function loadStats() {
   ).join("");
 }
 
-/* Dropdown "All staff" diambil dari tabel profiles (cuma segelintir
-   baris), bukan dengan nyisir ribuan log buat cari nama unik. */
+/* The "All staff" dropdown is populated from the profiles table (just
+   a handful of rows), rather than scanning thousands of log entries
+   to find unique names. */
 async function loadStaffList() {
   const { data, error } = await sb
     .from("profiles")
@@ -259,16 +261,17 @@ async function loadPage(isFirst) {
   }
   if (cursor) q = q.lt("created_at", cursor);
 
-  /* Minta 1 baris lebih banyak dari yang ditampilkan. Kalau yang balik
-     penuh, berarti masih ada halaman berikutnya — jadi gak perlu query
-     count terpisah cuma buat nentuin tombol "Load more" muncul atau gak. */
+  /* Request 1 more row than what's displayed. If the response comes
+     back full, that means there's still another page — so there's no
+     need for a separate count query just to decide whether the
+     "Load more" button should appear. */
   const { data, error } = await q.limit(PAGE_SIZE + 1);
 
   busy = false;
   moreBtn.disabled = false;
   moreBtn.textContent = "Load more";
 
-  // Filter udah keburu diganti user — respon ini udah basi, buang
+  // The filter was already changed by the user — this response is stale, discard it
   if (myReq !== reqId) return;
 
   if (error) {
