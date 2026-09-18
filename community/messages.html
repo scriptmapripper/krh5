@@ -42,17 +42,32 @@
   .dm-messages{ flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:10px; max-height:500px; }
   .dm-bubble-row{ display:flex; }
   .dm-bubble-row.mine{ justify-content:flex-end; }
-  .dm-bubble-wrap{ max-width:min(70%, 380px); min-width:0; }
+  .dm-bubble-wrap{ max-width:min(70%, 380px); min-width:0; display:flex; flex-direction:column; gap:5px; }
+  .dm-bubble-row.mine .dm-bubble-wrap{ align-items:flex-end; }
+  .dm-bubble-row:not(.mine) .dm-bubble-wrap{ align-items:flex-start; }
   .dm-bubble{
     padding:9px 13px; border-radius:14px; font-size:13.5px; line-height:1.5;
     white-space:pre-wrap; word-break:break-word; display:inline-block; max-width:100%;
   }
   .dm-bubble-row.mine .dm-bubble{ background:var(--blue-glow); color:#05070f; border-bottom-right-radius:4px; }
   .dm-bubble-row:not(.mine) .dm-bubble{ background:var(--surface-2); color:var(--text-1); border:1px solid var(--border); border-bottom-left-radius:4px; }
+  .dm-bubble-image-wrap{ border-radius:14px; overflow:hidden; border:1px solid var(--border); max-width:240px; line-height:0; }
+  .dm-bubble-image-wrap img{ width:100%; display:block; cursor:zoom-in; }
   .dm-bubble-time{ font-size:10px; color:var(--text-2); margin-top:3px; }
-  .dm-thread-input{ display:flex; gap:8px; padding:14px 18px; border-top:1px solid var(--border); }
+  .dm-thread-input-wrap{ border-top:1px solid var(--border); }
+  .dm-pending-image{ align-items:center; gap:10px; padding:10px 18px 0; }
+  .dm-pending-image img{ width:52px; height:52px; object-fit:cover; border-radius:10px; border:1px solid var(--border); }
+  .dm-pending-image span{ flex:1; font-size:12.5px; color:var(--text-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dm-pending-image button{ background:none; border:none; color:var(--text-2); cursor:pointer; font-size:14px; flex:none; }
+  .dm-pending-image button:hover{ color:var(--red); }
+  .dm-thread-input{ display:flex; gap:8px; padding:14px 18px; }
   .dm-thread-input textarea{ flex:1; min-height:44px; max-height:120px; resize:none; margin:0; }
   .dm-thread-input button{ align-self:flex-end; }
+  .dm-attach-btn{
+    width:40px; height:40px; border-radius:50%; border:1px solid var(--border-strong);
+    background:rgba(255,255,255,.05); color:var(--text-1); font-size:16px; cursor:pointer; flex:none; transition:.15s ease;
+  }
+  .dm-attach-btn:hover{ background:rgba(255,255,255,.1); color:var(--text-0); }
   .dm-empty-state{ flex:1; display:flex; align-items:center; justify-content:center; color:var(--text-2); font-size:13.5px; padding:40px; text-align:center; }
 
   /* ---- Public (global) chat — same bubble language as DMs, plus a
@@ -129,6 +144,7 @@ let me = null;
 let activeConversationId = null;
 let dmPollHandle = null;
 let pubPollHandle = null;
+let pendingDmImage = null;
 
 // ---------------------------------------------------------------
 // Tabs
@@ -249,6 +265,39 @@ async function sendPublicMessage() {
 }
 
 // ---------------------------------------------------------------
+// DM image attachments (attach button + Ctrl+V paste)
+// ---------------------------------------------------------------
+function setPendingDmImage(file) {
+  const sizeError = checkUploadSize(file);
+  if (sizeError) { alert(sizeError); return; }
+
+  pendingDmImage = file;
+  const box = document.getElementById('dmPendingImage');
+  if (!box) return;
+
+  const url = URL.createObjectURL(file);
+  box.style.display = 'flex';
+  box.innerHTML = '<img src="' + url + '"><span>' + escapeHtml(file.name) + '</span><button type="button" id="btnClearDmImage">✕</button>';
+  document.getElementById('btnClearDmImage').addEventListener('click', clearPendingDmImage);
+}
+
+function clearPendingDmImage() {
+  pendingDmImage = null;
+  const box = document.getElementById('dmPendingImage');
+  if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+}
+
+document.addEventListener('paste', (e) => {
+  if (!document.getElementById('panelDm') || !document.getElementById('panelDm').classList.contains('active')) return;
+  if (!activeConversationId) return;
+  const items = Array.from(e.clipboardData?.items || []);
+  const imgItem = items.find(it => it.type && it.type.startsWith('image/'));
+  if (!imgItem) return;
+  const file = imgItem.getAsFile();
+  if (file) { e.preventDefault(); setPendingDmImage(file); }
+});
+
+// ---------------------------------------------------------------
 // Direct Messages (existing 1:1 DM system)
 // ---------------------------------------------------------------
 function orderedPair(a, b) {
@@ -284,7 +333,7 @@ async function loadConversationList() {
   const convIds = convos.map(c => c.id);
   const { data: allMsgs } = await sb
     .from('messages')
-    .select('conversation_id,content,sender_id,created_at,read')
+    .select('conversation_id,content,image_url,sender_id,created_at,read')
     .in('conversation_id', convIds)
     .order('created_at', { ascending: false });
 
@@ -305,7 +354,8 @@ async function loadConversationList() {
   listEl.innerHTML = rows.map(r => {
     const activeClass = activeConversationId === r.conv.id ? ' active' : '';
     const unreadClass = r.unread ? ' unread' : '';
-    const previewText = r.last ? (r.last.sender_id === me.id ? 'You: ' : '') + escapeHtml(r.last.content) : 'Say hi!';
+    const lastBody = r.last ? (r.last.content ? escapeHtml(r.last.content) : (r.last.image_url ? '📷 Photo' : '')) : '';
+    const previewText = r.last ? (r.last.sender_id === me.id ? 'You: ' : '') + lastBody : 'Say hi!';
     const dot = r.unread ? '<div class="dm-preview-dot"></div>' : '';
     return '<div class="dm-list-row' + activeClass + unreadClass + '" data-conv-id="' + r.conv.id + '" data-other-id="' + r.other.id + '" data-other-username="' + escapeHtml(r.other.username) + '" data-other-name="' + escapeHtml(r.other.display_name) + '">' +
       avatarHtml(r.other, 40) +
@@ -340,14 +390,27 @@ async function openThread(conversationId, otherUser) {
       '<a href="profile.html?user=' + encodeURIComponent(otherUser.username) + '" style="font-weight:700; font-size:14px;">' + escapeHtml(otherUser.display_name) + '</a>' +
     '</div>' +
     '<div class="dm-messages" id="dmMessages"><div class="empty">Loading...</div></div>' +
-    '<div class="dm-thread-input">' +
-      '<textarea id="dmInput" placeholder="Write a message..."></textarea>' +
-      '<button class="btn" id="btnSendDm" style="width:auto; padding:10px 20px; margin-top:0;">Send</button>' +
+    '<div class="dm-thread-input-wrap">' +
+      '<div class="dm-pending-image" id="dmPendingImage" style="display:none;"></div>' +
+      '<div class="dm-thread-input">' +
+        '<button type="button" class="dm-attach-btn" id="btnDmAttach" title="Attach an image">📎</button>' +
+        '<input type="file" id="dmImageInput" accept="image/*" style="display:none;">' +
+        '<textarea id="dmInput" placeholder="Write a message... (or paste a screenshot)"></textarea>' +
+        '<button class="btn" id="btnSendDm" style="width:auto; padding:10px 20px; margin-top:0;">Send</button>' +
+      '</div>' +
     '</div>';
+
+  pendingDmImage = null;
 
   document.getElementById('btnSendDm').addEventListener('click', sendMessage);
   document.getElementById('dmInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  document.getElementById('btnDmAttach').addEventListener('click', () => document.getElementById('dmImageInput').click());
+  document.getElementById('dmImageInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (file) setPendingDmImage(file);
   });
 
   await refreshMessages();
@@ -375,7 +438,9 @@ async function refreshMessages() {
 
   msgsEl.innerHTML = data.length ? data.map(m => {
     const mineClass = m.sender_id === me.id ? ' mine' : '';
-    return '<div class="dm-bubble-row' + mineClass + '"><div class="dm-bubble-wrap"><div class="dm-bubble">' + escapeHtml(m.content) + '</div><div class="dm-bubble-time">' + formatDate(m.created_at) + '</div></div></div>';
+    const imgHtml = m.image_url ? '<div class="dm-bubble-image-wrap"><img src="' + escapeHtml(m.image_url) + '" onclick="window.open(this.src, \'_blank\')"></div>' : '';
+    const textHtml = m.content ? '<div class="dm-bubble">' + escapeHtml(m.content) + '</div>' : '';
+    return '<div class="dm-bubble-row' + mineClass + '"><div class="dm-bubble-wrap">' + imgHtml + textHtml + '<div class="dm-bubble-time">' + formatDate(m.created_at) + '</div></div></div>';
   }).join('') : '<div class="empty">No messages yet — say hi!</div>';
 
   if (wasAtBottom) msgsEl.scrollTop = msgsEl.scrollHeight;
@@ -390,22 +455,36 @@ async function refreshMessages() {
 async function sendMessage() {
   const input = document.getElementById('dmInput');
   const content = input.value.trim();
-  if (!content || !activeConversationId) return;
+  if (!activeConversationId) return;
+  if (!content && !pendingDmImage) return;
 
   const btn = document.getElementById('btnSendDm');
   btn.disabled = true;
 
-  const { error } = await sb.from('messages').insert({
-    conversation_id: activeConversationId, sender_id: me.id, content: content,
-  });
+  try {
+    let imageUrl = null;
+    if (pendingDmImage) {
+      const ext = (pendingDmImage.name.split('.').pop() || 'png').toLowerCase();
+      const path = `${me.id}/${activeConversationId}-${Date.now()}.${ext}`;
+      const { error: upErr } = await sb.storage.from('dm-images')
+        .upload(path, pendingDmImage, { upsert: true, cacheControl: '3600' });
+      if (upErr) throw upErr;
+      const { data: imgData } = sb.storage.from('dm-images').getPublicUrl(path);
+      imageUrl = imgData.publicUrl;
+    }
 
-  if (!error) {
+    const { error } = await sb.from('messages').insert({
+      conversation_id: activeConversationId, sender_id: me.id, content: content, image_url: imageUrl,
+    });
+    if (error) throw error;
+
     await sb.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', activeConversationId);
     input.value = '';
+    clearPendingDmImage();
     await refreshMessages();
     loadConversationList();
-  } else {
-    alert('Failed to send: ' + error.message);
+  } catch (err) {
+    alert('Failed to send: ' + (err.message || err));
   }
   btn.disabled = false;
 }

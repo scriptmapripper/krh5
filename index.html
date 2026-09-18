@@ -38,6 +38,13 @@
       <div class="tagline">Made by <b>Aura Gangs Team</b></div>
     </div>
     <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+      <div class="user-search-wrap">
+        <div class="user-search-form">
+          <input type="text" id="userSearchInput" class="user-search-input" placeholder="Search User" autocomplete="off">
+          <button type="button" id="btnUserSearch" class="btn-ghost user-search-btn">Search</button>
+        </div>
+        <div class="user-search-results" id="userSearchResults"></div>
+      </div>
       <a href="community/login.html" id="navLogin" class="btn-ghost">Login</a>
       <a href="community/signup.html" id="navSignup" class="btn-primary">Sign Up</a>
       <span id="navDivider" style="display:none; width:1px; height:22px; background:var(--border); margin:0 2px;"></span>
@@ -109,6 +116,52 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="community/supabase-client.js"></script>
+<script>
+// ---------------------------------------------------------------
+// Header user search — find a member's profile by username
+// ---------------------------------------------------------------
+(function () {
+  const input = document.getElementById("userSearchInput");
+  const btn = document.getElementById("btnUserSearch");
+  const results = document.getElementById("userSearchResults");
+  if (!input || !btn || !results) return;
+
+  async function runUserSearch() {
+    const q = input.value.trim();
+    if (!q) { results.classList.remove("show"); results.innerHTML = ""; return; }
+
+    const { data, error } = await sb
+      .from("profiles")
+      .select("id,username,display_name,avatar_url")
+      .ilike("username", `%${q}%`)
+      .limit(8);
+
+    results.classList.add("show");
+    if (error || !data || !data.length) {
+      results.innerHTML = '<div class="user-search-empty">No users found.</div>';
+      return;
+    }
+
+    results.innerHTML = data.map(u =>
+      '<a class="user-search-row" href="community/profile.html?user=' + encodeURIComponent(u.username) + '">' +
+        avatarHtml(u, 32) +
+        '<span class="user-search-name">' + escapeHtml(u.display_name) + ' <em>@' + escapeHtml(u.username) + '</em></span>' +
+      '</a>'
+    ).join("");
+  }
+
+  btn.addEventListener("click", runUserSearch);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); runUserSearch(); }
+  });
+  document.addEventListener("click", (e) => {
+    if (!results.contains(e.target) && e.target !== input && e.target !== btn) {
+      results.classList.remove("show");
+      results.innerHTML = "";
+    }
+  });
+})();
+</script>
 <script>
 (async () => {
   const user = await getSessionUser();
