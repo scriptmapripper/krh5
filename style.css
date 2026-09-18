@@ -93,7 +93,7 @@ header{display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom
 .logo-frame{
   flex:none; padding:8px;
   border-radius:28px;
-  background:linear-gradient(135deg, rgba(255,107,157,.18), rgba(63,224,216,.16));
+  background:linear-gradient(135deg, var(--bg-glow-1), var(--bg-glow-2));
   border:1px solid var(--border-strong);
 }
 .logo-img{ height:60px; width:auto; display:block; border-radius:18px; filter:drop-shadow(0 4px 14px rgba(255,107,157,.35)); }
@@ -103,7 +103,7 @@ header{display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom
   font-weight:800;
   letter-spacing:.2px;
   font-size:30px;
-  background:linear-gradient(90deg, #ff9fc6, #ffe08a 45%, #6be6e0);
+  background:var(--accent-gradient);
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
 .tagline{

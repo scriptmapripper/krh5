@@ -29,19 +29,33 @@
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     --sans:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --display:'Baloo 2',var(--sans);
+
+    /* ---- Account theme (community/settings.html) ----
+       Defaults match the rest of the site; a logged-in user's saved
+       theme overrides these at runtime as inline styles on <html>
+       (applyUserTheme() in community/supabase-client.js). */
+    --accent-gradient:linear-gradient(135deg, #ff6b9d, #b895ff 60%, #3fe0d8);
+    --bg-glow-1:rgba(255,107,157,.28); --bg-glow-2:rgba(63,224,216,.22); --bg-glow-3:rgba(184,149,255,.24);
+    --page-bg-image:none; --page-bg-size:cover; --page-bg-dim:0;
+    --ui-scale:1; --ui-saturation:1; --ui-hue:0deg;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:
-      radial-gradient(900px 500px at 12% -8%,rgba(184,149,255,.10),transparent 60%),
-      radial-gradient(900px 500px at 100% 0%,rgba(63,224,216,.07),transparent 55%),
-      var(--bg);
+  body{margin:0;
+    background-color:var(--bg-0, var(--bg));
+    background-image:var(--page-bg-image),
+      radial-gradient(620px 520px at 8% 6%, var(--bg-glow-1), transparent 62%),
+      radial-gradient(680px 560px at 96% 0%, var(--bg-glow-2), transparent 60%),
+      radial-gradient(720px 620px at 50% 105%, var(--bg-glow-3), transparent 62%);
+    background-size:var(--page-bg-size), auto, auto, auto;
+    background-position:center; background-repeat:no-repeat;
+    zoom:var(--ui-scale); filter:saturate(var(--ui-saturation)) hue-rotate(var(--ui-hue));
     color:var(--txt);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
 
   header{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:20px;flex-wrap:wrap;
     background:linear-gradient(180deg,rgba(30,22,66,.7),transparent)}
   header .brand{flex:1;min-width:240px}
   header h1{margin:0;font-family:var(--display);font-size:21px;font-weight:800;letter-spacing:.2px}
-  header h1 .c{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header h1 .c{background:var(--accent-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
   header p{margin:4px 0 0;color:var(--dim);font-size:13px}
   .verpill{font:600 12px var(--mono);color:#f0e9ff;background:rgba(184,149,255,.13);border:1px solid rgba(184,149,255,.5);padding:4px 11px;border-radius:20px}
 
@@ -52,7 +66,7 @@
   .toptabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:5px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:20px;z-index:5}
   .toptabs button{flex:1;min-width:80px;background:transparent;border:none;color:var(--dim);font:700 12.5px var(--sans);padding:9px 10px;border-radius:17px;cursor:pointer;letter-spacing:.3px}
   .toptabs button:hover{color:var(--txt)}
-  .toptabs button.active{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#150c2c}
+  .toptabs button.active{background:var(--accent-gradient);color:#150c2c}
 
   .tabpanel{display:none;flex-direction:column;gap:14px}
   .tabpanel.active{display:flex}
@@ -93,7 +107,7 @@
   button{font:600 13.5px var(--sans);border:1px solid var(--line2);background:var(--panel2);color:var(--txt);border-radius:18px;padding:10px 15px;cursor:pointer;transition:.12s;white-space:nowrap}
   button:hover{border-color:#46566a;background:#1b2230}
   button:active{transform:translateY(1px)}
-  button.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#150c2c;border:none;font-weight:800;box-shadow:0 6px 22px rgba(80,120,200,.28)}
+  button.primary{background:var(--accent-gradient);color:#150c2c;border:none;font-weight:800;box-shadow:0 6px 22px rgba(80,120,200,.28)}
   button.primary:hover{filter:brightness(1.06)}
   .presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .presets button{text-align:left;padding:10px 12px}
@@ -645,5 +659,8 @@
 <div class="toast" id="toast"></div>
 
 <script src="generator.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="community/supabase-client.js"></script>
+<script>(async () => { try { if (await getSessionUser()) await getMyProfile(); } catch (e) {} })();</script>
 </body>
 </html>
