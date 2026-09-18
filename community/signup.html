@@ -225,7 +225,7 @@ document.getElementById("btnSubmit").addEventListener("click", async () => {
     return;
   }
 
-  window.location.href = "dashboard.html";
+  window.location.href = `profile.html?user=${encodeURIComponent(username)}`;
 });
 
 init();

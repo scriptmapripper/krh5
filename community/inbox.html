@@ -115,7 +115,7 @@ async function boot() {
   }
   links += `<a href="messages.html" style="margin-left:6px;">Messages${unreadBadgeHtml(await getUnreadMessageCount(me.id))}</a>`;
   links += `<a href="saved.html" style="margin-left:6px;">Saved</a>`;
-  links += `<a href="dashboard.html" style="margin-left:6px;">Dashboard</a>`;
+  links += `<a href="profile.html?user=${encodeURIComponent(profile.username)}" style="margin-left:6px;">My Profile</a>`;
   nav.innerHTML = links;
 
   document.getElementById('btnMarkAllRead').addEventListener('click', markAllRead);

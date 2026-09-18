@@ -54,11 +54,11 @@
 let allData = [];
 
 async function boot() {
-  const profile = await requireRole(["admin", "developer"], "dashboard.html");
+  const profile = await requireRole(["admin", "developer"]);
   if (!profile) return;
 
   const nav = document.getElementById("topnav");
-  let links = `<a href="dashboard.html">Dashboard</a><a href="logs.html">History Logs</a>`;
+  let links = `<a href="profile.html?user=${encodeURIComponent(profile.username)}">My Profile</a><a href="logs.html">History Logs</a>`;
   if (profile.role === "developer") links += `<a href="developer.html">Developer Panel</a>`;
   links += `<span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>`;
   links += `<a href="account-settings.html" style="margin-left:6px;">Account</a>`;

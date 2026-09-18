@@ -276,6 +276,8 @@ let activeMainId = DATA[0].id;
 let selectedId = DATA[0].id;
 let expanded = new Set();
 let manualEmbedNodeId = null; /* set when "Create Post" is clicked on a placeholder page */
+let gallerySearchQuery = ''; /* current search text for whichever community gallery is on screen */
+let gallerySearchNodeId = null; /* which node the query above belongs to, so switching pages resets it */
 
 function findMain(id){ return DATA.find(n => n.id === id); }
 function findPath(nodes, id, trail=[]){
@@ -549,11 +551,15 @@ function renderResourceList(node, main, path, crumbs, color){
     <p class="content-desc">Community-made userscripts that only use Krunker\u2019s own client-side systems \u2014 quality-of-life and UI additions, no game manipulation. Click a card to see the full rundown, or grab a file straight away.</p>
     <div class="meta-strip">
       <span class="chip">${main.label}</span>
-      <span class="chip">${list.length} script${list.length>1?'s':''}</span>
+      <span class="chip" id="resourceCountChip">${list.length} script${list.length>1?'s':''}</span>
     </div>
-    <div class="resource-grid">
+    <div class="search-bar-wrap">
+      <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="resourceSearchInput" class="search-bar-input" placeholder="Search ${list.length} scripts by name or tag..." autocomplete="off">
+    </div>
+    <div class="resource-grid" id="resourceGrid">
       ${list.map((item,i) => `
-        <div class="resource-card" data-idx="${i}" style="--g1:${item.g1}; --g2:${item.g2}">
+        <div class="resource-card" data-idx="${i}" data-search="${escapeHtml((item.title + ' ' + item.tags.join(' ')).toLowerCase())}" style="--g1:${item.g1}; --g2:${item.g2}">
           <div class="resource-card-glow"></div>
           <div class="resource-card-top">
             <div class="resource-icon"><i class="fas ${item.icon}"></i></div>
@@ -567,6 +573,7 @@ function renderResourceList(node, main, path, crumbs, color){
           </div>
           <div class="resource-preview-hint"><i class="fas fa-eye"></i> Click to preview</div>
         </div>`).join('')}
+      <div class="gallery-empty" id="resourceSearchEmpty" style="display:none;">No scripts match your search.</div>
     </div>
     <div class="status-note">Use at your own risk. Always review a script before running it, and keep your userscript manager up to date.</div>
     ${COMMUNITY_SECTIONS[node.id] ? `
@@ -595,6 +602,22 @@ function renderResourceList(node, main, path, crumbs, color){
   if(FILE_GALLERY_SECTIONS[node.id]){
     loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat);
   }
+
+  const resourceSearchInput = document.getElementById('resourceSearchInput');
+  const resourceCards = Array.from(document.querySelectorAll('#resourceGrid .resource-card'));
+  const resourceEmptyState = document.getElementById('resourceSearchEmpty');
+  const resourceCountChip = document.getElementById('resourceCountChip');
+  resourceSearchInput.addEventListener('input', () => {
+    const q = resourceSearchInput.value.trim().toLowerCase();
+    let visible = 0;
+    resourceCards.forEach(card => {
+      const match = !q || card.getAttribute('data-search').includes(q);
+      card.style.display = match ? '' : 'none';
+      if(match) visible++;
+    });
+    resourceEmptyState.style.display = visible === 0 ? '' : 'none';
+    resourceCountChip.textContent = `${visible} script${visible !== 1 ? 's' : ''}${q ? ' found' : ''}`;
+  });
 
   el.querySelectorAll('.resource-card').forEach(card => {
     card.addEventListener('click', () => openResourceModal(list[+card.getAttribute('data-idx')]));
@@ -857,9 +880,9 @@ function renderDiscordServers(node, main, crumbs){
 
 /* Leaf nodes that show a searchable directory of Krunker client
    downloads (unofficial clients on GitHub, plus the official
-   installer), reusing the same card/search-bar styling as the Discord
-   server directory above — it's the same "name + link, with Copy and
-   an open-in-new-tab action" shape. */
+   installer), using the same stacked file-list layout as the static
+   map downloads (Maps > Official Maps > Pubs etc.) — one row per
+   client, with a Download action opening its release/installer page. */
 const CLIENT_DOWNLOAD_LISTS = {
   'clients': {
     title: 'Krunker Client Downloads',
@@ -896,16 +919,15 @@ function renderClientDownloads(node, main, crumbs){
       <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <input type="text" id="clientSearchInput" class="search-bar-input" placeholder="Search ${section.clients.length} clients by name..." autocomplete="off">
     </div>
-    <div class="discord-server-grid" id="clientGrid">
+    <div class="file-gallery" id="clientFileGallery">
       ${section.clients.map(c => `
-        <div class="discord-server-card" data-name="${escapeHtml(c.name.toLowerCase())}">
-          <div class="discord-server-icon">${escapeHtml(initialsAvatar(c.name))}</div>
-          <div class="discord-server-info">
-            <div class="discord-server-name">${escapeHtml(c.name)}</div>
-            <div class="discord-server-url">${escapeHtml(c.url.replace(/^https?:\/\//,''))}</div>
+        <div class="file-card" data-title="${escapeHtml(c.name.toLowerCase())}">
+          <div class="file-icon">\uD83D\uDCBB</div>
+          <div class="file-info">
+            <div class="gallery-title">${escapeHtml(c.name)}</div>
+            <div class="gallery-meta">${escapeHtml(c.url.replace(/^https?:\/\//,''))}</div>
           </div>
-          <div class="discord-server-actions">
-            <button class="gallery-btn" data-copy="${escapeHtml(c.url)}">Copy</button>
+          <div class="gallery-actions">
             <a class="gallery-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener">Download</a>
           </div>
         </div>
@@ -914,41 +936,20 @@ function renderClientDownloads(node, main, crumbs){
     </div>
   `;
 
-  /* Search / filter */
   const searchInput = document.getElementById('clientSearchInput');
-  const cards = Array.from(document.querySelectorAll('#clientGrid .discord-server-card'));
+  const cards = Array.from(document.querySelectorAll('#clientFileGallery .file-card'));
   const emptyState = document.getElementById('clientSearchEmpty');
   const countChip = document.getElementById('clientCountChip');
   searchInput.addEventListener('input', () => {
     const q = searchInput.value.trim().toLowerCase();
     let visible = 0;
     cards.forEach(card => {
-      const match = !q || card.getAttribute('data-name').includes(q);
+      const match = !q || card.getAttribute('data-title').includes(q);
       card.style.display = match ? '' : 'none';
       if(match) visible++;
     });
     emptyState.style.display = visible === 0 ? '' : 'none';
     countChip.textContent = `${visible} client${visible !== 1 ? 's' : ''}${q ? ' found' : ''}`;
-  });
-
-  /* Copy-link buttons */
-  el.querySelectorAll('.discord-server-actions [data-copy]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const url = btn.getAttribute('data-copy');
-      try {
-        await navigator.clipboard.writeText(url);
-      } catch(err) {
-        const ta = document.createElement('textarea');
-        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); } catch(e2) {}
-        document.body.removeChild(ta);
-      }
-      const original = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
-    });
   });
 }
 
@@ -1700,6 +1701,7 @@ function renderContent(){
   const kids = node.children && node.children.length ? node.children : null;
 
   if(manualEmbedNodeId !== node.id) manualEmbedNodeId = null;
+  if(gallerySearchNodeId !== node.id){ gallerySearchQuery = ''; gallerySearchNodeId = node.id; }
 
   if(POST_LINKS[node.id] && manualEmbedNodeId === node.id){
     el.innerHTML = `
@@ -1836,18 +1838,30 @@ function renderContent(){
     ${GALLERY_SECTIONS[node.id] ? `
       <div class="gallery-wrap">
         <h3 class="gallery-heading">${GALLERY_SECTIONS[node.id].title || 'Community Posts'}</h3>
+        <div class="search-bar-wrap">
+          <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="search-bar-input" id="gallerySearchInput" placeholder="Search by title..." value="${escapeHtml(gallerySearchQuery)}" autocomplete="off">
+        </div>
         <div class="crosshair-gallery" id="crosshairGallery"><div class="gallery-empty">Loading...</div></div>
       </div>
     ` : ''}
     ${FILE_GALLERY_SECTIONS[node.id] ? `
       <div class="gallery-wrap">
         <h3 class="gallery-heading">${FILE_GALLERY_SECTIONS[node.id].title || 'Community Files'}</h3>
+        <div class="search-bar-wrap">
+          <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="search-bar-input" id="gallerySearchInput" placeholder="Search by title..." value="${escapeHtml(gallerySearchQuery)}" autocomplete="off">
+        </div>
         <div class="file-gallery" id="fileGallery"><div class="gallery-empty">Loading...</div></div>
       </div>
     ` : ''}
     ${CSS_GALLERY_SECTIONS[node.id] ? `
       <div class="gallery-wrap">
         <h3 class="gallery-heading">${CSS_GALLERY_SECTIONS[node.id].title || 'Community Posts'}</h3>
+        <div class="search-bar-wrap">
+          <svg class="search-bar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="search-bar-input" id="gallerySearchInput" placeholder="Search by title..." value="${escapeHtml(gallerySearchQuery)}" autocomplete="off">
+        </div>
         <div class="crosshair-gallery" id="cssGallery"><div class="gallery-empty">Loading...</div></div>
       </div>
     ` : ''}
@@ -1861,15 +1875,31 @@ function renderContent(){
   }
 
   if(GALLERY_SECTIONS[node.id]){
-    loadCrosshairGallery(GALLERY_SECTIONS[node.id].cat);
+    loadCrosshairGallery(GALLERY_SECTIONS[node.id].cat, gallerySearchQuery);
   }
 
   if(FILE_GALLERY_SECTIONS[node.id]){
-    loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat);
+    loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat, gallerySearchQuery);
   }
 
   if(CSS_GALLERY_SECTIONS[node.id]){
-    loadCssGallery();
+    loadCssGallery(gallerySearchQuery);
+  }
+
+  const gallerySearchInput = document.getElementById('gallerySearchInput');
+  if(gallerySearchInput){
+    let gallerySearchDebounce = null;
+    gallerySearchInput.addEventListener('input', (e) => {
+      clearTimeout(gallerySearchDebounce);
+      const thisNodeId = node.id;
+      gallerySearchDebounce = setTimeout(() => {
+        gallerySearchQuery = e.target.value.trim();
+        gallerySearchNodeId = thisNodeId;
+        if(GALLERY_SECTIONS[thisNodeId]) loadCrosshairGallery(GALLERY_SECTIONS[thisNodeId].cat, gallerySearchQuery);
+        if(FILE_GALLERY_SECTIONS[thisNodeId]) loadFileGallery(FILE_GALLERY_SECTIONS[thisNodeId].cat, gallerySearchQuery);
+        if(CSS_GALLERY_SECTIONS[thisNodeId]) loadCssGallery(gallerySearchQuery);
+      }, 300);
+    });
   }
 
   el.querySelectorAll('.child-card').forEach(card => {
@@ -1883,23 +1913,27 @@ function renderContent(){
   });
 }
 
-async function loadCrosshairGallery(cat){
+async function loadCrosshairGallery(cat, searchQuery){
   const container = document.getElementById('crosshairGallery');
   if(!container || typeof sb === 'undefined') return;
+  const q = (searchQuery || '').trim();
 
   try {
     const currentUser = typeof getSessionUser === 'function' ? await getSessionUser() : null;
 
-    const { data, error } = await sb
+    let query = sb
       .from('posts')
       .select('*, profiles!posts_author_id_fkey(username,display_name,avatar_url)')
       .eq('status', 'published')
       .eq('category', cat)
       .order('created_at', { ascending: false })
       .limit(24);
+    if(q) query = query.ilike('title', `%${q}%`);
+
+    const { data, error } = await query;
 
     if(error){ container.innerHTML = `<div class="gallery-empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
-    if(!data.length){ container.innerHTML = `<div class="gallery-empty">Nothing posted here yet. Be the first!</div>`; return; }
+    if(!data.length){ container.innerHTML = `<div class="gallery-empty">${q ? 'No posts match your search.' : 'Nothing posted here yet. Be the first!'}</div>`; return; }
     if(document.getElementById('crosshairGallery') !== container) return; /* navigated away */
 
     const { counts: reactionCounts, mine: myReactions, saved: mySaves } = await fetchReactionData(data.map(p => p.id), currentUser?.id);
@@ -1939,7 +1973,7 @@ async function loadCrosshairGallery(cat){
     `;
     }).join('');
     wireCardNavigation(container);
-    wireReactionButtons(container, currentUser, () => loadCrosshairGallery(cat));
+    wireReactionButtons(container, currentUser, () => loadCrosshairGallery(cat, q));
 
     data.forEach((p, i) => {
       let parsed = null;
@@ -2032,7 +2066,7 @@ async function loadCrosshairGallery(cat){
 
         const { error } = await sb.from('posts').update(updatePayload).eq('id', id);
         if(error){ alert('Failed to update: ' + error.message); return; }
-        loadCrosshairGallery(cat);
+        loadCrosshairGallery(cat, q);
       });
     });
 
@@ -2042,7 +2076,7 @@ async function loadCrosshairGallery(cat){
         const id = btn.getAttribute('data-id');
         const { error } = await sb.from('posts').delete().eq('id', id);
         if(error){ alert('Failed to delete: ' + error.message); return; }
-        loadCrosshairGallery(cat);
+        loadCrosshairGallery(cat, q);
       });
     });
   } catch(e) {
@@ -2050,23 +2084,27 @@ async function loadCrosshairGallery(cat){
   }
 }
 
-async function loadFileGallery(cat){
+async function loadFileGallery(cat, searchQuery){
   const container = document.getElementById('fileGallery');
   if(!container || typeof sb === 'undefined') return;
+  const q = (searchQuery || '').trim();
 
   try {
     const currentUser = typeof getSessionUser === 'function' ? await getSessionUser() : null;
 
-    const { data, error } = await sb
+    let query = sb
       .from('posts')
       .select('*, profiles!posts_author_id_fkey(username,display_name,avatar_url)')
       .eq('status', 'published')
       .eq('category', cat)
       .order('created_at', { ascending: false })
       .limit(50);
+    if(q) query = query.ilike('title', `%${q}%`);
+
+    const { data, error } = await query;
 
     if(error){ container.innerHTML = `<div class="gallery-empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
-    if(!data.length){ container.innerHTML = `<div class="gallery-empty">Nothing posted here yet. Be the first!</div>`; return; }
+    if(!data.length){ container.innerHTML = `<div class="gallery-empty">${q ? 'No posts match your search.' : 'Nothing posted here yet. Be the first!'}</div>`; return; }
     if(document.getElementById('fileGallery') !== container) return; /* navigated away */
 
     const { counts: reactionCounts, mine: myReactions, saved: mySaves } = await fetchReactionData(data.map(p => p.id), currentUser?.id);
@@ -2122,7 +2160,7 @@ async function loadFileGallery(cat){
     `;
     }).join('');
     wireCardNavigation(container);
-    wireReactionButtons(container, currentUser, () => loadFileGallery(cat));
+    wireReactionButtons(container, currentUser, () => loadFileGallery(cat, q));
 
     container.querySelectorAll('[data-action="download-remote"]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2171,7 +2209,7 @@ async function loadFileGallery(cat){
 
         const { error } = await sb.from('posts').update(updatePayload).eq('id', id);
         if(error){ alert('Failed to update: ' + error.message); return; }
-        loadFileGallery(cat);
+        loadFileGallery(cat, q);
       });
     });
 
@@ -2181,7 +2219,7 @@ async function loadFileGallery(cat){
         const id = btn.getAttribute('data-id');
         const { error } = await sb.from('posts').delete().eq('id', id);
         if(error){ alert('Failed to delete: ' + error.message); return; }
-        loadFileGallery(cat);
+        loadFileGallery(cat, q);
       });
     });
   } catch(e) {
@@ -2189,24 +2227,28 @@ async function loadFileGallery(cat){
   }
 }
 
-async function loadCssGallery(){
+async function loadCssGallery(searchQuery){
   const container = document.getElementById('cssGallery');
   if(!container || typeof sb === 'undefined') return;
   const cat = 'css-ready';
+  const q = (searchQuery || '').trim();
 
   try {
     const currentUser = typeof getSessionUser === 'function' ? await getSessionUser() : null;
 
-    const { data, error } = await sb
+    let query = sb
       .from('posts')
       .select('*, profiles!posts_author_id_fkey(username,display_name,avatar_url)')
       .eq('status', 'published')
       .eq('category', cat)
       .order('created_at', { ascending: false })
       .limit(24);
+    if(q) query = query.ilike('title', `%${q}%`);
+
+    const { data, error } = await query;
 
     if(error){ container.innerHTML = `<div class="gallery-empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
-    if(!data.length){ container.innerHTML = `<div class="gallery-empty">Nothing posted here yet. Be the first!</div>`; return; }
+    if(!data.length){ container.innerHTML = `<div class="gallery-empty">${q ? 'No posts match your search.' : 'Nothing posted here yet. Be the first!'}</div>`; return; }
     if(document.getElementById('cssGallery') !== container) return; /* navigated away */
 
     const { counts: reactionCounts, mine: myReactions, saved: mySaves } = await fetchReactionData(data.map(p => p.id), currentUser?.id);
@@ -2244,7 +2286,7 @@ async function loadCssGallery(){
     `;
     }).join('');
     wireCardNavigation(container);
-    wireReactionButtons(container, currentUser, () => loadCssGallery());
+    wireReactionButtons(container, currentUser, () => loadCssGallery(q));
 
     container.querySelectorAll('[data-action="download-remote"]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2290,7 +2332,7 @@ async function loadCssGallery(){
 
         const { error } = await sb.from('posts').update(updatePayload).eq('id', id);
         if(error){ alert('Failed to update: ' + error.message); return; }
-        loadCssGallery();
+        loadCssGallery(q);
       });
     });
 
@@ -2300,7 +2342,7 @@ async function loadCssGallery(){
         const id = btn.getAttribute('data-id');
         const { error } = await sb.from('posts').delete().eq('id', id);
         if(error){ alert('Failed to delete: ' + error.message); return; }
-        loadCssGallery();
+        loadCssGallery(q);
       });
     });
   } catch(e) {

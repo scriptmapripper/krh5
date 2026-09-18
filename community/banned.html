@@ -147,7 +147,7 @@ async function boot() {
 
   myProfile = await getMyProfile();
   if (!myProfile) return; // not actually banned (or redirected already) — getMyProfile handles it
-  if (!myProfile.banned) { window.location.href = "dashboard.html"; return; }
+  if (!myProfile.banned) { window.location.href = `profile.html?user=${encodeURIComponent(myProfile.username)}`; return; }
 
   const reason = myProfile.ban_reason || "";
   if (reason) {

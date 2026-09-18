@@ -57,7 +57,8 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
     msg.className = "msg error show"; msg.textContent = error.message;
     return;
   }
-  window.location.href = "dashboard.html";
+  const profile = await getMyProfile();
+  window.location.href = profile ? `profile.html?user=${encodeURIComponent(profile.username)}` : "../index.html";
 });
 </script>
 </body>

@@ -57,12 +57,12 @@
 let allUsers = [];
 
 async function boot() {
-  const profile = await requireRole(["developer"], "dashboard.html");
+  const profile = await requireRole(["developer"]);
   if (!profile) return;
 
   const nav = document.getElementById("topnav");
   nav.innerHTML = `
-    <a href="dashboard.html">Dashboard</a>
+    <a href="profile.html?user=${encodeURIComponent(profile.username)}">My Profile</a>
     <a href="admin.html">Admin Panel</a>
     <a href="logs.html">History Logs</a>
     <span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>

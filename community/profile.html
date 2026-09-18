@@ -99,6 +99,7 @@
 
     <div class="profile-posts-heading">
       <h2 style="margin:0;">Posts</h2>
+      <input type="text" id="postsSearchInput" placeholder="Search posts by title..." style="margin-top:14px; max-width:320px;">
       <div class="posts-grid" id="postsGrid"></div>
     </div>
   </div>
@@ -148,7 +149,7 @@ async function boot() {
       getUnreadNotificationCount(me.id),
       getUnreadMessageCount(me.id),
     ]);
-    nav.innerHTML = `<a href="inbox.html">Inbox${unreadBadgeHtml(unreadCount)}</a><a href="messages.html">Messages${unreadBadgeHtml(unreadMsgCount)}</a><a href="dashboard.html">Dashboard</a>`;
+    nav.innerHTML = `<a href="inbox.html">Inbox${unreadBadgeHtml(unreadCount)}</a><a href="messages.html">Messages${unreadBadgeHtml(unreadMsgCount)}</a><a href="profile.html?user=${encodeURIComponent(myProfile.username)}" style="margin-left:6px;">My Profile</a>`;
   } else {
     nav.innerHTML = `<a href="login.html">Login</a><a href="signup.html">Sign Up</a>`;
   }
@@ -260,6 +261,9 @@ function parsePostThumb(post) {
   return null;
 }
 
+let postsCache = [];
+let postsSearchQuery = "";
+
 async function loadPosts(profileId) {
   const grid = document.getElementById('postsGrid');
   const { data, error } = await sb
@@ -273,8 +277,20 @@ async function loadPosts(profileId) {
     grid.innerHTML = `<div class="empty">Failed to load posts.</div>`;
     return;
   }
-  if (!data.length) {
+  postsCache = data;
+  renderPosts();
+}
+
+function renderPosts() {
+  const grid = document.getElementById('postsGrid');
+  const q = postsSearchQuery.toLowerCase();
+  const data = q ? postsCache.filter(p => p.title.toLowerCase().includes(q)) : postsCache;
+  if (!postsCache.length) {
     grid.innerHTML = `<div class="empty">No posts yet.</div>`;
+    return;
+  }
+  if (!data.length) {
+    grid.innerHTML = `<div class="empty">No posts match your search.</div>`;
     return;
   }
 
@@ -291,6 +307,11 @@ async function loadPosts(profileId) {
   `;
   }).join('');
 }
+
+document.getElementById('postsSearchInput').addEventListener('input', (e) => {
+  postsSearchQuery = e.target.value.trim();
+  renderPosts();
+});
 
 boot();
 </script>

@@ -51,12 +51,21 @@
     <p>The link might be broken, or the page may have been moved or removed. Let's get you back on track.</p>
     <div class="actions">
       <a href="/" class="btn primary">Back to Home</a>
-      <a href="/community/dashboard.html" class="btn ghost">Go to Dashboard</a>
+      <a href="/community/login.html" class="btn ghost" id="profileLink">My Profile</a>
     </div>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="community/supabase-client.js"></script>
-<script>(async () => { try { if (await getSessionUser()) await getMyProfile(); } catch (e) {} })();</script>
+<script>(async () => {
+  try {
+    if (await getSessionUser()) {
+      const profile = await getMyProfile();
+      if (profile) {
+        document.getElementById("profileLink").href = `/community/profile.html?user=${encodeURIComponent(profile.username)}`;
+      }
+    }
+  } catch (e) {}
+})();</script>
 </body>
 </html>
