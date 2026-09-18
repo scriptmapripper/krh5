@@ -212,3 +212,19 @@ jadi penghalang cukup besar buat bot biasa. Kalau mau nambah lapisan lagi
   `signup.html`, `account-settings.html`, dan `developer.html` di repo
   ini sudah disesuaikan otomatis untuk baca/tulis ke `profile_private` —
   gak perlu ubah apa-apa lagi di kode.
+- **Wajib juga jalankan `sql/fix_dm_update_policies.sql`** di Supabase SQL
+  Editor, SETELAH `sql/add_direct_messages.sql` pernah dijalankan. Aman
+  dijalankan berkali-kali. Ini benerin policy UPDATE di `messages` &
+  `conversations` yang niatnya cuma buat nandain pesan "read" / update
+  `last_message_at`, tapi ternyata gak ngunci kolom lain — jadi salah satu
+  partisipan DM bisa ganti isi pesan yang sudah terkirim, ganti siapa
+  pengirimnya (framing), atau ganti lawan bicara di percakapan. File ini
+  nambahin trigger yang ngunci kolom-kolom itu supaya cuma `read` (di
+  messages) yang beneran bisa diubah lewat update.
+- **Disarankan (opsional, defense-in-depth): `sql/fix_storage_mime_types.sql`**
+  — semua form upload di situs ini cuma ngecek ekstensi file di JS
+  (gampang dilewatin lewat API Supabase langsung), dan gak ada satupun
+  RLS policy storage yang ngunci tipe file/ukurannya di server. File ini
+  masang batasan MIME type + ukuran langsung di level bucket Supabase
+  (fitur native, bukan hack). Kalau error "column does not exist", berarti
+  versi Supabase-nya belum support kolom itu — boleh dilewatin dulu.

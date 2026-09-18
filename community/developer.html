@@ -56,6 +56,17 @@
 <script>
 let allUsers = [];
 
+// Appeal proof_files are user-submitted JSON (banned users can file an
+// appeal with arbitrary proof_files content), so before turning one into
+// a clickable <a href>, make sure it's actually an http(s) link and not
+// e.g. "javascript:..." — escapeHtml() alone doesn't block that scheme.
+function safeHttpUrl(url) {
+  try {
+    const u = new URL(url, window.location.href);
+    return (u.protocol === "http:" || u.protocol === "https:") ? u.href : null;
+  } catch (e) { return null; }
+}
+
 async function boot() {
   const profile = await requireRole(["developer"]);
   if (!profile) return;
@@ -125,7 +136,12 @@ function renderAppeals() {
       ${a.proof_files && a.proof_files.length ? `
         <div class="hint" style="margin-top:8px;">Proof:</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
-          ${a.proof_files.map(f => `<a href="${escapeHtml(f.url)}" target="_blank" rel="noopener" class="btn small ghost" style="margin-top:0;">${escapeHtml(f.name || "file")}</a>`).join("")}
+          ${a.proof_files.map(f => {
+            const safeUrl = safeHttpUrl(f.url);
+            return safeUrl
+              ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener" class="btn small ghost" style="margin-top:0;">${escapeHtml(f.name || "file")}</a>`
+              : `<span class="btn small ghost" style="margin-top:0; opacity:.6; cursor:not-allowed;" title="Not a valid link">${escapeHtml(f.name || "file")} (invalid link)</span>`;
+          }).join("")}
         </div>` : ""}
       ${a.status !== "pending" && a.reviewer_note ? `<div class="hint" style="margin-top:6px;">Reviewer note: ${escapeHtml(a.reviewer_note)}</div>` : ""}
       ${a.status === "pending" ? `
