@@ -928,7 +928,7 @@ const CLIENT_DOWNLOAD_LISTS = {
       { name: "Client++ Pico", url: "https://files.cuffuffles.dev/Client++%20Pico.exe" },
       { name: "Serpent Client", url: "https://github.com/SerpentKR/client-download/releases" },
       { name: "sealfr0 Client", url: "https://github.com/sealfr0/client--/releases" },
-      { name: Krunker Cheats Client", url: "https://github.com/Quirify1/Krunker-Cheats-Client/releases/" },
+      { name: "Krunker Cheats Client", url: "https://github.com/Quirify1/Krunker-Cheats-Client/releases/" },
     ],
   },
 };
