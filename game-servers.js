@@ -169,13 +169,23 @@ async function update_cgs_global() {
 }
 
 /**
- * Set update_cgs to true every X seconds
+ * Manual "Refresh" button — force-fetches the lobby list right now and
+ * re-renders the table with whichever mode/region filter is currently
+ * selected. This is the only thing that refreshes the data; the list
+ * otherwise stays as-is until the user asks for it.
  * 
- * @param {Integer} interval Time interval in milliseconds
+ * @param {Element} self The refresh button element
  */
-function timeout_fetching_cgs(interval) {
+async function refresh_wrapper(self) {
+    if (self.disabled) { return; }
+    self.disabled = true;
+    self.classList.add("spinning");
+
     update_cgs = true;
-    setTimeout( timeout_fetching_cgs, interval);
+    await populate_wrapper(latest_mode_type, latest_regions_group);
+
+    self.classList.remove("spinning");
+    self.disabled = false;
 }
 
 
@@ -852,7 +862,6 @@ async function lucky_wrapper(mode_type, regions_group, self) {
 
 async function main() {
     await populate_wrapper();
-    timeout_fetching_cgs(10000);
 }
 
 main();

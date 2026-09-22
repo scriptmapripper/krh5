@@ -233,7 +233,7 @@ const DATA = [
 
   { id:'guides', label:'Guides', color:'cyan', glyph:'guide',
     children:[
-      { id:'guides-tips', label:'Tips & Tricks' },
+      { id:'guides-tips', label:'Pubs' },
       { id:'guides-raids', label:'Raids', children:[
           { id:'guides-raids-tortuga', label:'Tortuga' },
           { id:'guides-raids-khepri', label:'Khepri', children:[
@@ -785,6 +785,7 @@ const DISCORD_SERVER_LISTS = {
       { name: "Slytherin Clan", url: "https://discord.gg/bhyJ6EgvJ2" },
       { name: "Doge", url: "https://discord.gg/9G9GQ9rf7F" },
       { name: "MAR2 Clan", url: "https://discord.gg/SfaufxzPuW" },
+      { name: "Cute Clan", url: "https://discord.gg/Df3A89u7" },
     ],
   },
 };
@@ -918,6 +919,7 @@ const CLIENT_DOWNLOAD_LISTS = {
     intro: 'Unofficial third-party Krunker clients, plus the official installer. Third-party clients are made by independent developers, not Krunker.io or the Krunker Resource Hub team — download at your own discretion.',
     clients: [
       { name: "Official Client", url: "https://client2.krunker.io/setup.exe/" },
+      { name: "Kute Client", url: "https://github.com/NullDev/Kute/releases" },
       { name: "Water Client", url: "https://github.com/ghostypostie/Water/releases/" },
       { name: "Idkr Client", url: "https://github.com/idkr-client/idkr/releases/" },
       { name: "Kpal Client", url: "https://github.com/kpal81xd/krunker-kpal-client-RELEASE/releases" },
@@ -926,6 +928,7 @@ const CLIENT_DOWNLOAD_LISTS = {
       { name: "Client++ Pico", url: "https://files.cuffuffles.dev/Client++%20Pico.exe" },
       { name: "Serpent Client", url: "https://github.com/SerpentKR/client-download/releases" },
       { name: "sealfr0 Client", url: "https://github.com/sealfr0/client--/releases" },
+      { name: Krunker Cheats Client", url: "https://github.com/Quirify1/Krunker-Cheats-Client/releases/" },
     ],
   },
 };
@@ -1203,6 +1206,468 @@ function renderModsGuide(node, main, crumbs){
         </table>
       </div>
     `).join('')}
+  `;
+}
+
+
+/* ---------- Guides > Pubs (Noob-to-Pro movement/aim guide) ---------- */
+const TIPS_KEY_LEGEND = [
+  ['W','Move Forward'],['A','Move Left'],['S','Move Backward'],['D','Move Right'],
+  ['SPACE','Jump'],['SHIFT','Slide / Crouch'],['LMB','Left Mouse Button / Shoot'],
+  ['RMB','Right Mouse Button / Aim / ADS'],['R','Reload'],['1–6','Weapon Slots'],
+  ['Mouse ← / →','Move your mouse left or right'],
+];
+
+function tSub(v){ return {t:'sub', v}; }
+function tKb(label, code){ return {t:'kb', label, code}; }
+function tText(v){ return {t:'text', v}; }
+function tSeq(v){ return {t:'seq', v}; }
+function tSteps(v){ return {t:'steps', v}; }
+function tList(v){ return {t:'list', v}; }
+function tDrill(title, code, text){ return {t:'drill', title, code, text}; }
+function tNote(title, v){ return {t:'note', title, v}; }
+function tDiagram(v){ return {t:'diagram', v}; }
+
+const TIPS_GUIDE_LEVELS = [
+  { badge:'🟢', title:'Level 1 — Beginner', sections:[
+    { n:1, title:'Basic Movement', blocks:[
+      tSub('Forward Movement'), tKb('Keybind','W'), tText('Hold W to move forward.'),
+      tSub('Left Movement'), tKb('Keybind','A'),
+      tSub('Right Movement'), tKb('Keybind','D'),
+      tSub('Backward Movement'), tKb('Keybind','S'),
+      tSub('Diagonal Movement'), tKb('Use','W + A'), tSeq('or: W + D'),
+      tText('Diagonal movement is extremely important because many advanced movement techniques are built around combining forward and directional inputs.'),
+      tDrill('Practice Drill', 'W → W + A → W → W + D', 'Walk around an empty area using this sequence. Focus on keeping your camera under control while changing direction.'),
+    ]},
+    { n:2, title:'Basic Jumping', blocks:[
+      tSub('Forward Jump'), tSeq('W → SPACE'),
+      tSteps(['Hold W.','Press SPACE.','Keep your mouse pointed toward the direction you want to travel.']),
+      tSub('Jump Left'), tSeq('W + A → SPACE'),
+      tSub('Jump Right'), tSeq('W + D → SPACE'),
+      tText('Do not worry about speed yet. Your first goal is to become comfortable controlling your character while airborne.'),
+    ]},
+    { n:3, title:'Basic Strafing', blocks:[
+      tText('Strafing means moving sideways while maintaining control of your aim and movement.'),
+      tSub('Left Strafe'), tSeq('A'),
+      tSub('Right Strafe'), tSeq('D'),
+      tText('A simple movement pattern is:'), tSeq('A → D → A → D'),
+      tText('As you improve, combine strafing with mouse movement and shooting.'),
+      tDrill('Practice Drill', 'A → D → A → D', 'Move using this pattern while keeping your crosshair aimed at the same point. The goal is to separate movement control from aim control.'),
+    ]},
+    { n:4, title:'Basic Bunny Hop', blocks:[
+      tText('Start with:'), tSeq('W → SPACE → SPACE → SPACE'),
+      tText('The important part is the timing between jumps, not simply pressing SPACE as quickly as possible.'),
+      tText('Once you are comfortable:'), tSeq('W + A/D → SPACE → SPACE'),
+      tText('Practice maintaining your movement without constantly stopping.'),
+      tNote('Common Mistakes', ['Spamming SPACE without timing','Losing forward momentum','Looking at the ground','Moving the mouse too aggressively']),
+    ]},
+  ]},
+
+  { badge:'🔵', title:'Level 2 — Slide & Movement', sections:[
+    { n:5, title:'Basic Slide', blocks:[
+      tText('For this movement pattern:'), tSeq('W + A/D → SPACE → SHIFT'),
+      tSub('Slide Left'), tSeq('W + A → SPACE → SHIFT'),
+      tSub('Slide Right'), tSeq('W + D → SPACE → SHIFT'),
+      tSub('Input Order'),
+      tSteps(['Hold W.','Add A or D depending on your direction.','Press SPACE.','Press SHIFT at the correct timing.','Continue controlling your direction with A/D and your mouse.']),
+      tText('The timing between SPACE and SHIFT is important. Practice the sequence slowly before trying to perform it at full speed.'),
+    ]},
+    { n:6, title:'Slide-Hop', blocks:[
+      tText('A basic slide-hop sequence is:'), tSeq('W + A/D → SPACE → SHIFT → SPACE'),
+      tSub('Left Version'), tSeq('W + A → SPACE → SHIFT → SPACE'),
+      tSub('Right Version'), tSeq('W + D → SPACE → SHIFT → SPACE'),
+      tText('The goal is to connect the movement instead of stopping after the slide.'),
+      tSub('Practice'),
+      tText('Start slowly:'), tSeq('W + A → SPACE → SHIFT'),
+      tText('Once consistent, add the next:'), tSeq('SPACE'),
+      tText('Then practice the entire sequence without stopping.'),
+    ]},
+    { n:7, title:'Slide Direction Change', blocks:[
+      tText('Example:'), tSeq('W + A → SPACE → SHIFT → D → Mouse →'),
+      tText('You start moving left, enter the slide, then transition toward the right. The goal is to learn how to change your trajectory without completely losing control.'),
+    ]},
+  ]},
+
+  { badge:'🔵', title:'Level 3 — Air Strafing', sections:[
+    { n:8, title:'Basic Air Strafe', blocks:[
+      tText('Air strafing is the technique of controlling your movement while airborne using directional inputs and mouse movement.'),
+      tSub('Left Air Strafe'), tSeq('W + A → SPACE → Mouse ←'),
+      tSub('Right Air Strafe'), tSeq('W + D → SPACE → Mouse →'),
+      tSub('Basic Process'),
+      tSteps(['Start moving with W.','Press SPACE.','Hold A or D.','Move your mouse toward the direction you want to travel.','Maintain control of your trajectory.','Prepare for your landing.']),
+      tText('Do not simply hold A or D. Your mouse movement is also part of controlling the trajectory.'),
+    ]},
+    { n:9, title:'Air-Strafe Direction Change', blocks:[
+      tSub('Left → Right'), tSeq('W + A → SPACE → Mouse ← → D → Mouse →'),
+      tSub('Right → Left'), tSeq('W + D → SPACE → Mouse → → A → Mouse ←'),
+      tText('Practice changing direction while airborne without losing control.'),
+    ]},
+    { n:10, title:'Air-Strafe Landing Control', blocks:[
+      tText('Air strafing is not only about moving through the air. You also need to control where you land.'),
+      tText('Example:'), tSeq('W + A → SPACE → Mouse ← → Trajectory → Landing'),
+      tText('Practice landing on:'),
+      tList(['Platforms','Rooftops','Small gaps','High ground','Shortcuts']),
+      tText('Once you can consistently land where you intend to, start increasing your movement speed.'),
+    ]},
+  ]},
+
+  { badge:'🟣', title:'Level 4 — Movement Combinations', sections:[
+    { n:11, title:'Run → Jump → Air Strafe', blocks:[
+      tText('Input:'), tSeq('W → SPACE → A/D → Mouse ←/→ → LAND'),
+      tText('This is one of the fundamental movement chains. The objective is to keep your movement connected instead of resetting after every jump.'),
+    ]},
+    { n:12, title:'Run → Slide → Jump', blocks:[
+      tText('Input:'), tSeq('W + A/D → SPACE → SHIFT → SPACE'),
+      tText('This combines your basic movement, jump, slide, and jump timing. Practice both directions:'),
+      tSub('Left'), tSeq('W + A → SPACE → SHIFT → SPACE'),
+      tSub('Right'), tSeq('W + D → SPACE → SHIFT → SPACE'),
+    ]},
+    { n:13, title:'Slide → Air Strafe', blocks:[
+      tText('Example:'), tSeq('W + A → SPACE → SHIFT → SPACE → D → Mouse →'),
+      tText('This is an advanced version of the basic slide movement. You are combining: forward movement + directional movement + jump + slide + air control.'),
+    ]},
+    { n:14, title:'Continuous Movement', blocks:[
+      tText('The goal of advanced movement is to avoid constantly resetting your movement. Instead of:'),
+      tSeq('Jump → Stop → Slide → Stop → Jump'),
+      tText('work toward:'),
+      tSeq('Move → Jump → Slide → Jump → Air Strafe → Land → Continue'),
+      tText('The smoother your transitions become, the more consistent your movement will feel.'),
+    ]},
+  ]},
+
+  { badge:'🎯', title:'Level 5 — Aim', sections:[
+    { n:15, title:'Crosshair Placement', blocks:[
+      tText('Keep your crosshair positioned where an enemy is likely to appear. While moving:'), tSeq('W/A/D + Mouse'),
+      tText('Practice keeping your crosshair at a consistent height instead of constantly looking at the ground.'),
+      tDrill('Practice Drill', null, 'Walk around a map and keep your crosshair aligned with common enemy positions.'),
+    ]},
+    { n:16, title:'Tracking', blocks:[
+      tText('Tracking means continuously following a moving target with your crosshair. Basic input:'), tSeq('A/D + Mouse Tracking + LMB'),
+      tText('Your movement and mouse should work together.'),
+      tSub('Practice'),
+      tText('Follow a moving target without making unnecessary large mouse movements. Focus on:'),
+      tList(['Smooth mouse control','Consistent tracking','Controlled movement','Keeping the target near your crosshair']),
+    ]},
+    { n:17, title:'Flicking', blocks:[
+      tText('Flicking is quickly moving your crosshair toward a target. Basic sequence:'), tSeq('Locate Target → Mouse Flick → LMB'),
+      tSub('Target Switching Drill'), tSeq('Target A → Flick → Target B → Flick → Target C → Flick'),
+      tText('Focus on accuracy first. Speed will improve naturally as your mouse control becomes more consistent.'),
+    ]},
+    { n:18, title:'Strafe + Aim', blocks:[
+      tSub('Left'), tSeq('A + Mouse Tracking + LMB'),
+      tSub('Right'), tSeq('D + Mouse Tracking + LMB'),
+      tText('The objective is to keep moving while maintaining your aim. Do not stop moving every time you shoot.'),
+    ]},
+  ]},
+
+  { badge:'🔥', title:'Level 6 — Movement + Aim', sections:[
+    { n:19, title:'Jump Shot', blocks:[
+      tSub('Basic'), tSeq('W → SPACE → Mouse → Target → LMB'),
+      tSub('Advanced'), tSeq('W + A → SPACE → Mouse → Target → LMB'),
+      tText('The challenge is maintaining your aim while your character is airborne.'),
+    ]},
+    { n:20, title:'Slide Shot', blocks:[
+      tText('Input:'), tSeq('W + A/D → SPACE → SHIFT → Mouse → Target → LMB'),
+      tText('You are now combining movement, slide timing, aim, and shooting. Practice the movement without shooting first. Once the movement becomes consistent, add LMB.'),
+    ]},
+    { n:21, title:'Air-Strafe + Aim', blocks:[
+      tText('Input:'), tSeq('W + A/D → SPACE → Mouse ←/→ → Track Target → LMB'),
+      tText('This is one of the more difficult beginner-to-advanced combinations because you have to control:'),
+      tList(['Keyboard movement','Air trajectory','Mouse movement','Target tracking','Shooting']),
+      tText('Practice each component separately before combining them.'),
+    ]},
+  ]},
+
+  { badge:'🔴', title:'Level 7 — Advanced Movement', sections:[
+    { n:22, title:'Momentum Management', blocks:[
+      tText('Advanced players need to understand when to:'), tSeq('Maintain → Change → Stop → Reposition'),
+      tText('Example:'), tSeq('W → SPACE → A + Mouse ← → D + Mouse → → LAND → W'),
+      tText('Do not sacrifice control just to move faster. Good movement is not necessarily the fastest movement; it is movement that you can consistently control.'),
+    ]},
+    { n:23, title:'Direction Breaking', blocks:[
+      tText('Example:'), tSeq('W + A → SPACE → SHIFT → D → Mouse → → SPACE'),
+      tText('The objective is to change your movement pattern so that your trajectory is less predictable. Avoid using exactly the same movement pattern every time you fight.'),
+    ]},
+    { n:24, title:'Dodge Movement', blocks:[
+      tSub('Basic'), tSeq('A → D → A → D'),
+      tSub('Advanced'), tSeq('A → SPACE → Mouse ← → D → Mouse →'),
+      tSub('Combined'), tSeq('A → SPACE → SHIFT → D → Air Strafe'),
+      tText('The purpose is to make your movement harder to predict while keeping enough control to aim.'),
+    ]},
+  ]},
+];
+
+const TIPS_GUIDE_COMBOS = [
+  { title:'Combo 1 — Basic Strafe Shoot', seq:'A + LMB → D + LMB', stars:2, text:'Practice moving left and right while maintaining your aim.' },
+  { title:'Combo 2 — Jump Strafe', seq:'W + A → SPACE → Mouse ← → LMB', stars:3, text:'Use your air movement while maintaining your aim.' },
+  { title:'Combo 3 — Slide Attack', seq:'W + A/D → SPACE → SHIFT → Mouse → Target → LMB', stars:3, text:'Combines your slide movement with combat.' },
+  { title:'Combo 4 — Air-Strafe Attack', seq:'W + A → SPACE → Mouse ← → D → Mouse → → LMB', stars:4, text:'Practice the air movement first, then add aiming and shooting.' },
+  { title:'Combo 5 — Advanced Movement Chain', seq:'W + A → SPACE → SHIFT → SPACE → D → Mouse → → Track Target → LMB → Reposition', stars:5, text:'This combines forward movement, strafe, jump, slide, air control, aim, shooting, and repositioning. Do not try to learn this combo immediately — build it from the individual techniques first.' },
+];
+
+const TIPS_GUIDE_LEVEL9 = [
+  { n:25, title:'Map Awareness', blocks:[
+    tText('Learn the location of:'),
+    tList(['Spawns','Common routes','Chokepoints','High ground','Cover','Shortcuts','Escape routes','Air-strafe spots']),
+    tText('The better you know the map, the easier it becomes to predict where players can appear.'),
+  ]},
+  { n:26, title:'Peeking', blocks:[
+    tSub('Basic'), tSeq('Move → Peek → Mouse → LMB → Reposition'),
+    tText('Avoid repeatedly exposing yourself from exactly the same angle. After an engagement, consider changing your position.'),
+  ]},
+  { n:27, title:'Repositioning', blocks:[
+    tText('After an engagement:'), tSeq('Shoot → Move → Change Angle → Check Surroundings'),
+    tText('Do not automatically stay in the same position after winning a fight.'),
+  ]},
+];
+
+const TIPS_GUIDE_SPOT_EXAMPLE = {
+  intro: 'The Air-Strafe Spots section should be organized by map. Each spot should contain:',
+  fields: ['Map: Map Name','Spot: Spot Name','Difficulty: Beginner / Intermediate / Advanced','Purpose: Shortcut / High Ground / Escape / Surprise Angle','Starting Position: Where to begin','Keybinds: Required inputs','Mouse Direction: Left / Right / Combination','Landing Point: Where you should land'],
+  exampleTitle: 'Example — Air-Strafe Shortcut',
+  diagram: 'START\n ↓\nW + A\n ↓\nSPACE\n ↓\nMouse ←\n ↓\nD\n ↓\nMouse →\n ↓\nLAND',
+  uses: ['Shortcut','High-ground access','Escape route','Surprise angle','Faster rotation'],
+  mistakes: ['Starting the jump from the wrong position','Turning the mouse too aggressively','Losing momentum','Landing too early','Looking away from the landing point'],
+};
+
+const TIPS_GUIDE_TRAINING = [
+  { title:'Beginner — 15–20 Minutes', groups:[
+    { label:'Movement', items:['W/A/S/D','Jump','Basic strafing','Basic slide'] },
+    { label:'Aim', items:['Crosshair placement','Tracking'] },
+  ]},
+  { title:'Intermediate — 20–30 Minutes', groups:[
+    { label:'Practice', items:['Bunny hopping','Slide-hop','Air strafing','Direction changes','Strafe + aim','Jump + aim'] },
+  ]},
+  { title:'Advanced — 30–45 Minutes', groups:[
+    { label:'Practice', items:['Slide → Jump','Air-strafe chains','Movement + tracking','Jump shots','Slide shots','Map shortcuts','Air-strafe spots'] },
+  ]},
+  { title:'Pro Training — 45+ Minutes', groups:[
+    { label:'Combine', items:['Movement + Aim + Combat + Game Sense — the goal is not simply to perform difficult movement, but to perform it consistently while fighting real players.'] },
+  ]},
+];
+
+const TIPS_GUIDE_PROGRESSION = [
+  { badge:'🟢', title:'Noob', items:['Understand W/A/S/D','Understand SPACE','Understand SHIFT','Basic jumping','Basic strafing','Basic aiming'] },
+  { badge:'🔵', title:'Intermediate', items:['Bunny hop','Slide','Slide-hop','Air strafe','Tracking','Flicking','Movement + aim'] },
+  { badge:'🟣', title:'Advanced', items:['Direction changes','Momentum control','Air-strafe combinations','Combat movement','Advanced shortcuts','Map movement'] },
+  { badge:'🔴', title:'Pro', items:['Consistent movement','Consistent aim','Movement + aim simultaneously','Advanced combat combinations','Map awareness','Repositioning','Adapt movement to the situation'] },
+];
+
+const TIPS_GUIDE_RULES = [
+  'Learn control before speed.',
+  'Learn movement before combining it with combat.',
+  'Practice each key combination separately.',
+  'Add mouse control after the keyboard input becomes comfortable.',
+  'Add shooting only after the movement is consistent.',
+  'Do not use the same movement pattern in every fight.',
+  'Advanced movement is useful only when you can control it.',
+  'Map knowledge is just as important as mechanical skill.',
+  'Practice difficult movement in an empty/private environment before trying to use it in serious matches.',
+  'The goal is not to look flashy — the goal is consistent movement, accurate aim, and good decision-making.',
+];
+
+/* Community-submitted YouTube tips & tricks videos for the Pubs guide page.
+   Titles/summaries marked verified were confirmed against real search results;
+   the rest use a neutral placeholder until a real title/summary is supplied,
+   to avoid inventing descriptions for videos that couldn't be looked up. */
+const TIPS_GUIDE_VIDEOS = [
+  {
+    id: 'bq4lkv9yHqA',
+    url: 'https://www.youtube.com/watch?v=bq4lkv9yHqA&pp=ygUMa3J1bmtlciB0aXBz',
+    title: 'Krunker.io Tips and Tricks You MUST KNOW! (Beginner Tutorial)',
+    summary: 'A beginner-focused rundown of Krunker tips aimed at new players jumping in.',
+  },
+  {
+    id: 'f_bHavL8Y88',
+    url: 'https://youtu.be/f_bHavL8Y88?si=w9T9j-22va3Hxthl',
+    title: 'BEST KRUNKER MOVEMENT TUTORIAL',
+    summary: 'A tutorial-format breakdown of how Krunker movement works, centered on Slide Hopping — move forward, jump, then crouch mid-air to chain the slide — plus extra movement tips from the creator\\u2019s own experience.',
+  },
+  {
+    id: 'gq_6XLgxGlI',
+    url: 'https://youtu.be/gq_6XLgxGlI?si=YERiQnWUc84XykWt',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: 'LpcaVmjMMEk',
+    url: 'https://youtu.be/LpcaVmjMMEk?si=GhWgYBVHwkor26XX',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: 'rAnjh2hIQMU',
+    url: 'https://youtu.be/rAnjh2hIQMU?si=Bq7BLzTcyyQ0mSOT',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: 'oUxMo3zlfWY',
+    url: 'https://youtu.be/oUxMo3zlfWY?si=dO7EXfD0NnF3rFkT',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: 'E2ZDTMXLGkI',
+    url: 'https://youtu.be/E2ZDTMXLGkI?si=P3pTh7OujKQxXRQV',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: '8peFf1k2F0c',
+    url: 'https://youtu.be/8peFf1k2F0c?si=HX-IR1CAEEnwSOaI',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: 'H4HRtb98ZB8',
+    url: 'https://www.youtube.com/watch?v=H4HRtb98ZB8&t=404s&pp=ygUMa3J1bmtlciB0aXBz',
+    title: 'STEP-BY-STEP Guide to Advanced Krunker Movement',
+    summary: 'A step-by-step advanced movement guide, chaptered from the basics and bunny-hopping through strafing and beyond.',
+  },
+  {
+    id: 'UVsUuDud_IY',
+    url: 'https://youtu.be/UVsUuDud_IY?si=JdBOa6PD7SNt68I1',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: 'NXw2MJR1JA0',
+    url: 'https://youtu.be/NXw2MJR1JA0?si=mta3NyuxWAxAsaC5',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: 'AnSbnTQoFB4',
+    url: 'https://youtu.be/AnSbnTQoFB4?si=z4Z9Sd3DYBAQSDUs',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+  {
+    id: '1Z7Ez2bCzSo',
+    url: 'https://youtu.be/1Z7Ez2bCzSo?si=msnlAg94CkF5MNzV',
+    title: 'Krunker Tips & Tricks',
+    summary: 'Community-submitted Krunker tips & tricks video — open it on YouTube to watch.',
+  },
+];
+
+function tipsBlocksHtml(blocks){
+  return blocks.map(b => {
+    if(b.t === 'sub') return `<div class="tips-sub">${escapeHtml(b.v)}</div>`;
+    if(b.t === 'kb') return `<div class="tips-kb"><span class="tips-kb-label">${escapeHtml(b.label)}:</span><span class="tips-seq">${escapeHtml(b.code)}</span></div>`;
+    if(b.t === 'text') return `<p class="tips-p">${escapeHtml(b.v)}</p>`;
+    if(b.t === 'seq') return `<div class="tips-seq">${escapeHtml(b.v)}</div>`;
+    if(b.t === 'steps') return `<ol class="mod-guide-steps tips-steps">${b.v.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>`;
+    if(b.t === 'list') return `<ul class="tips-list">${b.v.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>`;
+    if(b.t === 'drill') return `<div class="tips-callout tips-callout-drill"><div class="tips-callout-title">${escapeHtml(b.title || 'Practice Drill')}</div>${b.code ? `<div class="tips-seq">${escapeHtml(b.code)}</div>` : ''}${b.text ? `<p class="tips-p">${escapeHtml(b.text)}</p>` : ''}</div>`;
+    if(b.t === 'note') return `<div class="tips-callout tips-callout-note"><div class="tips-callout-title">${escapeHtml(b.title)}</div><ul class="tips-list">${b.v.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>`;
+    return '';
+  }).join('');
+}
+
+function tipsSectionHtml(section){
+  return `
+    <div class="tips-section">
+      <h3 class="mod-guide-heading">${section.n ? `${section.n}. ` : ''}${escapeHtml(section.title)}</h3>
+      ${tipsBlocksHtml(section.blocks)}
+    </div>
+  `;
+}
+
+function tipsStars(n){
+  return `<span class="tips-stars" aria-label="${n} out of 5 difficulty">${'★'.repeat(n)}${'☆'.repeat(5-n)}</span>`;
+}
+
+function renderTipsGuide(node, main, crumbs){
+  const el = document.getElementById('content');
+  el.innerHTML = `
+    <div class="breadcrumb">${crumbs}</div>
+    <div class="content-head">
+      <div class="content-icon">${icon(main.glyph)}</div>
+      <h2>${node.label}</h2>
+    </div>
+    <p class="content-desc">Krunker — Noob to Pro Guide. A full movement and aim progression: read the notation once, then work through the levels below in order, from your first W → SPACE jump all the way to advanced combat combinations and map/game-sense.</p>
+
+    <h3 class="mod-guide-heading">How to Read This Guide</h3>
+    <p class="tips-p">This guide uses the following notation:</p>
+    <div class="tips-legend">
+      ${TIPS_KEY_LEGEND.map(([k,v]) => `<div class="tips-legend-row"><span class="tips-seq tips-legend-key">${escapeHtml(k)}</span><span class="tips-legend-desc">${escapeHtml(v)}</span></div>`).join('')}
+    </div>
+    <div class="tips-callout tips-callout-note">
+      <div class="tips-callout-title">Important</div>
+      <p class="tips-p" style="margin-bottom:0">The → arrow means the order or timing of the inputs. It does not necessarily mean every key should be held at the same time. Keybinds can be changed in your settings, so make sure to adjust the instructions if you use a custom setup.</p>
+    </div>
+
+    ${TIPS_GUIDE_LEVELS.map(level => `
+      <h3 class="tips-level-heading">${level.badge} ${escapeHtml(level.title)}</h3>
+      ${level.sections.map(tipsSectionHtml).join('')}
+    `).join('')}
+
+    <h3 class="tips-level-heading">⚔️ Level 8 — Combat Combinations</h3>
+    <div class="tips-combo-grid">
+      ${TIPS_GUIDE_COMBOS.map(c => `
+        <div class="tips-combo-card">
+          <div class="tips-combo-title">${escapeHtml(c.title)}</div>
+          <div class="tips-seq">${escapeHtml(c.seq)}</div>
+          <div class="tips-combo-diff">Difficulty: ${tipsStars(c.stars)}</div>
+          <p class="tips-p" style="margin-bottom:0">${escapeHtml(c.text)}</p>
+        </div>
+      `).join('')}
+    </div>
+
+    <h3 class="tips-level-heading">🧠 Level 9 — Game Sense</h3>
+    <p class="tips-p">Movement and aim are only part of becoming a strong player.</p>
+    ${TIPS_GUIDE_LEVEL9.map(tipsSectionHtml).join('')}
+
+    <h3 class="tips-level-heading">🗺️ Level 10 — Air-Strafe Spots</h3>
+    <p class="tips-p">${escapeHtml(TIPS_GUIDE_SPOT_EXAMPLE.intro)}</p>
+    <div class="tips-callout">
+      <div class="tips-callout-title">Spot Information</div>
+      <ul class="tips-list">${TIPS_GUIDE_SPOT_EXAMPLE.fields.map(f => `<li>${escapeHtml(f)}</li>`).join('')}</ul>
+    </div>
+    <div class="tips-sub" style="margin-top:22px">${escapeHtml(TIPS_GUIDE_SPOT_EXAMPLE.exampleTitle)}</div>
+    <pre class="tips-diagram">${escapeHtml(TIPS_GUIDE_SPOT_EXAMPLE.diagram)}</pre>
+    <div class="tips-two-col">
+      <div class="tips-callout">
+        <div class="tips-callout-title">Uses</div>
+        <ul class="tips-list">${TIPS_GUIDE_SPOT_EXAMPLE.uses.map(f => `<li>${escapeHtml(f)}</li>`).join('')}</ul>
+      </div>
+      <div class="tips-callout tips-callout-note">
+        <div class="tips-callout-title">Common Mistakes</div>
+        <ul class="tips-list">${TIPS_GUIDE_SPOT_EXAMPLE.mistakes.map(f => `<li>${escapeHtml(f)}</li>`).join('')}</ul>
+      </div>
+    </div>
+
+    <h3 class="tips-level-heading">🏋️ Level 11 — Training Routine</h3>
+    <div class="tips-training-grid">
+      ${TIPS_GUIDE_TRAINING.map(tier => `
+        <div class="tips-training-card">
+          <div class="tips-combo-title">${escapeHtml(tier.title)}</div>
+          ${tier.groups.map(g => `
+            <div class="tips-sub" style="margin-top:12px">${escapeHtml(g.label)}</div>
+            <ul class="tips-list">${g.items.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+
+    <h3 class="tips-level-heading">🏆 Noob → Pro Progression</h3>
+    <div class="tips-training-grid">
+      ${TIPS_GUIDE_PROGRESSION.map(tier => `
+        <div class="tips-training-card">
+          <div class="tips-combo-title">${tier.badge} ${escapeHtml(tier.title)}</div>
+          <ul class="tips-list">${tier.items.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
+        </div>
+      `).join('')}
+    </div>
+
+    <h3 class="mod-guide-heading">⭐ Golden Rules</h3>
+    <ol class="mod-guide-steps tips-steps">
+      ${TIPS_GUIDE_RULES.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+    </ol>
+
+    <h3 class="mod-guide-heading">Video Guides</h3>
+    ${videoGuideCardsHtml(TIPS_GUIDE_VIDEOS)}
   `;
 }
 
@@ -1797,6 +2262,11 @@ function renderContent(){
 
   if(node.id === 'scripts-userscript-setup-guide'){
     renderScriptsGuide(node, main, crumbs);
+    return;
+  }
+
+  if(node.id === 'guides-tips'){
+    renderTipsGuide(node, main, crumbs);
     return;
   }
 

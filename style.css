@@ -531,8 +531,9 @@ ul.tree ul.tree{margin-left:16px; border-left:2px dotted var(--border-strong); p
 
 /* ---------- Discord server directory ---------- */
 .discord-server-grid{
-  display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:14px; margin-bottom:24px;
+  display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; margin-bottom:24px;
 }
+@media(max-width:640px){ .discord-server-grid{ grid-template-columns:1fr; } }
 .discord-server-card{
   display:flex; align-items:center; gap:14px;
   border:1px solid var(--border); border-radius:20px; padding:14px 16px;
@@ -691,3 +692,68 @@ footer{
   margin-top:28px; text-align:center; color:var(--text-2);
   font-family:'Plus Jakarta Sans',sans-serif; font-size:12.5px; letter-spacing:.3px;
 }
+
+/* ---------- Guides > Pubs (Noob-to-Pro movement/aim guide) ---------- */
+.tips-level-heading{
+  font-family:'Baloo 2',sans-serif; font-weight:700; font-size:21px; color:var(--text-0);
+  margin:44px 0 16px; padding-top:20px; border-top:1px solid var(--border);
+}
+.tips-level-heading:first-of-type{ border-top:none; padding-top:0; }
+.tips-section{ margin-bottom:6px; }
+.tips-sub{
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px;
+  color:var(--text-1); letter-spacing:.2px; margin:16px 0 6px;
+}
+.tips-p{ color:var(--text-1); line-height:1.6; font-size:14.5px; margin:0 0 10px; max-width:68ch; }
+.tips-kb{ display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+.tips-kb-label{ font-size:13px; color:var(--text-2); font-family:'Plus Jakarta Sans',sans-serif; }
+.tips-seq{
+  display:inline-block; font-family:'JetBrains Mono','Consolas',monospace; font-size:13px;
+  color:var(--cyan); background:rgba(120,220,255,.08); border:1px solid var(--border);
+  border-radius:10px; padding:7px 12px; margin:0 0 10px; letter-spacing:.2px; width:fit-content;
+}
+.tips-list{ list-style:none; display:flex; flex-direction:column; gap:6px; margin:0 0 10px; padding:0; }
+.tips-list li{
+  position:relative; padding-left:18px; color:var(--text-1); font-size:14px; line-height:1.5;
+}
+.tips-list li::before{
+  content:''; position:absolute; left:2px; top:9px; width:5px; height:5px; border-radius:50%;
+  background:var(--cyan);
+}
+.tips-steps{ margin-bottom:14px; }
+.tips-callout{
+  border:1px solid var(--border); border-radius:18px; background:rgba(255,255,255,.035);
+  padding:15px 18px; margin:0 0 16px;
+}
+.tips-callout-drill{ border-color:rgba(120,220,255,.35); }
+.tips-callout-note{ border-color:rgba(255,180,120,.35); }
+.tips-callout-title{
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:13px;
+  color:var(--text-0); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;
+}
+.tips-legend{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:10px 18px;
+  margin:14px 0 18px;
+}
+.tips-legend-row{ display:flex; align-items:center; gap:10px; }
+.tips-legend-key{ margin-bottom:0; flex:none; }
+.tips-legend-desc{ font-size:13.5px; color:var(--text-2); }
+.tips-two-col{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:16px; margin-bottom:16px; }
+.tips-diagram{
+  font-family:'JetBrains Mono','Consolas',monospace; font-size:13px; color:var(--cyan);
+  background:rgba(120,220,255,.06); border:1px solid var(--border); border-radius:18px;
+  padding:18px 22px; text-align:center; line-height:1.6; margin:14px 0 20px; white-space:pre;
+  overflow-x:auto;
+}
+.tips-combo-grid, .tips-training-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:16px; margin-bottom:8px;
+}
+.tips-combo-card, .tips-training-card{
+  border:1px solid var(--border); border-radius:20px; background:rgba(255,255,255,.035); padding:18px;
+}
+.tips-combo-title{
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px; color:var(--text-0);
+  margin-bottom:10px;
+}
+.tips-combo-diff{ font-size:13px; color:var(--text-2); margin-bottom:8px; }
+.tips-stars{ color:#ffce5c; letter-spacing:1px; }
